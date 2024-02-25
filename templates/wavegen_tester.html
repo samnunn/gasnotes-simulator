@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+    <style>
+        body {
+            background-color: black;
+            font-family: sans-serif;
+            color: white;
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+    <body>
+        <h1>WaveGen2 Tester</h1>
+        <sim-trace id="ecg" mode="pacemaker" rate="60"></sim-trace>
+        <sim-trace id="artline" mode="copycat" pacemaker="ecg" height="200" stroke-colour="red" stroke-width="2" morphology="hb2m2"></sim-trace>
+        <sim-trace id="etco2" mode="pacemaker" stroke-colour="yellow" rate="19" morphology="spo2"></sim-trace>
+
+        <script type="module">
+            import { } from '/static/js/wavemaker2.js'
+
+            window.addEventListener('load', (e) => {
+                document.querySelector('#ecg').beat(0, true)
+                document.querySelector('#etco2').pixelsPerSecond = 55
+                document.querySelector('#etco2').beat(0, true)
+            })
+        </script>
+    </body>
+</html>

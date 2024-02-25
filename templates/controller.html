@@ -1,0 +1,627 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+body {
+    background-image: none;
+}
+
+div#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* CONTROLLER */
+#controller {
+    grid-area: modal;
+    margin: 1rem auto;
+    position: relative;
+
+    & .sim-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        /* padding: 1rem 1rem 1.2rem 1rem; */
+        /* border: 2px solid white; */
+        margin-bottom: 1rem;
+
+        & > p {
+            font-weight: bold;
+            margin: 1rem 0 0 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #333;
+        }
+    }
+
+    & sim-slider, .sim-select {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-weight: bold;
+        column-gap: 1rem;
+
+        & .input-label {
+            width: 4rem;
+            font-size: 1.2rem;
+        }
+
+    }
+
+    & sim-slider {
+        & .slider {
+            flex-grow: 1;
+        }
+        & .minmax {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        & .sim-value {
+            font-size: 1.5rem;
+        }
+    }
+
+    & .sim-select {
+        font-size: 1.2rem;
+
+        & select {
+            /* abolish detault styles */
+            appearance: none;
+            border-radius: 0.5rem;
+            outline: none; /* removes blue rounded-corner outline when <select> element has focus */
+
+            /* set new styles */
+            border: 2px solid color-mix(in srgb, var(--button-color) 50%, black);
+
+            /* text */
+            color: white;
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+            background-color: var(--dark-grey);
+
+            /* icon */
+            --chevron: url("data:image/svg+xml,%3C%73%76%67%20%78%6D%6C%6E%73%3D%22%68%74%74%70%3A%2F%2F%77%77%77%2E%77%33%2E%6F%72%67%2F%32%30%30%30%2F%73%76%67%22%20%77%69%64%74%68%3D%22%32%34%22%20%68%65%69%67%68%74%3D%22%32%34%22%20%76%69%65%77%42%6F%78%3D%22%30%20%30%20%32%34%20%32%34%22%20%66%69%6C%6C%3D%22%6E%6F%6E%65%22%20%73%74%72%6F%6B%65%3D%22%23%66%66%66%66%66%66%22%20%73%74%72%6F%6B%65%2D%77%69%64%74%68%3D%22%32%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%63%61%70%3D%22%72%6F%75%6E%64%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%6A%6F%69%6E%3D%22%72%6F%75%6E%64%22%20%63%6C%61%73%73%3D%22%66%65%61%74%68%65%72%20%66%65%61%74%68%65%72%2D%63%68%65%76%72%6F%6E%73%2D%64%6F%77%6E%22%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%31%33%20%31%32%20%31%38%20%31%37%20%31%33%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%36%20%31%32%20%31%31%20%31%37%20%36%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%2F%73%76%67%3E");
+
+            background-image: var(--chevron);
+            background-position: center right 0.75rem;
+            background-size: 1.2rem;
+            background-repeat: no-repeat;
+        }
+        & select {
+            flex-grow: 1;
+        }
+    }
+
+    /* input#send {
+        position: sticky;
+        bottom: 1rem;
+        margin: 0 auto;
+    } */
+
+}
+#send-button {
+    position: sticky;
+    bottom: 1rem;
+    margin: 2rem 0 2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+
+    & #roundbit {
+        z-index: 2;
+        height: 4rem;
+        aspect-ratio: 1;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: flex-end;
+        justify-self: end;
+
+        background-color: var(--color-red-two);
+        border-radius: 50% 50%;
+        border: 3px solid rgb(116 33 12);
+
+        overflow: hidden;
+
+        animation: alternating-border-color 1500ms ease infinite;
+        animation-play-state: paused;
+
+        transition: border-color 1s linear;
+
+        & svg {
+            height: 50%;
+            margin-left: -2px;
+            filter: invert(1);
+            position: relative;
+        }
+    }
+
+    & #wordbit {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+        position: relative;
+        left: 2rem;
+        z-index: 1;
+        background-color: var(--dark-grey);
+        padding: 0.25rem 2.5rem 0.25rem 0.75rem;
+        border-radius: var(--border-radius);
+        border: 2px solid var(--light-grey);
+    }
+
+    & input {
+        display: none;
+    }
+}
+
+@keyframes alternating-border-color {
+        0% {
+            border-color: rgb(116 33 12);
+        }
+        50% {
+            border-color: white;
+        }
+        100% {
+            border-color: rgb(116 33 12);
+        }
+    }
+
+#roundbit.animation-running {
+    animation-play-state: running !important;
+    animation-iteration-count: infinite !important;
+}
+
+#presets {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+}
+
+#trace-switches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+
+    & .sim-button {
+        flex-direction: row;
+        justify-content: space-between;
+        padding-left: 1rem;
+    }
+
+    & > * {
+        font-size: 1rem;
+    }
+    input {
+        display: none;
+    }
+    label::after {
+        content: "❌";
+        display: block;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    label:has(input:checked)::after {
+        content: "✅";
+    }
+}
+
+@media (max-width: 630px){       
+    #presets {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    #trace-switches {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+</style>
+<div id="controller" class="wrapped controller-mode">
+    <div id="header">
+        <a class="no-underline" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Controls 😴</h1></a>
+        <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a>
+    </div>
+    <form action="#" id="sim-input">
+        <!-- <div class="sim-input-group">
+            <p>Presets 💾</p>
+            <div id="presets">
+                <div class="sim-button">
+                    <span>🚨</span>
+                    <span>ARREST</span>
+                </div>
+                <div class="sim-button">
+                    <span>☝️</span>
+                    <span>1° HB</span>
+                </div>
+                <div class="sim-button">
+                    <span>✌️</span>
+                    <span>2° HB</span>
+                </div>
+                <div class="sim-button">
+                    <span>🤟</span>
+                    <span>3° HB</span>
+                </div>
+                <div class="sim-button">
+                    <span>🩰</span>
+                    <span>TdP</span>
+                </div>
+                <div class="sim-button">
+                    <span>🤪</span>
+                    <span>A-FIB</span>
+                </div>
+            </div>
+        </div> -->
+        <div class="sim-input-group">
+            <p>Cardiac 💛</p>
+            <sim-slider prefix="" suffix="" display-name="HR" sim-colour="green" sim-parameter="heart-rate" min="30" max="250" sim-value="67"></sim-slider>
+            <div class="sim-select green">
+                <div class="input-label">ECG</div>
+                <select name="" id="" sim-parameter="ecg-rhythm">
+                    <option value="sinus">Normal Sinus Rhythm</option>
+                    <option value="afib">Atrial Fibrillation</option>
+                    <option value="hb2m1">2° Heart Block (Mobitz I)</option>
+                    <option value="hb2m2">2° Heart Block (Mobitz II)</option>
+                    <option value="vfib">Ventricular Fibrillation</option>
+                    <option value="vtach-monomorphic">Ventricular Tachycardia</option>
+                    <option value="vtach-torsades">Torsades de Pointes</option>
+                    <option value="stemi">STEMI</option>
+                    <option value="flatline">Flatline</option>
+                </select>
+            </div>
+        </div>
+        <div class="sim-input-group">
+            <p>Haemodynamics 🩸</p>
+            <sim-slider prefix="" suffix="" display-name="SBP" sim-colour="purple" sim-parameter="systolic-blood-pressure" min="20" max="200" sim-value="119"></sim-slider>
+            <sim-slider prefix="" suffix="" display-name="DBP" sim-colour="purple" sim-parameter="diastolic-blood-pressure" min="20" max="200" sim-value="57"></sim-slider>
+            <sim-slider prefix="" suffix="" display-name="MAP" sim-colour="red" sim-parameter="mean-arterial-pressure" min="20" max="200" sim-value="78"></sim-slider>
+            <div class="sim-select red">
+                <div class="input-label">ART</div>
+                <select name="" id="" sim-parameter="artline-trace">
+                    <option value="artline">Normal Trace </option>
+                    <option value="artline-overdamped">Over-Damped</option>
+                    <option value="artline-underdamped">Under-Damped</option>
+                    <option value="flatline">Flatline</option>
+                </select>
+            </div>
+        </div>
+        <div class="sim-input-group">
+            <p>Respiration 😮‍💨</p>
+            <sim-slider prefix="" suffix="" display-name="RR" sim-colour="white" sim-parameter="respiratory-rate" type="range" min="0" max="60" sim-value="18"></sim-slider>
+            <sim-slider prefix="" suffix="" display-name="SpO<sub>2</sub>" sim-colour="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
+            <div class="sim-select blue">
+                <div class="input-label">PLETH</div>
+                <select name="" id="" sim-parameter="spo2-trace">
+                    <option value="spo2">Well Perfused</option>
+                    <option value="spo2-badtrace">Poorly Perfused</option>
+                    <option value="flatline">Flatline</option>
+                </select>
+            </div>
+            <sim-slider prefix="" suffix="" display-name="etCO<sub>2</sub>" sim-colour="yellow" sim-parameter="etco2" type="range" min="0" max="60" sim-value="36"></sim-slider>
+            <div class="sim-select yellow">
+                <div class="input-label">CAP</div>
+                <select name="" id="" sim-parameter="capno-trace">
+                    <option value="capno-normal">Normal</option>
+                    <option value="capno-obstructed-moderate">Moderate Obstruction</option>
+                    <option value="capno-obstructed-severe">Severe Obstruction</option>
+                    <option value="flatline">Flatline</option>
+                </select>
+            </div>
+        </div>
+        <div class="sim-input-group">
+            <p>Traces 📈</p>
+            <div id="trace-switches">
+                <label class="sim-button">
+                    <span class="">ECG</span>
+                    <input type="checkbox" sim-parameter="ecg-enabled" checked>
+                </label>
+                <label class="sim-button">
+                    <span>SpO<sub>2</sub></span>
+                    <input type="checkbox" sim-parameter="spo2-enabled" checked>
+                </label>
+                <label class="sim-button">
+                    <span class="">ART</span>
+                    <input type="checkbox" sim-parameter="artline-enabled" checked>
+                </label>
+                <label class="sim-button">
+                    <span class="">NIBP</span>
+                    <input type="checkbox" sim-parameter="nibp-enabled" checked>
+                </label>
+                <label class="sim-button">
+                    <span class="">RR</span>
+                    <input type="checkbox" sim-parameter="rr-enabled" checked>
+                </label>
+                <label class="sim-button">
+                    <span class="">etCO<sub>2</sub></span>
+                    <input type="checkbox" sim-parameter="capno-enabled" checked>
+                </label>
+            </div>
+        </div>
+        <div class="sim-input-group">
+                <p>Transition ⏱️</p>
+                <radio-group>
+                    <div class="sim-button-group">
+                        <label>
+                            None
+                            <input type="radio" name="sim-transition-time" value="0" checked>
+                        </label>
+                        <label>
+                            30s
+                            <input type="radio" name="sim-transition-time" value="30">
+                        </label>
+                        <label>
+                            1m
+                            <input type="radio" name="sim-transition-time" value="60">
+                        </label>
+                        <label>
+                            2m
+                            <input type="radio" name="sim-transition-time" value="120">
+                        </label>
+                        <label>
+                            5m
+                            <input type="radio" name="sim-transition-time" value="300">
+                        </label>
+                    </div>
+                </radio-group>
+        </div>
+        <!-- <input id="send" type="submit" value="Send to Monitor 📡" form="sim-input" class="button red controller-mode"> -->
+        <label id="send-button" class="">
+            <!-- <div id="wordbit">Send</div> -->
+            <div id="roundbit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376V479.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z"/></svg>
+            </div>
+            <input id="send" type="submit" value="Send to Monitor 📡" form="sim-input" class="button red controller-mode">
+        </label>
+        <!-- <sim-slider prefix="" suffix="" display-name="Temperature" sim-colour="yellow" sim-parameter="temp" min="25" max="42" step="0.1" sim-value="36.7"></sim-slider> -->
+    </form>
+</div>
+
+<script type="module">
+const root = document.querySelector(':root')
+
+// SOCKET SETUP
+const socket = io({
+    auth: {
+        sim_room_id: '{{ data.sim_room_id }}',
+    }
+})
+
+document.querySelector('form#sim-input').addEventListener('submit', (e) => {
+    e.preventDefault()
+    let message = dumpAllInputState()
+    console.debug(message)
+    socket.emit('sim-update', message)
+    
+    // stops the send button's animation-running animation at the nd of the next cycle (instead of going cold turkey)
+    document.querySelector('#roundbit')?.addEventListener('animationiteration', (e) => {
+        document.querySelector('#roundbit').classList.remove('animation-running')
+    })
+})
+
+function dumpAllInputState(inputs=null) {
+    if (inputs == null) {
+        inputs = document.querySelectorAll('[sim-parameter]')
+    }
+    let message = {
+        'sim_room_id': '{{ data.sim_room_id }}',
+        'updates': [],
+    }
+    // SIM-VALUE
+    for (let i of inputs) {
+        let simValue = null
+        if (i.hasAttribute('checked')) {
+            // handles checkboxes
+            simValue = i.checked
+        } else if (i.hasAttribute('sim-value')) {
+            // handles custom inputs
+            simValue = i.getAttribute('sim-value')
+        } else {
+            // handles all other inputs
+            simValue = i.value
+        }
+
+        message['updates'].push({
+            'sim-parameter': i.getAttribute('sim-parameter'),
+            'sim-value': simValue,
+        })
+    }
+    message = JSON.stringify(message)
+    return message
+}
+
+// MAP HANDLER
+let sbp = document.querySelector('[sim-parameter="systolic-blood-pressure"]')
+let dbp = document.querySelector('[sim-parameter="diastolic-blood-pressure"]')
+let map = document.querySelector('[sim-parameter="mean-arterial-pressure"]')
+let pulseWidth = 0
+updatePulseWidth()
+
+function updateMAP(e) {
+    let sbp_val = parseInt(sbp.getAttribute('sim-value'))
+    let dbp_val = parseInt(dbp.getAttribute('sim-value'))
+    let map_val = ((sbp_val + 2 * dbp_val) / 3).toFixed(0)
+    map.setAttribute('sim-value', map_val)
+    return map_val
+}
+
+function updatePulseWidth() {
+    let sbp_val = sbp.getAttribute('sim-value')
+    let dbp_val = dbp.getAttribute('sim-value')
+    pulseWidth = sbp_val - dbp_val
+    return pulseWidth
+}
+
+sbp.addEventListener('input', (e) => {
+    // prevent SBP from dipping below DBP
+    let sbp_val = parseInt(sbp.getAttribute('sim-value'))
+    let dbp_val = parseInt(dbp.getAttribute('sim-value'))
+    sbp.setAttribute('sim-value', Math.max(dbp_val, sbp_val))
+    
+    // and update MAP
+    updateMAP(e)
+    updatePulseWidth()
+})
+dbp.addEventListener('input', (e) => {
+    // prevent DBP from exceeding SBP
+    let sbp_val = parseInt(sbp.getAttribute('sim-value'))
+    let dbp_val = parseInt(dbp.getAttribute('sim-value'))
+    dbp.setAttribute('sim-value', Math.min(dbp_val, sbp_val))
+
+    // and update MAP
+    updateMAP(e)
+    updatePulseWidth()
+})
+
+map.addEventListener('input', (e) => {
+    // For reference…
+    // map = (2*dbp + sbp)/3
+    // dbp = (3*map - sbp)/2
+    // sbp = (3*map - 2*dbp)
+
+    let sbp_val = parseInt(sbp.getAttribute('sim-value'))
+    let dbp_val = parseInt(dbp.getAttribute('sim-value'))
+    let map_val = parseInt(map.getAttribute('sim-value'))
+
+    // update pulseWidth if sbp and dbp are NOT at their limits
+    // otherwise it will squish to pulseWidth to zero
+    // if (dbp_val > dbp.min && sbp_val < sbp.max) {
+    //     updatePulseWidth()
+    // }
+
+    // adjust SBP and DBP
+    let new_sbp = null
+    let new_dbp = null
+
+    if (dbp_val <= dbp.min && sbp_val >= sbp.max) {
+        // if both are at their limits, just make sure MAP is calculated correctly
+        updateMAP()
+    } else if (dbp_val <= dbp.min && sbp_val - dbp_val < pulseWidth) {
+        // if dbp is minimal, derive SBP without regard to pulse width
+        new_sbp = 3*map_val - 2*dbp_val
+    } else if (sbp_val >= sbp.max && sbp_val - dbp_val < pulseWidth) {
+        // if sbp is maximal, defive SBP without regard to pulse width
+        new_dbp = (3*map_val - sbp_val)/2
+    } else {
+        // if neither are at their limits, move them up and down while preserving pulse width
+        new_sbp = map_val + (2/3) * pulseWidth
+        // new_dbp = map_val - (1/3) * pulseWidth
+        new_dbp = new_sbp - pulseWidth // minimise rounding errors
+    }
+
+    // deploy SBP/DBP updates, if they are needed
+    if (new_sbp != null) {
+        new_sbp = parseInt(new_sbp)
+        new_sbp = Math.min(sbp.max, new_sbp)
+        sbp.setAttribute('sim-value', new_sbp)
+    }
+    if (new_dbp != null) {
+        new_dbp = parseInt(new_dbp)
+        new_dbp = Math.max(dbp.min, new_dbp)
+        dbp.setAttribute('sim-value', new_dbp)
+    }
+})
+
+// CUSTOM ELEMENTS
+customElements.define('sim-slider', class extends HTMLElement {
+    constructor () {
+        super();
+        this.display_name = this.getAttribute('display-name')
+        this.min = parseInt(this.getAttribute('min'))
+        this.max = parseInt(this.getAttribute('max'))
+        this.step = this.getAttribute('step')
+        this.sim_value = this.getAttribute('sim-value')
+        this.colour = this.getAttribute('sim-colour')
+        this.innerHTML = `
+        <div class="input-label">
+            <span class="${this.colour}">${this.display_name}</span>
+            <br>
+            <span class="sim-value">${this.sim_value}</span>
+        </div>
+        <div class="slider">
+            <input class="${this.colour}" type="range" min="${this.min}" max="${this.max}" step="${this.step}" value="${this.sim_value}">
+            <div class="minmax">
+                <span class="min">${this.min}</span>
+                <span class="max">${this.max}</span>
+            </div>
+        </div>
+        `
+        this.querySelector('input').addEventListener('input', (e) => {
+            this.setAttribute('sim-value', e.target.value)
+        })
+    }
+
+    attributeChangedCallback (name, oldValue, newValue) {
+        if (name == 'sim-value') {
+            this.querySelector('input').value = newValue
+            this.querySelector('.sim-value').innerText = newValue
+            // if (newValue > this.max) {
+            //     this.setAttribute('sim-value', this.max)
+            // }
+            // if (newValue < this.min) {
+            //     this.setAttribute('sim-value', this.min)
+            // }
+        }
+    }
+    static get observedAttributes () {
+        return ['sim-value']
+    }
+    
+})
+customElements.define('radio-group', class extends HTMLElement {
+    // I made this so I could query a single element's sim-value and have it return which radio button was selected
+    // The conventional way in JS is to use querySelector('input[type="radio"]:checked')
+    // The way I'm serialising all sim-parameters from the DOM requires every element with a sim-parameter defined to also return a .value or a .getAttribute('sim-value')
+    constructor() {
+        super()
+
+        let shamInput = document.createElement('input')
+        shamInput.style.visibility = 'hidden'
+        shamInput.style.display = 'none'
+        shamInput.setAttribute('sim-parameter', 'transition-time')
+
+        let selectedElement = this.querySelector('input[type="radio"]:checked')
+        shamInput.value = selectedElement.value
+
+
+        this.appendChild(shamInput)
+
+        this.addEventListener('input', (e) => {
+            let selectedElement = this.querySelector('input[type="radio"]:checked')
+            shamInput.value = selectedElement.value
+        })
+    }
+})
+
+// SEND BUTTON
+let sendButton = document.querySelector('#send-button')
+let sendInput = document.querySelector('#send')
+let sendIcon = sendButton.querySelector('svg')
+let sendCheck = sendButton.querySelector('#checkmark')
+
+const wiggleSendKeyframes = [
+    { transform: 'scale(1) rotate(0deg) translate(0, 0)', offset: 0},
+    { transform: 'rotate(5deg)', offset: 0.05},
+    { transform: 'rotate(-5deg) translate(-0.2rem, 0.2rem)', offset: 0.15},
+    { transform: 'rotate(0deg)', offset: 0.2},
+    { transform: 'scale(0.7) rotate(0deg) translate(3rem, -4rem)', offset: 0.5},
+    { transform: 'scale(2) rotate(0deg) translate(-4rem, 3rem)', offset: 0.5},
+    { transform: 'scale(1.0) rotate(0deg) translate(0, 0)', offset: 1.0},
+]
+
+const wiggleSendOptions = {
+    duration: 700,
+    iterations: 1,
+    easing: 'ease-in-out',
+    fill: 'forwards'
+}
+
+sendInput.addEventListener('click', (e) => {
+    sendIcon.animate(wiggleSendKeyframes, wiggleSendOptions)
+})
+
+document.querySelector('form')?.addEventListener('input', (e) => {
+    document.querySelector('#roundbit')?.classList.add('animation-running')
+})
+</script>
+
+{% endblock %}

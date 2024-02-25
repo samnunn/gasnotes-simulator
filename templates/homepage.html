@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+:root {
+    scroll-behavior: smooth;
+}
+#top-of-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100lvh;
+    width: 100%;
+    position: relative;
+    background-position: center;
+    background-image:
+        url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABdwAAAXcCAMAAAAP67xWAAAAAXNSR0IArs4c6QAAAPNQTFRFAAAA////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////WKrW5QAAAFF0Uk5TAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUnKCkqKywtLi8wMTIzNDY4OTo8PT5AQUJFRklKS0xTVVhZWltdXmFiY2TbHcMkHwAAETBJREFUeNrs3EtqwlAYBeDmRZFWqbWiCKL4ICIKDkTQiQ8EQfe/n26gg1bbkNx+3xJO4AxOLv8TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUKxeTwYAoWmczw0pACh3AMwyAAAAAAAAAAAAAAAAAAAAlNF0KgOA0Awul4EUAJQ7AGYZAACAh9XrMgAITb3X0+4Ayh0AswwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAV85rnr1IACMxkt5tIAUC5A2CWAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIC71WoyAAhNbTbT7gDKHQCzDFAiyWCQSAEgMKPTaSQFAOUOgFkGAAAAAAAAAAAAAAAot+563ZUCQGDWu91aCgDKHYBva65WTbMM4HR3YFaHw0oKhYjiOJICPKh2u2l35V4qcZLEUgDlXtwsIwXlDmYZMMsAAAAAX4vT1LgLEJrs+TmTAoByB8AsAwAAAABARWX+DgIEJ3t50e4Ayr2C0tSHBswyoUk/PrQ7gHIHwCwDAABQbkmjkUiBSmi3ZQDKndC0FwvtDqDcATDLAAAAAADwX7zn+bsUgKJFkQz+VL5c5lKAu729ycAJO+UOoWlvNt5bKXezDCh3zDKAWQYAAAAAAAAAAAAA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'),
+        linear-gradient(0deg, black, 40%, transparent),                         /* fade to black */
+        linear-gradient(-45deg, transparent, 80%, rgba(183, 21, 64, 0.4)),      /* red (top left) */
+        linear-gradient(10deg, black, rgb(10 29 79))                      /* blue (top) */
+    ;
+}
+
+#mega-invitation {
+    position: absolute;
+    top: calc(100svh - 80px);
+    width: 30px;
+    aspect-ratio: 1/1;
+    background-image: url(/static/down-arrow.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    animation: bobbing 300ms ease 6 alternate 2s;
+    transition: opacity 300ms ease;
+}
+
+#mega-box {
+    display: grid;
+    grid-auto-rows: min-content;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-areas:
+        "title title title title title title"
+        "arrows arrows arrows arrows arrows arrows"
+        "new new . . join join"
+    ;
+    width: 90%;
+    max-width: 1000px;
+    justify-items: center;
+}
+
+#mega-arrows {
+    grid-area: arrows;
+    width: 68%;
+}
+#mega-arrows-vertical {
+    display: none;
+    grid-area: arrows;
+}
+#constellation {
+    position: absolute;
+    top: calc(
+        max(
+            50px,
+            calc(0.2 * (100vh - 500px))
+        )
+    );
+    right: 15vw;
+    width: 150px;
+    height: 100px;
+    background-image: url(/static/star_propofol.svg);
+    background-blend-mode: color-burn;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform: rotate(12deg);
+    /* filter: blur(0.05px); */
+    opacity: 0.0;
+    transition: opacity 400ms ease-in-out;
+}
+#constellation:hover {
+    opacity: 0.2;
+}
+
+#mega-join {
+    grid-area: join;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    max-width: min(27ch, 75vw);
+
+    input[type="text"] {
+        appearance: none;
+        box-shadow: none;
+        border: none;
+        width: 0; /* set width to zero and let flexbox re-grow it */
+        min-width: 6ch;
+        flex-grow: 1;
+        background-color: var(--dark-grey);
+        border-radius: var(--border-radius);
+        border: 2px solid white;
+        padding: 0 0.75rem;
+        font-size: 1rem;
+        font-family: inherit;
+        line-height: 1;
+        color: white;
+        height: 100%;
+    }
+}
+#mega-new {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    grid-area: new;
+    width: 100%;
+}
+#call-to-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 4rem 0 2rem 0;
+}
+
+@media (max-width: 630px) {
+    #mega-box {
+        margin-top: 10vh;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "title"
+            "subtitle"
+            "new"
+            "arrows"
+            "join"
+        ;
+    }
+    #mega-arrows {
+        display: none;
+    }
+    #mega-arrows-vertical {
+        display: unset;
+        height: 2rem;
+        width: auto;
+        margin: 2rem auto;
+    }
+
+    #mega-new {
+        margin-top: 15vh;
+    }
+    #top-of-page {
+        justify-content: start;
+    }
+}
+
+@keyframes bobbing {
+    from {
+        transform: translateY(0px) scale(1.0);
+    }
+
+    to {
+        transform: translateY(-10px)  scale(1.2);
+    }
+}
+</style>
+<div id="top-of-page">
+    <div id="mega-box">
+        {% include 'mega-title.html' %}
+        <img id="mega-arrows" src="data:image/svg+xml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgaGVpZ2h0PSI1ODkiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEuNSIgd2lkdGg9IjIwMzgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEyLjUiPjxwYXRoIGQ9Im0xOTE0LjM5IDUxNi4xNjlzNDguMjIgNzIuODQ5IDY3LjE5IDY1Ljg0OWMxOC45OC02Ljk5OSA0NC4wOS01NC40NjMgNDkuMzQtNzUuOTIiLz48cGF0aCBkPSJtMTA3LjMxMSA0OTUuNzY0cy0zMi40MiA3MS40MzQtNTAuODUyIDYzLjExOWMtNC41NjUtMi4wNTktNDIuMDgyLTMyLjI0NC01MC4yMDktNTIuNzg1Ii8+PHBhdGggZD0ibTEwMjEuNzggNi4yNXMxMy42MyAzMjAuMDE5LTQ0LjU2IDM0Mi4yMzdjLTEyOC4yNjkgNDguOTgtNjYyLjQ0MSA3Ljc2MS04MTQuMjUyIDMyLjk3Ni0xMjYuMzY0IDIwLjk4OC0xMTAuMzQ3IDEzNy42NjMtMTA2LjE4OCAxNzAuNzQiLz48cGF0aCBkPSJtMTAyMi41NyAzMi41MjJzMS41NSAyODUuODAzIDMzLjgxIDMxNS44ODRjMzkuOSAzNy4yMTMgNzYwLjE5IDMxLjM4OCA4NTEuMzggNzYuNjIyIDM4LjM2IDE5LjAyOSA3My40NiA1NC43ODggNzMuODIgMTU2Ljk5Ii8+PC9nPjwvc3ZnPg==" alt="">
+        <img id="mega-arrows-vertical" src="/static/option-arrows-vertical.svg" alt="">
+        <div id="mega-new">
+            <a href="{{ data.new_sim_url }}" class="button red">Start a Sim</a>
+        </div>
+        <form id="mega-join" action="/code" method="post">
+                <input
+                    type="text"
+                    name="simcode"
+                    id="simcode"
+                    placeholder="SimCode"
+                    pattern="[a-zA-Z0-9]{6}"
+                    oninvalid="this.setCustomValidity('Enter a valid Simcode')"
+                    oninput="this.setCustomValidity('')"
+                >
+                <input type="submit" value="Join" class="button red">
+        </form>
+    </div>
+    <a id="mega-invitation" href="#below-fold">
+        <span hidden>Read On…</span>
+    </a>
+    <div id="constellation"></div>
+</div>
+<main id="below-fold" class="wrapped">
+    <section>
+        <h1 class="yellow">About Simulation</h1>
+        <p>Simulation is <b>a way to practice</b>. You can use practice to build strengths and find weaknesses in your self, your team, and your system without all the headaches of putting patients in harm’s way. No athlete would hit the pitch without practice, and neither should we.</p>
+        <p>Simulation is <b>a means to an end.</b> The choice is yours.</p>
+    </section>
+    <section>
+        <h1 class="yellow">The Basic Assumption</h2>
+        <!-- <p>Simulation has equal potential to help and harm.</p> -->
+        <p>Most newcomers to sim are nervous. This is natural. The worst thing you can do is bring their fears to life by embarrassing them or tricking them into failure. Nothing will be learned, and nobody will come to your next sim.</p>
+        <p>Your mission is to suspend their anxiety and transition to a parallel universe where risk-free experimentation is welcome and wanted. You should start by internalising and then preaching the Basic Assumption…</p>
+        <blockquote>
+            <p>We believe that everyone participating in activities using Gas Notes tools is intelligent, capable, cares about doing their best, and wants to improve.</p>
+            <cite>Adapted from <a href="http://www.harvardmedsim.org/">Center for Medical Simulation</a>, Boston, Massachusetts, USA.</cite>
+        </blockquote>
+        <p>Repeat it, over and over, until you feel it in your bones. If it won't seem to stick, simulation might not be the thing for you.</p>
+    </section>
+    <section>
+        <h1 class="yellow">A Simple Recipe</h1>
+        <p>Something witty and clever</p>
+        <ul>
+            <li>Safe Container</li>
+            <li>Vegas Princple</li>
+            <li>And a diagram</li>
+        </ul>
+        <p>Simulation is a great way to practice skills, ways of thinking, and ways of working together under pressure. No serious athlete would hit the pitch without attending practice and neither should we.</p>
+    </section>
+    <section>
+        <h1 class="yellow">How to Use This Tool</h1>
+        <p></p>
+    </section>
+    <section>
+        <h1 class="yellow">A Note on Debreifing</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </section>
+    <section id="call-to-action">
+        <a href="{{ data.new_sim_url }}" class="button red">Start a Sim</a>
+    </section>
+    <!-- <h3>Before the Sim</h3>
+    <p>The step to planning a simulation is to ask <i>why</i> you are running the sim at all. </p>
+    <p>Sims have equal potential to help and harm. Before you</p>
+    <h3>The Main Event</h3>
+    <p>Simulations can do a lot of harm too. </p>
+    <h3>Aftermath</h3>
+    <p>Double your debrief!</p>
+    <hr>
+    <p>Run your sims well, and run them often.</p>
+
+    <h3>How Gas Notes Helps</h3>
+    <p>This is a tool made for medical professionals to practice their critical care skills. It's a remote-controlled bedside monitor that you can set up using any two internet-connected devices (like an tablet and a phone).</p> -->
+    
+</main>
+<footer class="noprint">
+    <p>&copy; Gas Notes</p>
+</footer>
+<script type="module">
+// SCROLLSPY
+const arrow = document.querySelector('#mega-invitation')
+window.addEventListener('scroll', (e) => {
+    if (arrow) {
+        if (window.scrollY > 200) {
+            arrow.style.opacity = '0%'
+        } else {
+            arrow.style.opacity = '100%'
+        }
+    }
+})
+</script>
+{% endblock %}

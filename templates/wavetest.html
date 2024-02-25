@@ -1,0 +1,114 @@
+<html>
+    <style>
+        body {
+            background-color: black;
+            font-family: sans-serif;
+            color: white;
+
+            width: 1200px;
+            margin: 0 auto;
+        }
+        #all-waves {
+            overflow-x: hidden;
+        }
+
+        .wave-container {
+            border: 2px solid #222;
+        }
+    </style>
+    <body>
+        <h1>Wave Tester</h1>
+        <form id="wavegen-form" action="">
+            <select name="wave" id="">
+                
+            </select>
+            <select name="colour" id="">
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+                <option value="yellow">Yellow</option>
+                <option value="white">White</option>
+                <option value="magenta">Pink</option>
+                <option value="deepskyblue">Blue</option>
+            </select>
+            <input type="submit" value="Generate">
+        </form>
+        <div id="all-waves">
+        </div>
+
+        <script type="module">
+            import { waveManager, pixelsToMilliseconds, waveGenerators } from '/static/js/wavemaker.js'
+            
+            //  _       __                                       
+            // | |     / /___ __   _____  _____                  
+            // | | /| / / __ `/ | / / _ \/ ___/                  
+            // | |/ |/ / /_/ /| |/ /  __(__  )                   
+            // |__/|__/\__,_/ |___/\___/____/                    
+            
+
+            let allWavesContainer = document.getElementById('all-waves')
+            async function paintWaves(lowest, interval, highest, rhythm, colour='rgb(76, 209, 55)') {
+                for (let i=lowest; i<=highest; i+=interval) {
+                    // Make a new <div>
+                    let newDiv = document.createElement('div')
+                    newDiv.classList.add('wave-container')
+                    newDiv.id = `ecg-${i}`
+                    allWavesContainer.appendChild(newDiv)
+
+                    // Give it a title
+                    let pTag = document.createElement('p')
+                    pTag.innerText = `${i} bpm`
+                    newDiv.appendChild(pTag)
+
+                    // Fill it with waves
+                    let ecgManager = new waveManager(`ecg-${i}`, i, rhythm, colour)
+                    for (let j=0; j < i * 0.3; j++) {
+                        await ecgManager.paintNextComplex(null, true)
+                    }
+                }
+            }
+
+            // Override form sumission
+            let formPicker = document.querySelector('#wavegen-form')
+            let wavePicker = formPicker.querySelector('select[name="wave"]')
+            let colourPicker = formPicker.querySelector('select[name="colour"]')
+
+            // Generate Wave Options List
+            for (let g in waveGenerators) {
+                wavePicker.innerHTML += `<option value="${g}">${g}</option>`
+            }
+
+
+            formPicker.addEventListener('submit', (e) => {
+                // Prevent submission
+                e.preventDefault()
+
+                // Clear wave container
+                allWavesContainer.innerHTML = ""
+
+                // Genreate new waves
+                let nominalRhythm = wavePicker.value
+                let nominalColour = colourPicker.value
+                paintWaves(20, 5, 200, nominalRhythm, nominalColour)
+
+                // Save state
+                localStorage.setItem('last-wave', nominalRhythm)
+                localStorage.setItem('last-colour', nominalColour)
+            })
+
+            // Save state between reloads
+            window.addEventListener('load', async (e) => {
+                let lastColour = localStorage.getItem('last-colour')
+                if (lastColour != null) {
+                    colourPicker.value = lastColour
+                }
+
+                let lastWave = localStorage.getItem('last-wave')
+                if (lastWave != null) {
+                    wavePicker.value = lastWave
+                }
+
+                formPicker.querySelector('input[type="submit"]').click()
+            })
+        </script>
+    </body>
+</html>

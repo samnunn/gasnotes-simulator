@@ -1,0 +1,6 @@
+
+.DS_Store
+Pipfile.lock
+.env
+sim_rooms/*
+private/*

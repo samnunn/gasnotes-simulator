@@ -1,0 +1,93 @@
+<style>
+    /* SHARE MODAL */
+dialog#share-sheet {
+    border: none;
+    background: none;
+    max-width: 800px;
+    transition: opacity 200ms ease;
+    display: none;
+    opacity: 0;
+    align-self: center;
+    justify-self: center;
+    pointer-events: none; /* prevents from stealing input from underlying interface */
+    text-align: center;
+
+    & #share-sheet-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        background-color: var(--dark-grey);
+        border-radius: var(--border-radius);
+        padding: 1rem 3rem;
+        border: 2px solid white;
+    }
+
+    & #qrcode {
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        background-color: white;
+
+        img {
+            max-width: 250px;
+            width: 100%;
+            margin: 0;
+            display: block;
+        }
+    }
+
+    & #url {
+        & input[type="text"] {
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 0.2rem 0.5rem;
+            outline: none;
+            border: none;
+            appearance: none;
+            width: 100%;
+        }
+    }
+}
+dialog#share-sheet[open] {
+    display: flex;
+    opacity: 1 !important;
+    pointer-events: inherit;
+}
+dialog#share-sheet::backdrop {
+    -webkit-backdrop-filter: blur(5px) brightness(60%);
+    backdrop-filter: blur(5px) brightness(60%);
+}
+</style>
+
+<dialog id="share-sheet">
+    <div id="share-sheet-container">
+        <h1>Connect a Controller</h1>
+        <div id="qrcode">
+            <img src="{{ data.qrcode }}" alt="">
+        </div>
+        <!-- <h1>Or share this link…</h1> -->
+        <!-- <form id="url" class="simcode-copy" sim-autocopy-container> -->
+            <!-- <input type="text" name="" value="{{ data.simcode_url }}" sim-autoselect sim-autocopy-data> -->
+            <!-- <input type="button" class="button light" value="Copy" sim-autocopy-button> -->
+        <!-- </form> -->
+        <form method="dialog">
+            <button class="button red">Done</button>
+        </form>
+    </div>
+</dialog>
+
+<script>
+// SHARE SHEET
+const shareButton = document.querySelector('#share-button')
+const shareSheet = document.querySelector('dialog#share-sheet')
+
+if (shareButton != null) {
+    shareButton.addEventListener('click', (e) => {
+        shareSheet.showModal()
+    })
+    if (document.body.classList.contains('monitor')) {
+        shareSheet.showModal()
+    }
+}
+</script>

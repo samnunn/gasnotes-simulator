@@ -1,0 +1,7 @@
+.DS_Store
+*~lock~
+Pipfile.lock
+sim_rooms/*
+sysadmin
+assets
+cloudflare_tunnel_token.txt
