@@ -6,7 +6,7 @@
 The [free version available at Gas Notes][gasnotes-sim] is a happy little [monolith](https://signalvnoise.com/svn3/the-majestic-monolith/) that runs on the smallest [DigitalOcean Droplet](https://m.do.co/c/5248daea7efd) (referral link) but you can run this software anyplace you like.
 
 ## System Setup
-Once you've spun up a new Linux box (of any flavour), you should create a new `sim` user with sudo privileges.
+Once you've spun up a new Linux box (I'm using Debian), you should create a new `sim` user with sudo privileges.
 
 ```sh
 adduser sim
@@ -83,6 +83,7 @@ echo "SIM_SECRETKEY=$secret_key" > .env
 Variables stored in a `.env` file are automatically turned into environment variables when the server is launched with `pipenv`. If you choose not to use `pipenv`, you'll need to find another way to get `SIM_SECRETKEY` into your environment.
 
 ## Running It
+
 ```sh
 sudo ln -s /home/sim/gasnotes-simulator/sysadmin/gasnotes-simulator.service /etc/systemd/system/
 sudo systemctl daemon-reload
@@ -90,29 +91,37 @@ systemctl start gasnotes-simulator.service
 systemctl enable gasnotes-simulator.service
 ```
 
-To stop.
-`systemctl stop gasnotes-simulator.service`
+`systemctl stop/start/restart/status gasnotes-simulator.service`
 
-- Script
-- Service installation
+## Access
+### Cloudflare
+Leaving ports on your server open to the big bad internet is risky business. Instead of running gunicorn behind a reverse proxy (like nginx), I've opted to use Cloudflare's zero-ingress [Tunnels](https://www.cloudflare.com/en-au/products/tunnel/). They provide both `http` access to the app and [`ssh` access to the server](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/use-cases/ssh/).
 
-## Egress
-### Cloudflare Tunnels
+```sh
+brew install cloudflared
+````
 
+In order to use SSH via Cloudflare Tunnels, you need to add this little snippet to your local machine’s `~/.ssh/config` (as pere [these instructions](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/use-cases/ssh/#connect-to-ssh-server-with-cloudflared-access)).
 
-## Remote Access
-Accessing a server via `ssh` is all well and good, but leaving port 22 open to the big bad world had ought to give any sysadmin chills.
+```sh
+Host ssh.example.com
+ProxyCommand /home/linuxbrew/.linuxbrew/bin/cloudflared access ssh --hostname %h
+```
 
-To remedy those chills, I have installed two separate remote access services.
+Now you can do something like this:
+
+```sh
+ssh sim@sim-server.example.com
+```
 
 ### Tailscale
-[Tailscale](https://tailscale.com/) (and more recently [Tailscale SSH](https://tailscale.com/tailscale-ssh)) is a Wireguard-based low/no configuration VPN for the modern era. [Nerds like it](https://www.caseyliss.com/2024/3/27/tailscale) because It Just Works™️.
+I've also installed [Tailscale](https://tailscale.com/): a Wireguard-based low/no configuration VPN for the modern era. [Nerds like it](https://www.caseyliss.com/2024/3/27/tailscale) because It Just Works™️.
 
 ```sh
 brew install tailscale
 ````
 
-To get it running as a service, I used `brew services` like so.
+To get it running as a service, I used `brew services` like so. You might also take this chance to enable [Tailscale SSH](https://tailscale.com/tailscale-ssh):
 
 ```sh
 sudo --preserve-env=HOME /home/linuxbrew/.linuxbrew/bin/brew services start tailscale
@@ -126,34 +135,6 @@ How you SSH into the machine depends on what hostname you gave it in your Tailne
 ```sh
 ssh sim@my-sim-server
 ```
-
-### Cloudflare Tunnels
-Cloudflare tunnels pull double duty on this server. In addition to providing a zero-ingress web server, you can also SSH into your machines. I used [these instructions](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/use-cases/ssh/#connect-to-ssh-server-with-cloudflared-access) to get it set up.
-
-Don’t forget to add this to your local machine’s `~/.ssh/config`.
-
-```sh
-Host ssh.example.com
-ProxyCommand /home/linuxbrew/.linuxbrew/bin/cloudflared access ssh --hostname %h
-```
-
-Now you can SSH in just like this.
-
-```sh
-ssh sim@sim-server.example.com
-```
-
----–--------------------------
-  
-## Convenience Scripts
-### Updating
-./sysadmin/update.sh
-
-### Reverse Proxy
-```sh
-ssh -f -L 127.0.0.1:8090:127.0.0.1:8090 sim@ssh.gasnotes.net
-```
-
 
 [flask]: https://flask.palletsprojects.com
 [flask-socketio]: https://flask-socketio.readthedocs.io/en/latest/
