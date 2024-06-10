@@ -1,9 +1,9 @@
-//  _       __                 __  ___      __                ___  
-// | |     / /___ __   _____  /  |/  /___ _/ /_____  _____   |__ \ 
-// | | /| / / __ `/ | / / _ \/ /|_/ / __ `/ //_/ _ \/ ___/   __/ / 
-// | |/ |/ / /_/ /| |/ /  __/ /  / / /_/ / ,< /  __/ /      / __/  
-// |__/|__/\__,_/ |___/\___/_/  /_/\__,_/_/|_|\___/_/      /____/  
-//                                                                 
+//  _       __                 __  ___      __                ___
+// | |     / /___ __   _____  /  |/  /___ _/ /_____  _____   |__ \
+// | | /| / / __ `/ | / / _ \/ /|_/ / __ `/ //_/ _ \/ ___/   __/ /
+// | |/ |/ / /_/ /| |/ /  __/ /  / / /_/ / ,< /  __/ /      / __/
+// |__/|__/\__,_/ |___/\___/_/  /_/\__,_/_/|_|\___/_/      /____/
+//
 
 // ┌────────────────────────────────────────────────────────────────────────┐
 // │            ┌─────────────────────────────────────────────────────────┐ │
@@ -90,7 +90,7 @@ svg {
         // make the first wave
         this.stashedWave = this.constructWave(0)
         this.insertWave(this.stashedWave)
-        
+
         if (this.mode == 'copycat') {
             // add event listener to pacemaker that beats every time it's called
             this.pacemaker = document.getElementById(this.pacemaker_id)
@@ -117,12 +117,12 @@ svg {
 		return ['rate', 'morphology', 'sim-value', 'y-scale']
 	}
 
-    //     __  ___      _          __                    
-    //    /  |/  /___ _(_)___     / /   ____  ____  ____ 
+    //     __  ___      _          __
+    //    /  |/  /___ _(_)___     / /   ____  ____  ____
     //   / /|_/ / __ `/ / __ \   / /   / __ \/ __ \/ __ \
     //  / /  / / /_/ / / / / /  / /___/ /_/ / /_/ / /_/ /
-    // /_/  /_/\__,_/_/_/ /_/  /_____/\____/\____/ .___/ 
-    //                                          /_/      
+    // /_/  /_/\__,_/_/_/ /_/  /_____/\____/\____/ .___/
+    //                                          /_/
 
     // the main "heartbeat" function
     // either called by a pacemaker or self-calling via an animation-based timeout (not setTimeout, bleh)
@@ -166,21 +166,21 @@ svg {
             // └────────────────────────────────────────────────────────────────────────────────────────────────┘
         } else if (overshoot >= 0) { // last complex in a wave
             finalWidth = this.waveSet.clientWidth
-            // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐          
-            // ├─div.wave─────────────────────────────────────────────────────────────────────────────┐         │          
+            // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐
+            // ├─div.wave─────────────────────────────────────────────────────────────────────────────┐         │
             // │        ┌ svg > path─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ┐
-            // │◀────────────────────────────────────────────────────────────────────────────────────▶│         │          
+            // │◀────────────────────────────────────────────────────────────────────────────────────▶│         │
             // │        │                                initialWidth                                 │         │         │
-            // │◀─────────────────────────────────────────────────────────────────────────────────────┼────────▶│          
+            // │◀─────────────────────────────────────────────────────────────────────────────────────┼────────▶│
             // │        │                                finalWidth                                   │         │         │
-            // │◀──────▶                                                                              │◀────────┼────────▶ 
+            // │◀──────▶                                                                              │◀────────┼────────▶
             // │x_offset│                                                                             │  newComplex.width │
-            // │                                                                                      │         │          
+            // │                                                                                      │         │
             // │        │                                                                             │         │◀───────▶│
-            // │                                                                                      │         │overshoot 
+            // │                                                                                      │         │overshoot
             // │        └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ┘
-            // ├──────────────────────────────────────────────────────────────────────────────────────┘         │          
-            // └────────────────────────────────────────────────────────────────────────────────────────────────┘          
+            // ├──────────────────────────────────────────────────────────────────────────────────────┘         │
+            // └────────────────────────────────────────────────────────────────────────────────────────────────┘
         } else { // all intermediate complexes
             finalWidth = targetWave.clientWidth + newComplex.width
             // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐
@@ -200,40 +200,40 @@ svg {
             // └────────────────────────────────────────────────────────────────────────────────────────────────┘
         }
 
-        // newline handler                   
+        // newline handler
         if (overshoot >= 0) {
-            //     ┌────────────────────────────────────────────────────────────────────────────────────────────────┐              
-            //     │┌──────────────────────────────────────────────────────────────────────────────────────────────┐│              
-            //     ││┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼│─ ─ ─ ─ ─ ─ ─ 
+            //     ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+            //     │┌──────────────────────────────────────────────────────────────────────────────────────────────┐│
+            //     ││┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼│─ ─ ─ ─ ─ ─ ─
             //     ││                                                                                              ││             │
-            //     │││                                                                                             ││              
+            //     │││                                                                                             ││
             //     ││                                                                                              ││             │
-            //     │││                         SVG gets copied and left-shifted such that the                      ││              
+            //     │││                         SVG gets copied and left-shifted such that the                      ││
             //   ┌─┼┼───────────────────────── currently-hidden portion (overshoot) becomes                        ││◀───────────▶│
-            //   │ │││                         visible in the x_offset of the next line                            ││  overshoot   
+            //   │ │││                         visible in the x_offset of the next line                            ││  overshoot
             //   │ ││                                                                                              ││             │
-            //   │ │││                                                                                             ││              
+            //   │ │││                                                                                             ││
             //   │ ││                                                                                              ││             │
-            //   │ ││└ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼│─ ─ ─ ─ ─ ─ ─ 
-            //   │ │└──────────────────────────────────────────────────────────────────────────────────────────────┘│              
-            //   │ └────────────────────────────────────────────────────────────────────────────────────────────────┘              
-            //   │                                                                                                                 
-            //   │ ┌────────────────────────────────────────────────────────────────────────────────────────────────┐              
-            //   │ │┌──────────────────────────────────────────────────────────────────────────────────────────────┐│              
-            //  ─│─│┼ ─ ─ ─ ─ ─ ─ ─ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─││              
-            //   ▼ ││              │                                                                               ││              
-            //     ││               │                                                                              ││              
-            //     ││              │                                                                               ││              
-            //     ││◀────────────▶ │                                                                              ││              
-            //     ││  x_offset    │                                                                               ││              
-            //     ││     ==        │                                                                              ││              
-            //     ││  overshoot   │                                                                               ││              
-            //     ││               │                                                                              ││              
-            //     ││              │                                                                               ││              
-            //  ─ ─│┼ ─ ─ ─ ─ ─ ─ ─ └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─││              
-            //     │└──────────────────────────────────────────────────────────────────────────────────────────────┘│              
-            //     └────────────────────────────────────────────────────────────────────────────────────────────────┘  
-            
+            //   │ ││└ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼│─ ─ ─ ─ ─ ─ ─
+            //   │ │└──────────────────────────────────────────────────────────────────────────────────────────────┘│
+            //   │ └────────────────────────────────────────────────────────────────────────────────────────────────┘
+            //   │
+            //   │ ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+            //   │ │┌──────────────────────────────────────────────────────────────────────────────────────────────┐│
+            //  ─│─│┼ ─ ─ ─ ─ ─ ─ ─ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─││
+            //   ▼ ││              │                                                                               ││
+            //     ││               │                                                                              ││
+            //     ││              │                                                                               ││
+            //     ││◀────────────▶ │                                                                              ││
+            //     ││  x_offset    │                                                                               ││
+            //     ││     ==        │                                                                              ││
+            //     ││  overshoot   │                                                                               ││
+            //     ││               │                                                                              ││
+            //     ││              │                                                                               ││
+            //  ─ ─│┼ ─ ─ ─ ─ ─ ─ ─ └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─││
+            //     │└──────────────────────────────────────────────────────────────────────────────────────────────┘│
+            //     └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
             // construct new wave
             let newWave = this.constructWave(overshoot)
 
@@ -261,7 +261,7 @@ svg {
                 }
             )
 
-        
+
             // clean up old waves
             let allWaves = this.waveSet.querySelectorAll('.wave')
             if (allWaves.length > this.maxLayers) {
@@ -272,7 +272,7 @@ svg {
         }
 
         // animate this complex
-        let animation = targetWave.animate(            
+        let animation = targetWave.animate(
             [
                 { width: `${initialWidth}px` },
                 { width: `${finalWidth}px` }
@@ -293,12 +293,12 @@ svg {
         }
     }
 
-    //    __  ____  _ ___ __           ______                 __  _                       
-    //   / / / / /_(_) (_) /___  __   / ____/_  ______  _____/ /_(_)___  ____  _____      
-    //  / / / / __/ / / / __/ / / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/      
-    // / /_/ / /_/ / / / /_/ /_/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )       
-    // \____/\__/_/_/_/\__/\__, /  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/        
-    //                    /____/                                                          
+    //    __  ____  _ ___ __           ______                 __  _
+    //   / / / / /_(_) (_) /___  __   / ____/_  ______  _____/ /_(_)___  ____  _____
+    //  / / / / __/ / / / __/ / / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    // / /_/ / /_/ / / / /_/ /_/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // \____/\__/_/_/_/\__/\__, /  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+    //                    /____/
 
     pixelsToMilliseconds(pixels) {
         return 1000 * pixels / this.pixelsPerSecond
@@ -378,17 +378,17 @@ svg {
 
         // MAKE COMMANDS
         let commands = " l 0 0"
-        
+
         // special case: frame[0]
         let firstFrame = draftKeyframes[0]
         let firstCubicBezierX = firstFrame[0] + (firstFrame[2] || 0)
         let firstCubicBezierY = firstFrame[1] - (firstFrame[3] || 0)
-        
+
         // special case: frame[1]
         let secondFrame = draftKeyframes[1]
-        
+
         commands += ` C ${firstCubicBezierX} ${firstCubicBezierY}, ${secondFrame[0] + (secondFrame[2] || 0)} ${secondFrame[1] - (secondFrame[3] || 0)}, ${secondFrame[0]} ${secondFrame[1]}`
-        
+
         // general case: frame[2] to frame[-1]
         for (let i = 2; i < draftKeyframes.length; i++) {
             let x = draftKeyframes[i][0]
@@ -419,11 +419,11 @@ svg {
         // linear interpolation between
         return at20bpm - ((at20bpm - at220bpm) / 180) * (rate - 20)
     }
-    
+
     randomNumberBetween(longest, shortest) {
         return shortest + Math.random() * (longest - shortest)
     }
-    
+
     getDurationOfKeyframes(keyframes) {
         let totalDuration = 0
         for (let i = 0; i < keyframes.length; i++) {
@@ -435,38 +435,38 @@ svg {
     makePathCommandsFromKeyframes(currentKeyframes) {
         // INITIATE VARIABLES
         let pathCommands = " l 0 0"
-    
+
         // SPECIAL CASE: FRAME[0]
         let firstFrame = currentKeyframes[0]
         let firstCubicBezierX = firstFrame[0] + (firstFrame[2] || 0)
         let firstCubicBezierY = firstFrame[1] - (firstFrame[3] || 0)
-    
+
         // SPECIAL CASE: FRAME[1]
         let secondFrame = currentKeyframes[1]
         pathCommands += ` C ${firstCubicBezierX} ${firstCubicBezierY}, ${secondFrame[0] + (secondFrame[2] || 0)} ${secondFrame[1] - (secondFrame[3] || 0)}, ${secondFrame[0]} ${secondFrame[1]}`
-    
-    
+
+
         // WRITE COMMANDS [1] to [-1]
         for (let i = 2; i < currentKeyframes.length; i++) {
             // Coordinates for the destination (x y)
             let x = currentKeyframes[i][0]
             let y = currentKeyframes[i][1]
-    
+
             let cubicBezierDX = currentKeyframes[i][2] || 0
             let cubicBezierDY = currentKeyframes[i][3] || 0
-    
+
             pathCommands += ` S ${x + cubicBezierDX},${y - cubicBezierDY} ${x},${y}`
         }
-    
+
         // RETURN COMMANDS
         return pathCommands
     }
 
-    //  _       __                    ______                           __                 
+    //  _       __                    ______                           __
     // | |     / /___ __   _____     / ____/__  ____  ___  _________ _/ /_____  __________
     // | | /| / / __ `/ | / / _ \   / / __/ _ \/ __ \/ _ \/ ___/ __ `/ __/ __ \/ ___/ ___/
-    // | |/ |/ / /_/ /| |/ /  __/  / /_/ /  __/ / / /  __/ /  / /_/ / /_/ /_/ / /  (__  ) 
-    // |__/|__/\__,_/ |___/\___/   \____/\___/_/ /_/\___/_/   \__,_/\__/\____/_/  /____/  
+    // | |/ |/ / /_/ /| |/ /  __/  / /_/ /  __/ / / /  __/ /  / /_/ / /_/ /_/ / /  (__  )
+    // |__/|__/\__,_/ |___/\___/   \____/\___/_/ /_/\___/_/   \__,_/\__/\____/_/  /____/
 
     waveGenerators = {
         "artline": (targetDuration) => {
@@ -489,7 +489,7 @@ svg {
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
             keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.01 * targetDuration]
-            
+
             return keyframes
         },
         "artline-underdamped": (targetDuration) => {
@@ -512,7 +512,7 @@ svg {
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
             keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.1 * (targetDuration-measuredDuration)]
-            
+
             return keyframes
         },
         "artline-overdamped": (targetDuration) => {
@@ -535,7 +535,7 @@ svg {
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
             keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.03 * targetDuration]
-            
+
             return keyframes
         },
         "flatline": (targetDuration) => {
@@ -569,7 +569,7 @@ svg {
             let draftDuration = this.getDurationOfKeyframes(keyframes)
             let tailLength = draftDuration < targetDuration ? targetDuration - draftDuration : 100
             keyframes[keyframes.length] = [tailLength, 0.03, 0]
-            
+
             return keyframes
         },
         "capno-obstructed-moderate": (targetDuration) => {
@@ -590,7 +590,7 @@ svg {
             let draftDuration = this.getDurationOfKeyframes(keyframes)
             let tailLength = draftDuration < targetDuration ? targetDuration - draftDuration : 100
             keyframes[keyframes.length] = [tailLength, 0.03, 0]
-            
+
             return keyframes
         },
         "capno-obstructed-severe": (targetDuration) => {
@@ -611,7 +611,7 @@ svg {
             let draftDuration = this.getDurationOfKeyframes(keyframes)
             let tailLength = draftDuration < targetDuration ? targetDuration - draftDuration : 100
             keyframes[keyframes.length] = [tailLength, 0.03, 0]
-            
+
             return keyframes
         },
         "spo2": (targetDuration) => {
@@ -629,7 +629,7 @@ svg {
                 [(0.5 + sidetoside) * targetDuration, this.interpolateDuration(0.7, 0.4, this.rate) + 0.1 * Math.random(), wobble, 0], // faster hr, shorter waves
                 [(0.5 - sidetoside) * targetDuration, 0, wobble]
             ]
-            
+
             return keyframes
         },
         "spo2-badtrace": (targetDuration) => {
@@ -650,7 +650,7 @@ svg {
             let draftDuration = this.getDurationOfKeyframes(keyframes)
             let tailLength = draftDuration < targetDuration ? targetDuration - draftDuration : 100
             keyframes[keyframes.length] = [tailLength, 0, wobble]
-            
+
             return keyframes
         },
         "afib": (targetDuration) => {
@@ -686,23 +686,29 @@ svg {
                     keyframes.push(newFrame)
                 }
             }
-            
+
             return keyframes
         },
         "vfib": (targetDuration) => {
             // DURATION WRNAGLING
             if (targetDuration == 0) {
                 let idealDuration = 60000 / this.rate
-                targetDuration = this.randomNumberBetween(2 * idealDuration, 0.7 * idealDuration)
+                targetDuration = this.randomNumberBetween(1.3 * idealDuration, 0.7 * idealDuration)
             }
 
-            let isoelectricLine = 0
+            let randomCompoent = Math.random() * 0.5
+
+            let wanderingBaseline =  0.3 * Math.sin(this.complexCount * 0.05) / Math.PI
+
+            let isoelectricLine = 0 - randomCompoent + wanderingBaseline
+
+            let peakHeight = 0.1 + randomCompoent + wanderingBaseline
 
             // MAKE QRS
             let keyframes = [
-                [0, isoelectricLine, 0.02 * targetDuration],
-                [targetDuration * 0.35, 0.2 + 0.8 * Math.random(), -0.02 * targetDuration],
-                [targetDuration * 0.65, isoelectricLine, -0.02 * targetDuration]
+                [0, isoelectricLine, 0.01 * targetDuration],
+                [targetDuration * 0.52, peakHeight, -5 * Math.random() - 1, -5 * Math.random() + 2 ],
+                [targetDuration * 0.47, isoelectricLine, -0.01 * targetDuration]
             ]
             return keyframes
         },
@@ -758,7 +764,7 @@ svg {
 
             // DRAFT KEYFRAMES
             let keyframes = [
-                // dx (ms), y (0-1), squishX, squishY 
+                // dx (ms), y (0-1), squishX, squishY
                 [0, isoelectricLine, 5, 0],                                   // start (isoelectric)
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
@@ -791,7 +797,7 @@ svg {
 
             // DRAFT KEYFRAMES
             let keyframes = [
-                // dx (ms), y (0-1), squishX, squishY 
+                // dx (ms), y (0-1), squishX, squishY
                 [0, isoelectricLine, 5, 0],                                   // start (isoelectric)
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
@@ -826,7 +832,7 @@ svg {
 
             // DRAFT KEYFRAMES
             let keyframes = [
-                // dx (ms), y (0-1), squishX, squishY 
+                // dx (ms), y (0-1), squishX, squishY
                 [0, isoelectricLine, this.interpolateDuration(5, 0.1, this.rate), this.interpolateDuration(0, 2, this.rate)],                                   // start (isoelectric)
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
@@ -859,7 +865,7 @@ svg {
             }
 
             let keyframes = [
-                // dx (ms), y (0-1), squishX, squishY 
+                // dx (ms), y (0-1), squishX, squishY
                 [0, 0, this.interpolateDuration(5, 0.1, this.rate), this.interpolateDuration(0, 2, this.rate)],                                   // start (isoelectric)
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
