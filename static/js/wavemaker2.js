@@ -29,6 +29,7 @@
 customElements.define('sim-trace', class extends HTMLElement {
     // accumulators
     complexCount = 0
+    baselineWanderAccumulator = Math.random() * 150
 
     constructor() {
         // boilerplate
@@ -49,6 +50,9 @@ customElements.define('sim-trace', class extends HTMLElement {
         this.maxLayers          = parseInt(this.getAttribute('max-layers'))         || 10
         this.last_y             = this.height/2
 
+
+        this.baseline_wobble_enabled        = this.getAttribute('baseline-wobble') == "true"
+
         // INIT
         // make a waveSet element
         this.waveSet = document.createElement('div')
@@ -60,7 +64,6 @@ customElements.define('sim-trace', class extends HTMLElement {
 sim-wave {
     display: block;
     width: 100%;
-    overflow: hidden;
 }
 .waveset {
     color: white;
@@ -332,7 +335,13 @@ svg {
 
         // get time-based keyframes
         let mandatoryDuration = this.pixelsToMilliseconds(mandatoryWidth)
-        let draftKeyframes = this.waveGenerators[this.morphology](mandatoryDuration)
+        let draftKeyframes
+        try {
+            draftKeyframes = this.waveGenerators[this.morphology](mandatoryDuration)
+        } catch (error) {
+            console.error(error)
+            draftKeyframes = this.waveGenerators['flatline'](mandatoryDuration)
+        }
 
         // squash to mandatoryWidth
         if (mandatoryWidth != 0) {
@@ -363,6 +372,13 @@ svg {
 
             // Apply Y scaling
             y = y * this.y_scale
+
+            // Add baseline wander
+            // if (this.baseline_wobble_enabled == true) {
+            //     this.baselineWanderAccumulator += dx
+            //     let wander = 0.05 * Math.sin(this.baselineWanderAccumulator/250)
+            //     y = y + wander
+            // }
 
             // CONVERT Y UNITS FROM FRACTION (0.0-1.0) TO PX
             y = (this.height / 2) * (1 - y)
@@ -543,7 +559,7 @@ svg {
             if (targetDuration == 0) {
                 targetDuration = 60000 / this.rate
             }
-
+        
             let keyframes = [
                 [0,0],
                 [targetDuration, 0]
