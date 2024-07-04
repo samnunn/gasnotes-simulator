@@ -548,7 +548,21 @@ svg {
                 [0,0],
                 [targetDuration, 0]
             ]
-
+        
+            return keyframes
+        },
+        "sim-disconnect": (targetDuration) => {
+            // DURATION WRNAGLING
+            if (targetDuration == 0) {
+                targetDuration = 60000 / this.rate
+            }
+        
+            let keyframes = [
+                [0,0],
+                [targetDuration/2, 0.05],
+                [targetDuration/2, 0]
+            ]
+        
             return keyframes
         },
         "capno-normal": (targetDuration) => {
