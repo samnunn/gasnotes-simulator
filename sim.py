@@ -10,26 +10,26 @@ import os
 import re
 import time
 
-#    _____      __             
-#   / ___/___  / /___  ______  
-#   \__ \/ _ \/ __/ / / / __ \ 
-#  ___/ /  __/ /_/ /_/ / /_/ / 
-# /____/\___/\__/\__,_/ .___/  
-#                    /_/       
+#    _____      __
+#   / ___/___  / /___  ______
+#   \__ \/ _ \/ __/ / / / __ \
+#  ___/ /  __/ /_/ /_/ / /_/ /
+# /____/\___/\__/\__,_/ .___/
+#                    /_/
 
 app = Flask(__name__)
-Minify(app=app, bypass=[re.compile(r'^\/sim\/\w+\/?$')])
+# Minify(app=app, bypass=[re.compile(r'^\/sim\/\w+\/?$')])
 socketio = SocketIO(app)
 app.secret_key = BASE_URL = os.environ.get('SIM_SECRETKEY')
 
 SIM_ROOM_STORE = 'sim_rooms'
 
-#     __  __     __                   __  ___     __  __              __     
-#    / / / /__  / /___  ___  _____   /  |/  /__  / /_/ /_  ____  ____/ /____ 
-#   / /_/ / _ \/ / __ \/ _ \/ ___/  / /|_/ / _ \/ __/ __ \/ __ \/ __  / ___/ 
-#  / __  /  __/ / /_/ /  __/ /     / /  / /  __/ /_/ / / / /_/ / /_/ (__  )  
-# /_/ /_/\___/_/ .___/\___/_/     /_/  /_/\___/\__/_/ /_/\____/\__,_/____/   
-#             /_/                                                            
+#     __  __     __                   __  ___     __  __              __
+#    / / / /__  / /___  ___  _____   /  |/  /__  / /_/ /_  ____  ____/ /____
+#   / /_/ / _ \/ / __ \/ _ \/ ___/  / /|_/ / _ \/ __/ __ \/ __ \/ __  / ___/
+#  / __  /  __/ / /_/ /  __/ /     / /  / /  __/ /_/ / / / /_/ / /_/ (__  )
+# /_/ /_/\___/_/ .___/\___/_/     /_/  /_/\___/\__/_/ /_/\____/\__,_/____/
+#             /_/
 def sim_room_exists(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
     sim_path = make_sim_room_filepath(sim_room_id)
@@ -59,7 +59,7 @@ def generate_room_id():
         propsed_id = normalise_room_id(propsed_id)
         if sim_room_exists(propsed_id) == False:
             return propsed_id
-        
+
 def normalise_room_id(sim_room_id):
     return sim_room_id.upper()
 
@@ -68,21 +68,21 @@ def make_sim_room_filepath(sim_room_id):
     return os.path.join(SIM_ROOM_STORE, sim_room_id + '.txt')
 
 
-#     ____       ____                            ___    ______               
-#    / __ )___  / __/___  ________       __     /   |  / __/ /____  _____    
-#   / __  / _ \/ /_/ __ \/ ___/ _ \   __/ /_   / /| | / /_/ __/ _ \/ ___/    
-#  / /_/ /  __/ __/ /_/ / /  /  __/  /_  __/  / ___ |/ __/ /_/  __/ /        
-# /_____/\___/_/  \____/_/   \___/    /_/    /_/  |_/_/  \__/\___/_/         
+#     ____       ____                            ___    ______
+#    / __ )___  / __/___  ________       __     /   |  / __/ /____  _____
+#   / __  / _ \/ /_/ __ \/ ___/ _ \   __/ /_   / /| | / /_/ __/ _ \/ ___/
+#  / /_/ /  __/ __/ /_/ / /  /  __/  /_  __/  / ___ |/ __/ /_/  __/ /
+# /_____/\___/_/  \____/_/   \___/    /_/    /_/  |_/_/  \__/\___/_/
 
 
 # @app.before_request
 # @app.after_request
 
-#     ____              __            
-#    / __ \____  __  __/ /____  _____ 
-#   / /_/ / __ \/ / / / __/ _ \/ ___/ 
-#  / _, _/ /_/ / /_/ / /_/  __(__  )  
-# /_/ |_|\____/\__,_/\__/\___/____/   
+#     ____              __
+#    / __ \____  __  __/ /____  _____
+#   / /_/ / __ \/ / / / __/ _ \/ ___/
+#  / _, _/ /_/ / /_/ / /_/  __(__  )
+# /_/ |_|\____/\__,_/\__/\___/____/
 
 @app.route("/")
 def index():
@@ -139,7 +139,7 @@ def sim_room_monitor(sim_room_id):
     elif mode == "controller":
         data['title'] = "Sim Controller"
         return render_template('controller.html', data=data)
-    
+
     # Fallback: if no mode is specified, return the sim index
     return render_template('sim_index.html', data=data)
 
@@ -157,12 +157,12 @@ def handle_error(error):
         error.description = 'Not found.'
     return render_template('error.html', data={'error': error}), error.code
 
-#    _____            __        __       
-#   / ___/____  _____/ /_____  / /______ 
-#   \__ \/ __ \/ ___/ //_/ _ \/ __/ ___/ 
-#  ___/ / /_/ / /__/ ,< /  __/ /_(__  )  
-# /____/\____/\___/_/|_|\___/\__/____/   
-                                       
+#    _____            __        __
+#   / ___/____  _____/ /_____  / /______
+#   \__ \/ __ \/ ___/ //_/ _ \/ __/ ___/
+#  ___/ / /_/ / /__/ ,< /  __/ /_(__  )
+# /____/\____/\___/_/|_|\___/\__/____/
+
 @socketio.on('connect')
 def handle_connect(auth):
     sim_room_id = auth['sim_room_id']
@@ -172,7 +172,7 @@ def handle_connect(auth):
 # @socketio.on('disconnect')
 # def handle_connect():
 #     print("🚨 SocketIO fired the 'disconnect' event.")
-    
+
 @socketio.on('sim-update')
 def handle_sim_update(data):
     data = json.loads(data)
