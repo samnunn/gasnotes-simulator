@@ -783,9 +783,9 @@ svg {
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
                 [this.interpolateDuration(80, 0, this.rate), 0, this.interpolateDuration(-2, 0, this.rate), 0],                                                  // end of pr segment (isoelectric)
-                [this.interpolateDuration(40, 25, this.rate), -0.1, -0.05],                                                                            // q wave (trough)
+                [this.interpolateDuration(40, 25, this.rate), this.randomNumberBetween(-0.07, -0.04), -0.05],                                                                            // q wave (trough)
                 [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(1, 0.9), -0.05],                                                     // r wave (peak)
-                [this.interpolateDuration(50, 25, this.rate), -0.1, -0.05],                                                                               // s wave (trough)
+                [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(-0.1, -0.05), -0.05],                                                                               // s wave (trough)
                 [this.interpolateDuration(70, 30, this.rate), 0, this.interpolateDuration(-5, 0, this.rate), 5],                                                // st segment
                 [this.interpolateDuration(180, 60, this.rate), 0.175, this.interpolateDuration(-6, -2, this.rate)],                                                // t wave (peak)
                 [this.interpolateDuration(180, 60, this.rate), isoelectricLine, this.interpolateDuration(-8, 0, this.rate)],  // qt (isoelectric)
