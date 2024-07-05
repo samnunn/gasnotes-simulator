@@ -20,7 +20,7 @@
         <h1>Wave Tester</h1>
         <form id="wavegen-form" action="">
             <select name="wave" id="">
-                
+
             </select>
             <select name="colour" id="">
                 <option value="green">Green</option>
@@ -33,49 +33,58 @@
             <input type="submit" value="Generate">
         </form>
         <div id="all-waves">
+            <sim-trace id="trace" rate="80" morphology="spo2" stroke-colour="cyan"></sim-trace>
         </div>
 
         <script type="module">
-            import { waveManager, pixelsToMilliseconds, waveGenerators } from '/static/js/wavemaker.js'
-            
-            //  _       __                                       
-            // | |     / /___ __   _____  _____                  
-            // | | /| / / __ `/ | / / _ \/ ___/                  
-            // | |/ |/ / /_/ /| |/ /  __(__  )                   
-            // |__/|__/\__,_/ |___/\___/____/                    
-            
+            import { } from '/static/js/wavemaker2.js'
+
+            document.querySelector('#trace').beat(0, true)
+
+        </script>
+
+        <!-- <script type="module">
+            // import { waveManager, pixelsToMilliseconds, waveGenerators } from '/static/js/wavemaker.js'
+            import { } from '/static/js/wavemaker2.js'
+
+            //  _       __
+            // | |     / /___ __   _____  _____
+            // | | /| / / __ `/ | / / _ \/ ___/
+            // | |/ |/ / /_/ /| |/ /  __(__  )
+            // |__/|__/\__,_/ |___/\___/____/
+
 
             let allWavesContainer = document.getElementById('all-waves')
             async function paintWaves(lowest, interval, highest, rhythm, colour='rgb(76, 209, 55)') {
-                for (let i=lowest; i<=highest; i+=interval) {
+                for (let i=highest; i>=lowest; i-=interval) {
                     // Make a new <div>
                     let newDiv = document.createElement('div')
-                    newDiv.classList.add('wave-container')
-                    newDiv.id = `ecg-${i}`
-                    allWavesContainer.appendChild(newDiv)
+                    // allWavesContainer.appendChild(newDiv)
 
                     // Give it a title
                     let pTag = document.createElement('p')
                     pTag.innerText = `${i} bpm`
-                    newDiv.appendChild(pTag)
+                    // newDiv.appendChild(pTag)
+
+                    let simTrace = document.createElement('sim-trace')
+                    // newDiv.appendChild(simTrace)
 
                     // Fill it with waves
-                    let ecgManager = new waveManager(`ecg-${i}`, i, rhythm, colour)
-                    for (let j=0; j < i * 0.3; j++) {
-                        await ecgManager.paintNextComplex(null, true)
-                    }
+                    // for (let j=0; j < i * 0.3; j++) {
+                    //     await ecgManager.paintNextComplex(null, true)
+                    // }
                 }
             }
 
-            // Override form sumission
+            // Override form submission
             let formPicker = document.querySelector('#wavegen-form')
             let wavePicker = formPicker.querySelector('select[name="wave"]')
             let colourPicker = formPicker.querySelector('select[name="colour"]')
 
             // Generate Wave Options List
-            for (let g in waveGenerators) {
-                wavePicker.innerHTML += `<option value="${g}">${g}</option>`
-            }
+            // for (let g in waveGenerators) {
+            //     wavePicker.innerHTML += `<option value="${g}">${g}</option>`
+            // }
 
 
             formPicker.addEventListener('submit', (e) => {
@@ -109,6 +118,6 @@
 
                 formPicker.querySelector('input[type="submit"]').click()
             })
-        </script>
+        </script> -->
     </body>
 </html>
