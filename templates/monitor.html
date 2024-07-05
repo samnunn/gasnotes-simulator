@@ -23,7 +23,7 @@ body {
 
         & > * {
             min-height: 0px;
-            overflow: hidden !important;
+            /* overflow: hidden !important; */
             position: relative; /* needed to position the child wave elements absolutely */
         }
 
@@ -39,7 +39,12 @@ body {
 
     & div:has(>sim-trace) {
         padding-top: 1rem;
-        height: 150px;
+        overflow-y: visible;
+    }
+
+    & sim-trace {
+        position: absolute;
+        width: 100%;
     }
 }
 
