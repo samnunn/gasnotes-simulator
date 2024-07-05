@@ -1,1 +1,1 @@
-pipenv run flask --app sim:app --debug run
+pipenv run flask --app sim:app --debug run --port 8000
