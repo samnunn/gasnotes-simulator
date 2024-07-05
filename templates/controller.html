@@ -47,9 +47,20 @@ body {
             flex-direction: row;
             justify-content: space-between;
             margin-bottom: 0.5rem;
+            color: white;
         }
         & .sim-value {
             font-size: 1.5rem;
+            color: white;
+            transition: all 100ms ease;
+            transition-behavior: allow-discrete;
+        }
+    }
+    
+    & sim-slider[sim-disabled] {
+        & .sim-value {
+            opacity: 0;
+            visibility: hidden;
         }
     }
 
@@ -85,56 +96,30 @@ body {
     }
 }
 
-}
-
-            border-color: rgb(116 33 12);
 /* SEND BUTTON */
 #send {
     transition: background-color 100ms ease;
     --button-color: var(--color-navy);
 }
-
-#presets {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.75rem;
 #send.stale {
     --button-color: var(--color-red);
     outline: 0px solid white;
     animation: glowing-button 100 ease infinite;
 }
 
-#trace-switches {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.75rem;
-
-    & .sim-button {
-        flex-direction: row;
-        justify-content: space-between;
-        padding-left: 1rem;
-    }
-
-    & > * {
-        font-size: 1rem;
-    }
-    input {
-        display: none;
 @keyframes glowing-button {
     0% {
        outline-width: 0px;
     }
-    label::after {
-        content: "❌";
-        display: block;
-        font-size: 0.75rem;
-        font-weight: normal;
+    50% {
+       outline-width: 2px;
     }
-    label:has(input:checked)::after {
-        content: "✅";
+    100% {
+       outline-width: 0px;
     }
 }
 
+/* RESPONSIVE */
 @media (max-width: 630px){       
     #presets {
         grid-template-columns: repeat(3, 1fr);
@@ -159,119 +144,73 @@ body {
         </select> -->
         <input id="send" type="submit" value="Send" form="sim-input" class="button controller-mode stale">
     </div>
+</header>
+<div id="controller" class="wrapped controller-mode">
     <form action="#" id="sim-input">
-        <!-- <div class="sim-input-group">
-            <p>Presets 💾</p>
-            <div id="presets">
-                <div class="sim-button">
-                    <span>🚨</span>
-                    <span>ARREST</span>
-                </div>
-                <div class="sim-button">
-                    <span>☝️</span>
-                    <span>1° HB</span>
-                </div>
-                <div class="sim-button">
-                    <span>✌️</span>
-                    <span>2° HB</span>
-                </div>
-                <div class="sim-button">
-                    <span>🤟</span>
-                    <span>3° HB</span>
-                </div>
-                <div class="sim-button">
-                    <span>🩰</span>
-                    <span>TdP</span>
-                </div>
-                <div class="sim-button">
-                    <span>🤪</span>
-                    <span>A-FIB</span>
-                </div>
-            </div>
-        </div> -->
-        <div class="sim-input-group">
+        <div class="sim-input-group" id="cardiac">
             <p>Cardiac 💛</p>
-            <sim-slider prefix="" suffix="" display-name="HR" sim-colour="green" sim-parameter="heart-rate" min="30" max="250" sim-value="67"></sim-slider>
+            <sim-slider display-name="HR" class="green" sim-parameter="heart-rate" min="30" max="250" sim-value="67"></sim-slider>
             <div class="sim-select green">
                 <div class="input-label">ECG</div>
-                <select name="" id="" sim-parameter="ecg-rhythm">
+                <select sim-parameter="ecg-rhythm">
                     <option value="sinus">Normal Sinus Rhythm</option>
                     <option value="afib">Atrial Fibrillation</option>
                     <option value="hb2m1">2° Heart Block (Mobitz I)</option>
                     <option value="hb2m2">2° Heart Block (Mobitz II)</option>
-                    <option value="vfib">Ventricular Fibrillation</option>
-                    <option value="vtach-monomorphic">Ventricular Tachycardia</option>
-                    <option value="vtach-torsades">Torsades de Pointes</option>
+                    <option value="vfib" sim-arrest>Ventricular Fibrillation</option>
+                    <option value="vtach-monomorphic" sim-arrest>Ventricular Tachycardia</option>
+                    <option value="vtach-torsades" sim-arrest>Torsades de Pointes</option>
                     <option value="stemi">STEMI</option>
-                    <option value="flatline">Flatline</option>
+                    <hr>
+                    <option value="flatline" sim-arrest sim-disconnect="heart-rate">Flatline</option>
+                    <option value="sim-disconnect" sim-disconnect="heart-rate">Disconnected</option>
                 </select>
             </div>
         </div>
-        <div class="sim-input-group">
+        <div class="sim-input-group" id="haemodynamics">
             <p>Haemodynamics 🩸</p>
-            <sim-slider prefix="" suffix="" display-name="SBP" sim-colour="purple" sim-parameter="systolic-blood-pressure" min="20" max="200" sim-value="119"></sim-slider>
-            <sim-slider prefix="" suffix="" display-name="DBP" sim-colour="purple" sim-parameter="diastolic-blood-pressure" min="20" max="200" sim-value="57"></sim-slider>
-            <sim-slider prefix="" suffix="" display-name="MAP" sim-colour="red" sim-parameter="mean-arterial-pressure" min="20" max="200" sim-value="78"></sim-slider>
+            <sim-slider display-name="SBP" class="red" sim-parameter="systolic-blood-pressure" min="20" max="200" sim-value="119"></sim-slider>
+            <sim-slider display-name="DBP" class="red" sim-parameter="diastolic-blood-pressure" min="20" max="200" sim-value="57"></sim-slider>
+            <sim-slider display-name="MAP" class="red" sim-parameter="mean-arterial-pressure" min="20" max="200" sim-value="78"></sim-slider>
             <div class="sim-select red">
                 <div class="input-label">ART</div>
                 <select name="" id="" sim-parameter="artline-trace">
-                    <option value="artline">Normal Trace </option>
+                    <option value="artline">Normal Trace</option>
                     <option value="artline-overdamped">Over-Damped</option>
                     <option value="artline-underdamped">Under-Damped</option>
-                    <option value="flatline">Flatline</option>
+                    <hr>
+                    <option value="flatline" sim-disconnect="systolic-blood-pressure diastolic-blood-pressure mean-arterial-pressure">Flatline</option>
+                    <option value="sim-disconnect" sim-nibp>NIBP Only</option>
+                    <option value="sim-disconnect" sim-disconnect="systolic-blood-pressure diastolic-blood-pressure mean-arterial-pressure">Disconnected</option>
                 </select>
             </div>
         </div>
-        <div class="sim-input-group">
+        <div class="sim-input-group" id="respiration">
             <p>Respiration 😮‍💨</p>
-            <sim-slider prefix="" suffix="" display-name="RR" sim-colour="white" sim-parameter="respiratory-rate" type="range" min="0" max="60" sim-value="18"></sim-slider>
-            <sim-slider prefix="" suffix="" display-name="SpO<sub>2</sub>" sim-colour="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
-            <div class="sim-select blue">
-                <div class="input-label">PLETH</div>
-                <select name="" id="" sim-parameter="spo2-trace">
-                    <option value="spo2">Well Perfused</option>
-                    <option value="spo2-badtrace">Poorly Perfused</option>
-                    <option value="flatline">Flatline</option>
-                </select>
-            </div>
-            <sim-slider prefix="" suffix="" display-name="etCO<sub>2</sub>" sim-colour="yellow" sim-parameter="etco2" type="range" min="0" max="60" sim-value="36"></sim-slider>
+            <sim-slider display-name="RR" class="yellow" sim-parameter="respiratory-rate" type="range" min="0" max="60" sim-value="18"></sim-slider>
+            <sim-slider display-name="etCO<sub>2</sub>" class="yellow" sim-parameter="etco2" type="range" min="0" max="60" sim-value="36"></sim-slider>
             <div class="sim-select yellow">
                 <div class="input-label">CAP</div>
                 <select name="" id="" sim-parameter="capno-trace">
                     <option value="capno-normal">Normal</option>
                     <option value="capno-obstructed-moderate">Moderate Obstruction</option>
                     <option value="capno-obstructed-severe">Severe Obstruction</option>
-                    <option value="flatline">Flatline</option>
+                    <hr>
+                    <option value="flatline" sim-disconnect="respiratory-rate etco2">Flatline</option>
+                    <option value="rr-only" sim-disconnect="etco2">Rate Only</option>
+                    <option value="sim-disconnect" sim-disconnect="respiratory-rate etco2">Disconnected</option>
                 </select>
             </div>
-        </div>
-        <div class="sim-input-group">
-            <p>Traces 📈</p>
-            <div id="trace-switches">
-                <label class="sim-button">
-                    <span class="">ECG</span>
-                    <input type="checkbox" sim-parameter="ecg-enabled" checked>
-                </label>
-                <label class="sim-button">
-                    <span>SpO<sub>2</sub></span>
-                    <input type="checkbox" sim-parameter="spo2-enabled" checked>
-                </label>
-                <label class="sim-button">
-                    <span class="">ART</span>
-                    <input type="checkbox" sim-parameter="artline-enabled" checked>
-                </label>
-                <label class="sim-button">
-                    <span class="">NIBP</span>
-                    <input type="checkbox" sim-parameter="nibp-enabled" checked>
-                </label>
-                <label class="sim-button">
-                    <span class="">RR</span>
-                    <input type="checkbox" sim-parameter="rr-enabled" checked>
-                </label>
-                <label class="sim-button">
-                    <span class="">etCO<sub>2</sub></span>
-                    <input type="checkbox" sim-parameter="capno-enabled" checked>
-                </label>
+            <sim-slider display-name="SpO<sub>2</sub>" class="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
+            <div class="sim-select blue">
+                <div class="input-label">PLETH</div>
+                <select name="" id="" sim-parameter="spo2-trace">
+                    <option value="spo2">Well Perfused</option>
+                    <option value="spo2-badtrace">Poorly Perfused</option>
+                    <hr>
+                    <option value="flatline" sim-disconnect="spo2">Flatline</option>
+                    <option value="sim-disconnect" sim-disconnect="spo2">Disconnected</option>
+                </select>
             </div>
         </div>
         <div class="sim-input-group">
@@ -313,17 +252,25 @@ const socket = io({
         sim_room_id: '{{ data.sim_room_id }}',
     }
 })
+let sendButton = document.querySelector('#send')
 
-document.querySelector('form#sim-input').addEventListener('submit', (e) => {
+let form = document.querySelector('form#sim-input')
+form.addEventListener('submit', (e) => {
     e.preventDefault()
     let message = dumpAllInputState()
     console.debug(message)
     socket.emit('sim-update', message)
     
-    // stops the send button's animation-running animation at the nd of the next cycle (instead of going cold turkey)
-    document.querySelector('#roundbit')?.addEventListener('animationiteration', (e) => {
-        document.querySelector('#roundbit').classList.remove('animation-running')
-    })
+    if (sendButton) {
+        sendButton.classList.remove('stale')
+        sendButton.style.width = sendButton.clientWidth + 'px'
+        sendButton.value = 'Sent'
+    }
+})
+
+form.addEventListener('input', (e) => {
+    sendButton.classList.add('stale')
+    sendButton.value = 'Send'
 })
 
 function dumpAllInputState(inputs=null) {
@@ -347,10 +294,16 @@ function dumpAllInputState(inputs=null) {
             // handles all other inputs
             simValue = i.value
         }
+        
+        let simDisabled = false
+        if (i.getAttribute('sim-disabled') == 'true') {
+            simDisabled = true
+        }
 
         message['updates'].push({
             'sim-parameter': i.getAttribute('sim-parameter'),
             'sim-value': simValue,
+            'sim-disabled': simDisabled,
         })
     }
     message = JSON.stringify(message)
@@ -410,12 +363,6 @@ map.addEventListener('input', (e) => {
     let dbp_val = parseInt(dbp.getAttribute('sim-value'))
     let map_val = parseInt(map.getAttribute('sim-value'))
 
-    // update pulseWidth if sbp and dbp are NOT at their limits
-    // otherwise it will squish to pulseWidth to zero
-    // if (dbp_val > dbp.min && sbp_val < sbp.max) {
-    //     updatePulseWidth()
-    // }
-
     // adjust SBP and DBP
     let new_sbp = null
     let new_dbp = null
@@ -461,12 +408,12 @@ customElements.define('sim-slider', class extends HTMLElement {
         this.colour = this.getAttribute('sim-colour')
         this.innerHTML = `
         <div class="input-label">
-            <span class="${this.colour}">${this.display_name}</span>
+            <span>${this.display_name}</span>
             <br>
             <span class="sim-value">${this.sim_value}</span>
         </div>
         <div class="slider">
-            <input class="${this.colour}" type="range" min="${this.min}" max="${this.max}" step="${this.step}" value="${this.sim_value}">
+            <input type="range" min="${this.min}" max="${this.max}" step="${this.step}" value="${this.sim_value}">
             <div class="minmax">
                 <span class="min">${this.min}</span>
                 <span class="max">${this.max}</span>
@@ -482,16 +429,18 @@ customElements.define('sim-slider', class extends HTMLElement {
         if (name == 'sim-value') {
             this.querySelector('input').value = newValue
             this.querySelector('.sim-value').innerText = newValue
-            // if (newValue > this.max) {
-            //     this.setAttribute('sim-value', this.max)
-            // }
-            // if (newValue < this.min) {
-            //     this.setAttribute('sim-value', this.min)
-            // }
+        }
+        
+        if (name == 'sim-disabled') {
+            if (newValue != null) {
+                this.querySelector('input').setAttribute('disabled', true)
+            } else {
+                this.querySelector('input').removeAttribute('disabled')
+            }
         }
     }
     static get observedAttributes () {
-        return ['sim-value']
+        return ['sim-value', 'sim-disabled']
     }
     
 })
@@ -520,31 +469,6 @@ customElements.define('radio-group', class extends HTMLElement {
     }
 })
 
-// SEND BUTTON
-let sendButton = document.querySelector('#send-button')
-let sendInput = document.querySelector('#send')
-let sendIcon = sendButton.querySelector('svg')
-let sendCheck = sendButton.querySelector('#checkmark')
-
-const wiggleSendKeyframes = [
-    { transform: 'scale(1) rotate(0deg) translate(0, 0)', offset: 0},
-    { transform: 'rotate(5deg)', offset: 0.05},
-    { transform: 'rotate(-5deg) translate(-0.2rem, 0.2rem)', offset: 0.15},
-    { transform: 'rotate(0deg)', offset: 0.2},
-    { transform: 'scale(0.7) rotate(0deg) translate(3rem, -4rem)', offset: 0.5},
-    { transform: 'scale(2) rotate(0deg) translate(-4rem, 3rem)', offset: 0.5},
-    { transform: 'scale(1.0) rotate(0deg) translate(0, 0)', offset: 1.0},
-]
-
-const wiggleSendOptions = {
-    duration: 700,
-    iterations: 1,
-    easing: 'ease-in-out',
-    fill: 'forwards'
-}
-
-sendInput.addEventListener('click', (e) => {
-    sendIcon.animate(wiggleSendKeyframes, wiggleSendOptions)
 // NON-PERFUSING RHYTHM CHECKER
 let ecg = document.querySelector('[sim-parameter="ecg-rhythm"]')
 ecg.addEventListener('input', (e) => {
@@ -574,8 +498,6 @@ ecg.addEventListener('input', (e) => {
     }
 })
 
-document.querySelector('form')?.addEventListener('input', (e) => {
-    document.querySelector('#roundbit')?.classList.add('animation-running')
 // DISCONNECTION CHECKER
 // Behaviour:
 // - Runs every time an <option> is selected
