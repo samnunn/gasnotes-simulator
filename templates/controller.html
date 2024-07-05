@@ -83,92 +83,25 @@ body {
             flex-grow: 1;
         }
     }
-
-    /* input#send {
-        position: sticky;
-        bottom: 1rem;
-        margin: 0 auto;
-    } */
-
-}
-#send-button {
-    position: sticky;
-    bottom: 1rem;
-    margin: 2rem 0 2rem auto;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-
-    & #roundbit {
-        z-index: 2;
-        height: 4rem;
-        aspect-ratio: 1;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        align-self: flex-end;
-        justify-self: end;
-
-        background-color: var(--color-red-two);
-        border-radius: 50% 50%;
-        border: 3px solid rgb(116 33 12);
-
-        overflow: hidden;
-
-        animation: alternating-border-color 1500ms ease infinite;
-        animation-play-state: paused;
-
-        transition: border-color 1s linear;
-
-        & svg {
-            height: 50%;
-            margin-left: -2px;
-            filter: invert(1);
-            position: relative;
-        }
-    }
-
-    & #wordbit {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-        position: relative;
-        left: 2rem;
-        z-index: 1;
-        background-color: var(--dark-grey);
-        padding: 0.25rem 2.5rem 0.25rem 0.75rem;
-        border-radius: var(--border-radius);
-        border: 2px solid var(--light-grey);
-    }
-
-    & input {
-        display: none;
-    }
 }
 
-@keyframes alternating-border-color {
-        0% {
-            border-color: rgb(116 33 12);
-        }
-        50% {
-            border-color: white;
-        }
-        100% {
-            border-color: rgb(116 33 12);
-        }
-    }
+}
 
-#roundbit.animation-running {
-    animation-play-state: running !important;
-    animation-iteration-count: infinite !important;
+            border-color: rgb(116 33 12);
+/* SEND BUTTON */
+#send {
+    transition: background-color 100ms ease;
+    --button-color: var(--color-navy);
 }
 
 #presets {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 0.75rem;
+#send.stale {
+    --button-color: var(--color-red);
+    outline: 0px solid white;
+    animation: glowing-button 100 ease infinite;
 }
 
 #trace-switches {
@@ -187,6 +120,9 @@ body {
     }
     input {
         display: none;
+@keyframes glowing-button {
+    0% {
+       outline-width: 0px;
     }
     label::after {
         content: "❌";
@@ -208,10 +144,20 @@ body {
     }
 }
 </style>
-<div id="controller" class="wrapped controller-mode">
-    <div id="header">
+<header>
+    <div class="wrapped">
         <a class="no-underline" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Controls 😴</h1></a>
-        <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a>
+        <!-- <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a> -->
+        <!-- <select class="button red" sim-parameter="capno-trace" sim-disconnect="respiratory-rate etco2">
+            <option value="capno-normal">Normal</option>
+            <option value="capno-obstructed-moderate">Moderate Obstruction</option>
+            <option value="capno-obstructed-severe">Severe Obstruction</option>
+            <hr>
+            <option value="flatline">Flatline</option>
+            <option value="rr-only">RR Only</option>
+            <option value="sim-disconnect" sim-disconnect>Disconnected</option>
+        </select> -->
+        <input id="send" type="submit" value="Send" form="sim-input" class="button controller-mode stale">
     </div>
     <form action="#" id="sim-input">
         <!-- <div class="sim-input-group">
@@ -355,15 +301,6 @@ body {
                     </div>
                 </radio-group>
         </div>
-        <!-- <input id="send" type="submit" value="Send to Monitor 📡" form="sim-input" class="button red controller-mode"> -->
-        <label id="send-button" class="">
-            <!-- <div id="wordbit">Send</div> -->
-            <div id="roundbit">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376V479.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z"/></svg>
-            </div>
-            <input id="send" type="submit" value="Send to Monitor 📡" form="sim-input" class="button red controller-mode">
-        </label>
-        <!-- <sim-slider prefix="" suffix="" display-name="Temperature" sim-colour="yellow" sim-parameter="temp" min="25" max="42" step="0.1" sim-value="36.7"></sim-slider> -->
     </form>
 </div>
 
