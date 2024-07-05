@@ -27,7 +27,7 @@ body {
             position: relative; /* needed to position the child wave elements absolutely */
         }
 
-        & display-numerical {
+        & sim-readout {
             font-size: clamp(3rem, calc(20vh - 5rem), 10rem);
             line-height: 0.9;
         }
@@ -48,7 +48,7 @@ body {
     }
 }
 
-#bp-readout > display-numerical {
+#bp-readout > sim-readout {
     font-size: clamp(3rem, calc(10vh - 2.5rem), 5rem) !important;
 }
 
@@ -133,7 +133,7 @@ sim-trace[sim-enabled="false"] {
         </div>
         <div>
             <p class="readout-label">HR (/min)</p>
-            <display-numerical sim-enabled-parameter="ecg-enabled" prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true"></display-numerical>
+            <sim-readout prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true"></sim-readout>
         </div>
         <div>
             <sim-trace id="spo2" sim-enabled-parameter="spo2-enabled" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)"></sim-trace>
@@ -141,7 +141,7 @@ sim-trace[sim-enabled="false"] {
         </div>
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
-            <display-numerical sim-enabled-parameter="spo2-enabled" prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true"></display-numerical>
+            <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true"></sim-readout>
         </div>
         <div>
             <sim-trace id="spo2" sim-enabled-parameter="artline-enabled" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)"></sim-trace>
@@ -149,9 +149,9 @@ sim-trace[sim-enabled="false"] {
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
-            <display-numerical sim-enabled-parameter="artline-enabled" prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="red" sim-value="119" sim-transitionable="true"></display-numerical>
-            <display-numerical sim-enabled-parameter="artline-enabled" prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="red" sim-value="57" sim-transitionable="true"></display-numerical>
-            <display-numerical sim-enabled-parameter="artline-enabled" prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></display-numerical>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="red" sim-value="119" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="red" sim-value="57" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></sim-readout>
         </div>
         <div>
             <sim-trace id="capno" sim-enabled-parameter="capno-enabled" sim-parameter="capno-trace" morphology="capno-normal" rate="18" stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60" y-scale="1"></sim-trace>
@@ -159,17 +159,17 @@ sim-trace[sim-enabled="false"] {
         </div>
         <div id="etco2">
             <p class="readout-label">etCO<sub>2</sub></p>
-            <display-numerical sim-enabled-parameter="capno-enabled" prefix="" suffix="" sim-parameter="etco2" sim-colour="yellow" sim-value="36" sim-transitionable="true"></display-numerical> 
+            <sim-readout prefix="" suffix="" sim-parameter="etco2" sim-colour="yellow" sim-value="36" sim-transitionable="true"></sim-readout>
         </div>
         <div id="nibp">
             <p class="readout-label">NIBP (mmHg)</p>
-            <display-numerical sim-enabled-parameter="nibp-enabled" prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119"></display-numerical>
-            <display-numerical sim-enabled-parameter="nibp-enabled" prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57"></display-numerical>
-            <display-numerical sim-enabled-parameter="nibp-enabled" prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78"></display-numerical>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57"></sim-readout>
+            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78"></sim-readout>
         </div>
         <div id="rr">
             <p class="readout-label">RR (/min)</p>
-            <display-numerical sim-enabled-parameter="rr-enabled" prefix="" suffix="" display-name="Respiratory Rate" sim-parameter="respiratory-rate" sim-colour="white" sim-value="18" sim-transitionable="true"></display-numerical>
+            <sim-readout prefix="" suffix="" display-name="Respiratory Rate" sim-parameter="respiratory-rate" sim-colour="white" sim-value="18" sim-transitionable="true"></sim-readout>
         </div>
     </div>
 </div>
@@ -190,7 +190,7 @@ socket.on('sim-update', (msg) => {
     // update UI
     for (let u of updates) {
         const targetElements = document.querySelectorAll(`[sim-parameter="${u['sim-parameter']}"]`)
-        
+
         for (let el of targetElements) {
             if (el.hasAttribute('sim-transitionable')) {
                 // set a TransitionManager for transitionable values
@@ -229,9 +229,7 @@ socket.on('sim-kill-command', (msg) => {
 })
 
 // CUSTOM ELEMENTS
-    
-customElements.define('display-numerical', class extends HTMLElement {
-
+customElements.define('sim-readout', class extends HTMLElement {
     constructor () {
         super()
         let prefix = this.getAttribute('prefix')
