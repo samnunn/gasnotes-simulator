@@ -545,6 +545,33 @@ const wiggleSendOptions = {
 
 sendInput.addEventListener('click', (e) => {
     sendIcon.animate(wiggleSendKeyframes, wiggleSendOptions)
+// NON-PERFUSING RHYTHM CHECKER
+let ecg = document.querySelector('[sim-parameter="ecg-rhythm"]')
+ecg.addEventListener('input', (e) => {
+    let target = e.target
+    if(target.options[target.selectedIndex].hasAttribute('sim-arrest')) {
+        if (window.confirm(`Start cardiac arrest?`)) {
+            let arrestTargets = ['artline-trace', 'capno-trace', 'spo2-trace']
+            console.log(`configuring cardiac arrest for: ${arrestTargets}`)
+            
+            for (let a of arrestTargets) {
+                let trace = document.querySelector(`[sim-parameter="${a}"]`)
+                trace.value = 'flatline'
+                trace.dispatchEvent(new Event('input'))
+            }
+            
+        } else {
+            console.log('no cardiac arrest, skipping…')
+        }
+        
+        // max out HR for non-perfusing tachyarrhythmias
+        let hr = document.querySelector('[sim-parameter="heart-rate"]')
+        hr.setAttribute('sim-value', hr.getAttribute('max'))
+        
+        // let event = document.createEvent('MouseEvents')
+        // event.initMouseEvent('mousedown', true, true, window)
+        // document.querySelector('select[sim-parameter="ecg-rhythm"]')?.dispatchEvent(event)
+    }
 })
 
 document.querySelector('form')?.addEventListener('input', (e) => {
