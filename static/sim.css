@@ -114,3 +114,23 @@ span.simcode {
         background-color: #444;
     }
 }
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: black;
+    border-bottom: 3px solid #333;
+    padding: 1rem 0;
+    
+    & h1 {
+        margin: 0;
+        padding: 0;
+    }
+    
+    > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
