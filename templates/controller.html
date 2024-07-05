@@ -576,6 +576,50 @@ ecg.addEventListener('input', (e) => {
 
 document.querySelector('form')?.addEventListener('input', (e) => {
     document.querySelector('#roundbit')?.classList.add('animation-running')
+// DISCONNECTION CHECKER
+// Behaviour:
+// - Runs every time an <option> is selected
+// - Re-enables all elements with a [sim-parameter] attribute
+// - Then disabled elements with a [sim-parameter] attribute that are in current <option>'s [sim-disconnect] attribute
+let disconnectingSelectors = document.querySelectorAll("select:has(option[sim-disconnect])")
+for (let d of disconnectingSelectors) {
+    d.previouslyDisabled = []
+    d.addEventListener('input', (e) => {
+        let selection = e.target.options[e.target.selectedIndex]
+        
+        // reset disabled attributes for inputs in the containing div.sim-input-group
+        let parent = e.target.closest('div.sim-input-group')
+        
+        let toEnable = e.target.previouslyDisabled
+        for (let t of toEnable) {
+            parent.querySelector(`[sim-parameter="${t}"]`)?.removeAttribute('sim-disabled')
+        }
+        
+        // disable specified inputs within the containing div.sim-input-group
+        if (selection.hasAttribute('sim-disconnect') == true) {
+            let targets = selection.getAttribute('sim-disconnect').split(' ')
+            for (let t of targets) {
+                parent.querySelector(`[sim-parameter="${t}"]`)?.setAttribute('sim-disabled', true)
+            }
+            e.target.previouslyDisabled = targets
+        }
+    })
+}
+
+// NIBP ONLY MODE
+let nibpSelector = document.querySelector('[sim-parameter="artline-trace"]')
+let haemodynamics = document.querySelector('#haemodynamics')
+nibpSelector.addEventListener('input', (e) => {
+    let colourChangeElements = haemodynamics.querySelectorAll('sim-slider')
+    for (let c of colourChangeElements) {
+        if (e.target.options[e.target.selectedIndex].hasAttribute('sim-nibp')) {
+            c.classList.add('purple')
+            c.classList.remove('red')
+        } else {
+            c.classList.add('red')
+            c.classList.remove('purple')
+        }
+    }
 })
 </script>
 
