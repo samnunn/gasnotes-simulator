@@ -102,24 +102,21 @@ body {
     </div>
     <div id="main-table">
         <div>
-            <sim-trace id="ecg" sim-enabled-parameter="ecg-enabled" sim-parameter="ecg-rhythm" stroke-colour="rgb(76, 209, 55)"></sim-trace>
-            <!-- <div id="ecg" class="wave-container" sim-enabled-parameter="ecg-enabled"></div> -->
+            <sim-trace id="ecg" sim-parameter="ecg-rhythm" stroke-colour="rgb(76, 209, 55)" baseline-wobble="true"></sim-trace>
         </div>
         <div>
             <p class="readout-label">HR (/min)</p>
             <sim-readout prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true"></sim-readout>
         </div>
         <div>
-            <sim-trace id="spo2" sim-enabled-parameter="spo2-enabled" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)"></sim-trace>
-            <!-- <div id="spo2" class="wave-container" sim-enabled-parameter="spo2-enabled"></div> -->
+            <sim-trace id="spo2" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)" baseline-wobble="true"></sim-trace>
         </div>
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
             <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true"></sim-readout>
         </div>
         <div>
-            <sim-trace id="spo2" sim-enabled-parameter="artline-enabled" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)"></sim-trace>
-            <!-- <div id="artline" sim-enabled-parameter="artline-enabled" class="wave-container"></div> -->
+            <sim-trace id="spo2" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
@@ -128,8 +125,7 @@ body {
             <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></sim-readout>
         </div>
         <div>
-            <sim-trace id="capno" sim-enabled-parameter="capno-enabled" sim-parameter="capno-trace" morphology="capno-normal" rate="18" stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60" y-scale="1"></sim-trace>
-            <!-- <div id="capnograph" class="wave-container" sim-enabled-parameter="capno-enabled"></div> -->
+            <sim-trace id="capno" sim-parameter="capno-trace" morphology="capno-normal" rate="18" stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60" y-scale="1"></sim-trace>
         </div>
         <div id="etco2">
             <p class="readout-label">etCO<sub>2</sub></p>
@@ -157,30 +153,22 @@ const socket = io({
 })
 
 socket.on('sim-update', (msg) => {
-    // shareSheet.close()
     let updates = JSON.parse(msg)['updates']
-    // console.debug(updates)
 
     // update UI
     for (let u of updates) {
         const targetElements = document.querySelectorAll(`[sim-parameter="${u['sim-parameter']}"]`)
 
         for (let el of targetElements) {
-            if (el.hasAttribute('sim-transitionable')) {
-                // set a TransitionManager for transitionable values
-                new TransitionManager(el, u['sim-value'])
+            // start transition
+            // non-transitioning elements will automatically get a transition time of zero
+            new TransitionManager(el, u['sim-value'])
+            
+            // set sim-disabled
+            if (u['sim-disabled'] == true) {
+                el.setAttribute('sim-disabled', true)
             } else {
-                // otherwise just set sim-value directly
-                el.setAttribute('sim-value', u['sim-value'])
-            }
-        }
-
-        // visibility toggles
-        if (u['sim-parameter'].includes('-enabled')) {
-            let visibilityToggledElements = document.querySelectorAll(`[sim-enabled-parameter="${u['sim-parameter']}"]`)
-
-            for (let e of visibilityToggledElements) {
-                e.setAttribute('sim-enabled', u['sim-value'])
+                el.setAttribute('sim-disabled', false)
             }
         }
 
@@ -192,14 +180,9 @@ socket.on('sim-update', (msg) => {
 
     // start all transitions
     const transitionableElements = document.querySelectorAll('[sim-transitionable]')
-    const transitionTime = document.body.getAttribute('sim-transition-time') || 0
     for (let el of transitionableElements) {
-        el.activeTransition.start(transitionTime)
+        el.activeTransition.start()
     }
-})
-
-socket.on('sim-kill-command', (msg) => {
-    alert('Kill!')
 })
 
 // CUSTOM ELEMENTS
@@ -213,25 +196,29 @@ customElements.define('sim-readout', class extends HTMLElement {
         <span class="readout-value readout-colour ${colour}">${prefix}--${suffix}</span>
         `
     }
+    
+    updateReadout() {
+        let prefix = this.getAttribute('prefix')
+        let suffix = this.getAttribute('suffix')
+        
+        let printedValue = this.getAttribute('sim-value')
+        
+        if (this.getAttribute('sim-disabled') == 'true') {
+            console.log('disabled', this.getAttribute('sim-parameter'), this.getAttribute('sim-disabled'))
+            printedValue = '--'
+        }
+        
+        this.querySelector('span.readout-value').innerText = prefix + printedValue + suffix
+        
+    }
 
     attributeChangedCallback (name, oldValue, newValue) {
-        if (name == 'sim-value') {
-            let prefix = this.getAttribute('prefix')
-            let suffix = this.getAttribute('suffix')
-
-            let printedValue = newValue
-            if (this.getAttribute('sim-enabled') == 'false') {
-                printedValue = '--'
-            }
-
-            this.querySelector('span.readout-value').innerText = prefix + printedValue + suffix
-        } else if (name == 'sim-enabled') {
-            this.setAttribute('sim-value', this.getAttribute('sim-value')) // deliberate no-op to force repaint
-        }
+            this.updateReadout()
     }
+    
     static get observedAttributes () {
-        return ['sim-value', 'sim-enabled']
-    }  
+        return ['sim-value', 'sim-disabled']
+    }
 })
 
 class TransitionManager {
@@ -250,14 +237,30 @@ class TransitionManager {
         this.initialValue = parseInt(this.targetElement.getAttribute('sim-value'))
         this.currentValue = this.initialValue
 
+        // stop the currently-running transition
         if (this.targetElement.activeTransition instanceof TransitionManager) {
             this.targetElement.activeTransition.running = false
         }
 
+        // substitute this transition
         this.targetElement.activeTransition = this
+        
+        // immediately commit changes for non-transitionable elements
+        if (this.targetElement.hasAttribute('sim-transitionable') == false) {
+            this.targetElement.setAttribute('sim-value', targetValue)
+            // needs to skip parseInt() because wave morphologies are strings
+        }
     }
 
-    start(duration) {
+    start() {
+        let duration
+        // set duration
+        if (this.targetElement.hasAttribute('sim-transitionable')) {
+            duration = document.body.getAttribute('sim-transition-time') || 0
+        } else {
+            duration = 0
+        }
+        
         // duration is an integer number of seconds
         if (duration > 0) {
             this.incrementSize = (this.targetValue - this.initialValue) / ((duration * 1000) / this.incrementDuration)
@@ -265,6 +268,7 @@ class TransitionManager {
             this.incrementSize = this.targetValue - this.initialValue
         }
 
+        // begin
         this.increment()
     }
 
@@ -319,12 +323,12 @@ class TransitionManager {
     }
 }
 
-//     ____                      
+//     ____
 //    / __ )___  ___  ____  _____
 //   / __  / _ \/ _ \/ __ \/ ___/
-//  / /_/ /  __/  __/ /_/ (__  ) 
-// /_____/\___/\___/ .___/____/  
-//                /_/            
+//  / /_/ /  __/  __/ /_/ (__  )
+// /_____/\___/\___/ .___/____/
+//                /_/
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 
@@ -374,11 +378,11 @@ soundButton?.addEventListener('click', (e) => {
     }
 })
 
-//  _       __                                       
-// | |     / /___ __   _____  _____                  
-// | | /| / / __ `/ | / / _ \/ ___/                  
-// | |/ |/ / /_/ /| |/ /  __(__  )                   
-// |__/|__/\__,_/ |___/\___/____/                    
+//  _       __
+// | |     / /___ __   _____  _____
+// | | /| / / __ `/ | / / _ \/ ___/
+// | |/ |/ / /_/ /| |/ /  __(__  )
+// |__/|__/\__,_/ |___/\___/____/
 
 import { } from '/static/js/wavemaker2.js'
 
