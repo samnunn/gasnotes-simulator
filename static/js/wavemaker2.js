@@ -695,7 +695,7 @@ sim-wave {
             // MAKE QRS
             let keyframes = [
                 [0, 0, -wobble],
-                [(0.5 + sidetoside) * targetDuration, this.interpolateDuration(0.7, 0.4, this.rate) + 0.1 * Math.random(), wobble, 0], // faster hr, shorter waves
+                [(0.5 + sidetoside) * targetDuration, this.interpolateDuration(0.5, 0.35, this.rate) + 0.1 * Math.random(), wobble, 0], // faster hr, shorter waves
                 [(0.5 - sidetoside) * targetDuration, 0, wobble]
             ]
 
