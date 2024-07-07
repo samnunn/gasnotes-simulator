@@ -180,7 +180,7 @@ body {
                     <option value="artline-underdamped">Under-Damped</option>
                     <hr>
                     <option value="flatline" sim-disconnect="systolic-blood-pressure diastolic-blood-pressure mean-arterial-pressure">Flatline</option>
-                    <option value="sim-disconnect" sim-nibp>NIBP Only</option>
+                    <option value="nibp-only">NIBP Only</option>
                     <option value="sim-disconnect" sim-disconnect="systolic-blood-pressure diastolic-blood-pressure mean-arterial-pressure">Disconnected</option>
                 </select>
             </div>
@@ -197,7 +197,7 @@ body {
                     <option value="capno-obstructed-severe">Severe Obstruction</option>
                     <hr>
                     <option value="flatline" sim-disconnect="respiratory-rate etco2">Flatline</option>
-                    <option value="rr-only" sim-disconnect="etco2">Rate Only</option>
+                    <option value="sim-disconnect" sim-disconnect="etco2">Rate Only</option>
                     <option value="sim-disconnect" sim-disconnect="respiratory-rate etco2">Disconnected</option>
                 </select>
             </div>
@@ -534,7 +534,7 @@ let haemodynamics = document.querySelector('#haemodynamics')
 nibpSelector.addEventListener('input', (e) => {
     let colourChangeElements = haemodynamics.querySelectorAll('sim-slider')
     for (let c of colourChangeElements) {
-        if (e.target.options[e.target.selectedIndex].hasAttribute('sim-nibp')) {
+        if (e.target.value == 'nibp-only') {
             c.classList.add('purple')
             c.classList.remove('red')
         } else {
