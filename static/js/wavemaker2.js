@@ -15,7 +15,7 @@
 // │            ┌─────────────────────────────────────────────────────────┐ │
 // │            │                          Wave                           │ │
 // │            │ ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐ │ │
-// │  Waveset   │ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
+// │  waveSet   │ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
 // │            │ └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘ │ │
 // │            └─────────────────────────────────────────────────────────┘ │
 // │            ┌─────────────────────────────────────────────────────────┐ │
@@ -39,6 +39,7 @@ customElements.define('sim-trace', class extends HTMLElement {
         this.pacemaker_id       = this.getAttribute('pacemaker')                    || null
         this.mode               = this.getAttribute('mode')                         || 'pacemaker'
         this.morphology         = this.getAttribute('morphology')                   || 'sinus'
+        this.last_morphology    = this.morphology
         this.strokeColour       = this.getAttribute('stroke-colour')                || 'green'
         this.fillColour         = this.getAttribute('fill-colour')                  || 'none'
         this.fillOpacity        = parseFloat(this.getAttribute('fill-opacity'))     || 1.0
@@ -48,17 +49,15 @@ customElements.define('sim-trace', class extends HTMLElement {
         this.strokeWidth        = parseInt(this.getAttribute('stroke-width'))       || 2
         this.height             = parseInt(this.getAttribute('height'))             || 250
         this.maxLayers          = parseInt(this.getAttribute('max-layers'))         || 10
-        this.last_y             = this.height/2
-
-
-        this.baseline_wobble_enabled        = this.getAttribute('baseline-wobble') == "true"
+        this.last_y             = this.height/2                                     // initial baseline = 50% of this.height
+        this.wobble_enabled     = this.getAttribute('baseline-wobble') == "true"
 
         // INIT
         // make a waveSet element
         this.waveSet = document.createElement('div')
         this.waveSet.classList.add('waveset')
 
-        // style the waveset (including the wipe animation)
+        // style the waveSet
         this.waveSet.style.height = `${this.height}px`
         this.waveSet.innerHTML = `<style>
 sim-wave {
@@ -67,7 +66,9 @@ sim-wave {
 }
 .waveset {
     color: white;
-    display: grid; /* using grid to stack waves in the z axis (absolute position breaks 0% -> 100% width animation) */
+    /* using grid to stack waves in the z axis*/
+    /* absolute positioning breaks the width animation */
+    display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
     grid-template-areas: "wave";
@@ -82,18 +83,18 @@ sim-wave {
     position: relative;
     background-color: black;
 }
-svg {
-
-}
 </style>`
 
         // add waveSet to DOM
         this.appendChild(this.waveSet)
 
         // make the first wave
-        this.stashedWave = this.constructWave(0)
-        this.insertWave(this.stashedWave)
+        let firstWave = this.constructWave(0)
+        this.insertWave(firstWave)
 
+        // copycat mode
+        // subscribes to 'beat' events from its controlling sim-trace
+        // disables built-in pacemaker
         if (this.mode == 'copycat') {
             // add event listener to pacemaker that beats every time it's called
             this.pacemaker = document.getElementById(this.pacemaker_id)
@@ -114,6 +115,9 @@ svg {
         if (name == 'morphology' || name == 'sim-value') {
             this.morphology = newValue
         }
+        
+        let event = new Event("sim-value-changed")
+        this.dispatchEvent(event)
 	}
 
 	static get observedAttributes () {
@@ -127,30 +131,60 @@ svg {
     // /_/  /_/\__,_/_/_/ /_/  /_____/\____/\____/ .___/
     //                                          /_/
 
-    // the main "heartbeat" function
-    // either called by a pacemaker or self-calling via an animation-based timeout (not setTimeout, bleh)
+    // beat() is either called by listening for 'beat' events on the pacemaker trace or self-calling via an animation-based timeout (not setTimeout, bleh)
+    // these are its tasks:
+    // - Save a reference to the front-most wave (the frontmost wave will change in the case of a newline)
+    // - Insert a new correctly-offset <path> IF there has been a morphology change
+    //      - Done so the "sim-disconnect" morphology could be a dashed line without making all surrounding complexes dashed too
+    // - Makes a new complex in the current morphology
+    // - Inserts the new complex
+    // - Calculates initial and final width of the front wave
+    // - Calculates the x overshoot
+    // - Initiates newline procedure of overshoot is >= 0 px:
+    //      - Creates a new <div.wave>
+    //      - Usual case: copies the SVG from the last line into the new one and moves it leftwards
+    //      - Special case for a disconnection: creates a new flat line (equal to the overshoot length) instead of copying the last SVG
+    //      - Does this because discontinuous lines make the dashes appear uneven
+    // - 
+    // - 
+    // - 
     beat(mandatoryWidth=0, repeating=false) {
         // save reference to this.frontWave as targetWave
         // avoids collision in newline handler, where animate() should apply to whatever is the front wave at the start of this function call
         let targetWave = this.frontWave
-
+        
+        // disconnected handler
+        if (this.morphology != this.last_morphology) {
+            let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
+            newPath.setAttribute('fill', this.fillColour)
+            newPath.setAttribute('fill-opacity', this.fillOpacity)
+            newPath.setAttribute('stroke', this.strokeColour)
+            newPath.setAttribute('stroke-width', this.strokeWidth)
+            newPath.setAttribute('fill', 'none')
+            newPath.setAttribute('d', `M ${targetWave.x_cursor},${this.last_y} `)
+            
+            this.frontWave.querySelector('svg')?.appendChild(newPath)
+        }
+        // save for next time
+        this.last_morphology = this.morphology
+        
+        if (this.morphology == 'sim-disconnect') {
+            this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
+        }
+        
         // make new complex
         let newComplex = this.constructComplex(targetWave, mandatoryWidth)
 
         // insert new complex
         this.insertComplex(targetWave, newComplex)
 
-        // emit pace event
-        const event = new CustomEvent("beat", { detail: newComplex.width})
-        this.dispatchEvent(event)
-
         // calculate initialWidth, finalWidth, overshoot
         let initialWidth = targetWave.clientWidth
-        let overshoot = targetWave.clientWidth + newComplex.width - this.waveSet.clientWidth
-
+        let overshoot = initialWidth + newComplex.width - this.waveSet.clientWidth
 
         let finalWidth
         if (targetWave.clientWidth == 0) { // first complex in a wave
+            // console.log(`finalWidth calculated for FIRST complex in a wave: targetWave.x_offset (${targetWave.x_offset}) + newComplex.width (${newComplex.width})`)
             finalWidth = targetWave.x_offset + newComplex.width
             // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐
             // ├┐                                                                                               │
@@ -168,6 +202,7 @@ svg {
             // ├┘◀──── div.wave, initialWidth = 0                                                               │
             // └────────────────────────────────────────────────────────────────────────────────────────────────┘
         } else if (overshoot >= 0) { // last complex in a wave
+            // console.log('finalWidth calculated for LAST complex in a wave: this.waveSet.clientWidth')
             finalWidth = this.waveSet.clientWidth
             // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐
             // ├─div.wave─────────────────────────────────────────────────────────────────────────────┐         │
@@ -186,6 +221,7 @@ svg {
             // └────────────────────────────────────────────────────────────────────────────────────────────────┘
         } else { // all intermediate complexes
             finalWidth = targetWave.clientWidth + newComplex.width
+            // console.log('finalWidth calculated for MIDDLE complex in a wave: targetWave.clientWidth + newComplex.width')
             // ┌─div.waveset────────────────────────────────────────────────────────────────────────────────────┐
             // ├─div.wave─────────────────────────────────────────────────┐                                     │
             // │        ┌ svg > path─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─                   │
@@ -240,13 +276,14 @@ svg {
             // construct new wave
             let newWave = this.constructWave(overshoot)
 
-            // copypasta current SVG to new wave
+            // copy-pasta current SVG to new wave
             let outgoingSVG = targetWave.svg.cloneNode(true) // clone to avoid borking the original
             outgoingSVG.style.position = 'absolute'
             outgoingSVG.style.left = `-${initialWidth + newComplex.width - targetWave.x_offset - overshoot}px`
             outgoingSVG.style.top = '0px'
             newWave.appendChild(outgoingSVG)
-
+            // TODO: add 1-2 px to outgoingSVG width
+            
             // insert new wave
             this.insertWave(newWave)
 
@@ -273,15 +310,18 @@ svg {
                 }
             }
         }
-
+        
         // animate this complex
+        // console.log('finalWidth', finalWidth)
+        // console.log('initialWidth', initialWidth)
+        // console.log('duration', finalWidth - initialWidth)
         let animation = targetWave.animate(
             [
                 { width: `${initialWidth}px` },
                 { width: `${finalWidth}px` }
             ],
             {
-                duration: this.pixelsToMilliseconds(finalWidth - initialWidth),
+                duration: Math.max(this.pixelsToMilliseconds(finalWidth - initialWidth), 0),
                 iterations: 1,
                 easing: 'linear',
                 fill: 'forwards'
@@ -294,6 +334,10 @@ svg {
                 this.beat(mandatoryWidth, repeating)
             }
         }
+        
+        // emit pace event
+        const event = new CustomEvent("beat", { detail: newComplex.width})
+        this.dispatchEvent(event)
     }
 
     //    __  ____  _ ___ __           ______                 __  _
@@ -339,6 +383,7 @@ svg {
         try {
             draftKeyframes = this.waveGenerators[this.morphology](mandatoryDuration)
         } catch (error) {
+            console.error(`An invalid wave morphology (${this.morphology}) was provided to wavemaker!`)
             console.error(error)
             draftKeyframes = this.waveGenerators['flatline'](mandatoryDuration)
         }
@@ -374,7 +419,7 @@ svg {
             y = y * this.y_scale
 
             // Add baseline wander
-            // if (this.baseline_wobble_enabled == true) {
+            // if (this.wobble_enabled == true) {
             //     this.baselineWanderAccumulator += dx
             //     let wander = 0.05 * Math.sin(this.baselineWanderAccumulator/250)
             //     y = y + wander
@@ -393,7 +438,7 @@ svg {
         targetWave.x_cursor = x
 
         // MAKE COMMANDS
-        let commands = " l 0 0"
+        let commands = " "
 
         // special case: frame[0]
         let firstFrame = draftKeyframes[0]
@@ -422,7 +467,7 @@ svg {
 
     insertComplex(wave, complex) {
         // INSERT
-        let frontPath = wave.querySelector('path')
+        let frontPath = wave.querySelector('path:last-child')
         frontPath.setAttribute('d', frontPath.getAttribute('d') + complex.commands)
 
         // INCREMENT GLOBAL COUNTER
@@ -568,18 +613,12 @@ svg {
             return keyframes
         },
         "sim-disconnect": (targetDuration) => {
-            // DURATION WRNAGLING
-            if (targetDuration == 0) {
-                targetDuration = 60000 / this.rate
-            }
-        
-            let keyframes = [
-                [0,0],
-                [targetDuration/2, 0.05],
-                [targetDuration/2, 0]
-            ]
-        
-            return keyframes
+            // alias of sim-disconnect
+            return this.waveGenerators["flatline"](targetDuration)
+        },
+        "nibp-only": (targetDuration) => {
+            // alias of sim-disconnect
+            return this.waveGenerators["flatline"](targetDuration)
         },
         "capno-normal": (targetDuration) => {
             // DURATION WRNAGLING
