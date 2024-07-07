@@ -712,7 +712,7 @@ sim-wave {
             // MAKE QRS
             let keyframes = [
                 [0, 0, -wobble],
-                [0.4 * (60000/this.rate), 0.1 * this.interpolateDuration(0.7, 0.2, this.rate) + 0.1 * Math.random(), wobble, 0],
+                [0.45 * (60000/this.rate), 0.1 * this.interpolateDuration(0.7, 0.2, this.rate) + 0.1 * Math.random(), wobble, 0],
             ]
 
             // SQUEEZE OR EXTRUDE
@@ -871,11 +871,11 @@ sim-wave {
                 [this.interpolateDuration(100, 80, this.rate), 0.1, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
                 [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
                 [this.interpolateDuration(80, 0, this.rate), 0, this.interpolateDuration(-2, 0, this.rate), 0],                                                  // end of pr segment (isoelectric)
-                [this.interpolateDuration(40, 25, this.rate), -0.1, -0.05],                                                                            // q wave (trough)
+                [this.interpolateDuration(45, 30, this.rate), -0.25, -0.05],                                                                            // q wave (trough)
                 [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(1, 0.9), -0.05],                                                     // r wave (peak)
                 [this.interpolateDuration(50, 25, this.rate), -0.1, -0.05],                                                                               // s wave (trough)
                 [this.interpolateDuration(70, 30, this.rate), 0.22, this.interpolateDuration(-5, 0, this.rate), -5],                                                // st segment
-                [this.interpolateDuration(180, 60, this.rate), 0.295, this.interpolateDuration(-6, -2, this.rate)],                                                // t wave (peak)
+                [this.interpolateDuration(180, 60, this.rate), 0.295, this.interpolateDuration(-6, -4, this.rate)],                                                // t wave (peak)
                 [this.interpolateDuration(180, 60, this.rate), isoelectricLine, this.interpolateDuration(-8, 0, this.rate)],  // qt (isoelectric)
             ]
 
