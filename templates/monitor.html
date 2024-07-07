@@ -25,6 +25,7 @@ body {
             min-height: 0px;
             /* overflow: hidden !important; */
             position: relative; /* needed to position the child wave elements absolutely */
+            background-color: black;
         }
 
         & sim-readout {
@@ -89,31 +90,37 @@ body {
         margin-left: auto;
     }
 }
+/* .wave svg:first-child {
+    background-color: pink !important;
+} */
 
 </style>
 
 <div id="monitor">
-    <div id="header-strip">
-        <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Monitor 😴</h1></a>
-        <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a>
-        <!-- <button id="sound-button" title="Click to turn sound ON" class="button dark">
-            <div>🔇</div>
-        </button> -->
-    </div>
+    <header>
+        <div>
+            <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Monitor 😴</h1></a>
+            <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a>
+            <!-- <button id="sound-button" title="Click to turn sound ON" class="button dark">
+                <div>🔇</div>
+            </button> -->
+            
+        </div>
+    </header>
     <div id="main-table">
         <div>
-            <sim-trace id="ecg" sim-parameter="ecg-rhythm" stroke-colour="rgb(76, 209, 55)" baseline-wobble="true"></sim-trace>
+            <sim-trace id="ecg" sim-parameter="ecg-rhythm" stroke-colour="rgb(76, 209, 55)"></sim-trace>
         </div>
         <div>
             <p class="readout-label">HR (/min)</p>
-            <sim-readout prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true" baseline-wobble="true" wobble="3"></sim-readout>
         </div>
         <div>
             <sim-trace id="spo2" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)" baseline-wobble="true"></sim-trace>
         </div>
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
-            <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true" wobble="2"></sim-readout>
         </div>
         <div>
             <sim-trace id="spo2" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
@@ -129,17 +136,17 @@ body {
         </div>
         <div id="etco2">
             <p class="readout-label">etCO<sub>2</sub></p>
-            <sim-readout prefix="" suffix="" sim-parameter="etco2" sim-colour="yellow" sim-value="36" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="etco2" sim-colour="yellow" sim-value="36" sim-transitionable="true" wobble="2"></sim-readout>
         </div>
         <div id="nibp">
             <p class="readout-label">NIBP (mmHg)</p>
-            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119"></sim-readout>
-            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57"></sim-readout>
-            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78"></sim-readout>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119" sim-disabled="true"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57" sim-disabled="true"></sim-readout>
+            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78" sim-disabled="true"></sim-readout>
         </div>
         <div id="rr">
             <p class="readout-label">RR (/min)</p>
-            <sim-readout prefix="" suffix="" display-name="Respiratory Rate" sim-parameter="respiratory-rate" sim-colour="white" sim-value="18" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix="" display-name="Respiratory Rate" sim-parameter="respiratory-rate" sim-colour="white" sim-value="18" sim-transitionable="true" wobble="1"></sim-readout>
         </div>
     </div>
 </div>
@@ -187,33 +194,61 @@ socket.on('sim-update', (msg) => {
 
 // CUSTOM ELEMENTS
 customElements.define('sim-readout', class extends HTMLElement {
+    
     constructor () {
         super()
         let prefix = this.getAttribute('prefix')
         let suffix = this.getAttribute('suffix')
+        this.wobble_factor = parseInt(this.getAttribute('wobble')) || 0
         let colour = this.getAttribute('sim-colour')
         this.innerHTML = `
-        <span class="readout-value readout-colour ${colour}">${prefix}--${suffix}</span>
+        <span class="readout-value ${colour}">${prefix}--${suffix}</span>
         `
+        
+        if (this.wobble_factor != 0) {
+            console.log('wobble enabled')
+            this.wobble()
+        } else {
+            console.log('wobble NOT enabled')
+        }
     }
     
-    updateReadout() {
+    updateReadout(printedValue = null) {
         let prefix = this.getAttribute('prefix')
         let suffix = this.getAttribute('suffix')
         
-        let printedValue = this.getAttribute('sim-value')
+        if (printedValue == null) {
+            printedValue = this.getAttribute('sim-value')
+        }
         
         if (this.getAttribute('sim-disabled') == 'true') {
-            console.log('disabled', this.getAttribute('sim-parameter'), this.getAttribute('sim-disabled'))
             printedValue = '--'
         }
         
         this.querySelector('span.readout-value').innerText = prefix + printedValue + suffix
+    }
+    
+    wobble() {
+        let trueValue = this.getAttribute('sim-value')
+        let randomValue = parseInt(trueValue) + Math.floor(Math.random() * this.wobble_factor * 2 - this.wobble_factor)
         
+        // dirty, ugly hack
+        if (this.getAttribute('sim-parameter') == 'spo2') {
+            randomValue = Math.min(100, randomValue)
+        }
+        
+        
+        this.updateReadout(randomValue)
+        
+        let randomInterval = 8000 + Math.random() * 8000
+        
+        this.wobble_timer = setTimeout(() => {
+            this.wobble()
+        }, randomInterval)
     }
 
     attributeChangedCallback (name, oldValue, newValue) {
-            this.updateReadout()
+        this.updateReadout()
     }
     
     static get observedAttributes () {
@@ -390,6 +425,28 @@ window.addEventListener('load', (e) => {
     document.querySelector('#ecg').beat(0, true)
     document.querySelector('#capno').beat(0, true)
 })
+
+
+// SPECIAL CASE FOR NIBP-ONLY
+// disables art line readout when nibp-only mode is picked
+// any other mode disables nibp and enables art line readout
+let nibpReadouts = document.querySelectorAll('#nibp sim-readout')
+let artbpReadouts = document.querySelectorAll('#bp-readout sim-readout')
+document.querySelector('[sim-parameter="artline-trace"]').addEventListener('sim-value-changed', (e) => {
+    if (e.target.getAttribute('sim-value') == 'nibp-only') {
+        for (let n of nibpReadouts) {
+            n.removeAttribute('sim-disabled')
+        }
+        for (let a of artbpReadouts) {
+            a.setAttribute('sim-disabled', true)
+        }
+    } else {
+        for (let n of nibpReadouts) {
+            n.setAttribute('sim-disabled', true)
+        }
+    }
+})
+
 </script>
 
 
