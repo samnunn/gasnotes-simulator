@@ -7,94 +7,93 @@ body {
 }
 /* CONTROLLER */
 #controller {
-    grid-area: modal;`
     margin: 0 auto;
     position: relative;
+}
+& .sim-input-group {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    margin: 2rem 0;
 
-    & .sim-input-group {
-        display: flex;
-        flex-direction: column;
-        row-gap: 1rem;
-        margin: 2rem 0;
-
-        & > p {
-            font-weight: bold;
-            margin: 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #333;
-        }
-    }
-
-    & sim-slider, .sim-select {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+    & > p {
         font-weight: bold;
-        column-gap: 1rem;
-
-        & .input-label {
-            width: 4rem;
-            font-size: 1.2rem;
-        }
-    }
-
-    & sim-slider {
-        & .slider {
-            flex-grow: 1;
-        }
-        & .minmax {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            color: white;
-        }
-        & .sim-value {
-            font-size: 1.5rem;
-            color: white;
-            transition: all 100ms ease;
-            transition-behavior: allow-discrete;
-        }
-    }
-    
-    & sim-slider[sim-disabled] {
-        & .sim-value {
-            opacity: 0;
-            visibility: hidden;
-        }
-    }
-
-    & .sim-select {
-        font-size: 1.2rem;
-
-        & select {
-            /* abolish detault styles */
-            appearance: none;
-            border-radius: 0.5rem;
-            outline: none; /* removes blue rounded-corner outline when <select> element has focus */
-
-            /* set new styles */
-            border: 2px solid color-mix(in srgb, var(--button-color) 50%, black);
-
-            /* text */
-            color: white;
-            font-size: 1rem;
-            padding: 0.6rem 0.8rem;
-            background-color: var(--dark-grey);
-
-            /* icon */
-            --chevron: url("data:image/svg+xml,%3C%73%76%67%20%78%6D%6C%6E%73%3D%22%68%74%74%70%3A%2F%2F%77%77%77%2E%77%33%2E%6F%72%67%2F%32%30%30%30%2F%73%76%67%22%20%77%69%64%74%68%3D%22%32%34%22%20%68%65%69%67%68%74%3D%22%32%34%22%20%76%69%65%77%42%6F%78%3D%22%30%20%30%20%32%34%20%32%34%22%20%66%69%6C%6C%3D%22%6E%6F%6E%65%22%20%73%74%72%6F%6B%65%3D%22%23%66%66%66%66%66%66%22%20%73%74%72%6F%6B%65%2D%77%69%64%74%68%3D%22%32%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%63%61%70%3D%22%72%6F%75%6E%64%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%6A%6F%69%6E%3D%22%72%6F%75%6E%64%22%20%63%6C%61%73%73%3D%22%66%65%61%74%68%65%72%20%66%65%61%74%68%65%72%2D%63%68%65%76%72%6F%6E%73%2D%64%6F%77%6E%22%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%31%33%20%31%32%20%31%38%20%31%37%20%31%33%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%36%20%31%32%20%31%31%20%31%37%20%36%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%2F%73%76%67%3E");
-
-            background-image: var(--chevron);
-            background-position: center right 0.75rem;
-            background-size: 1.2rem;
-            background-repeat: no-repeat;
-        }
-        & select {
-            flex-grow: 1;
-        }
+        margin: 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #333;
     }
 }
+
+& sim-slider, .sim-select {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-weight: bold;
+    column-gap: 1rem;
+
+    & .input-label {
+        width: 4rem;
+        font-size: 1.2rem;
+    }
+}
+
+& sim-slider {
+    & .slider {
+        flex-grow: 1;
+    }
+    & .minmax {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+    & .sim-value {
+        font-size: 1.5rem;
+        color: white;
+        transition: all 100ms ease;
+        transition-behavior: allow-discrete;
+    }
+}
+    
+& sim-slider[sim-disabled] {
+    & .sim-value {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+& .sim-select {
+    font-size: 1.2rem;
+
+    & select {
+        /* abolish detault styles */
+        appearance: none;
+        border-radius: 0.5rem;
+        outline: none; /* removes blue rounded-corner outline when <select> element has focus */
+
+        /* set new styles */
+        border: 2px solid color-mix(in srgb, var(--button-color) 50%, black);
+
+        /* text */
+        color: white;
+        font-size: 1rem;
+        padding: 0.6rem 0.8rem;
+        background-color: var(--dark-grey);
+
+        /* icon */
+        --chevron: url("data:image/svg+xml,%3C%73%76%67%20%78%6D%6C%6E%73%3D%22%68%74%74%70%3A%2F%2F%77%77%77%2E%77%33%2E%6F%72%67%2F%32%30%30%30%2F%73%76%67%22%20%77%69%64%74%68%3D%22%32%34%22%20%68%65%69%67%68%74%3D%22%32%34%22%20%76%69%65%77%42%6F%78%3D%22%30%20%30%20%32%34%20%32%34%22%20%66%69%6C%6C%3D%22%6E%6F%6E%65%22%20%73%74%72%6F%6B%65%3D%22%23%66%66%66%66%66%66%22%20%73%74%72%6F%6B%65%2D%77%69%64%74%68%3D%22%32%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%63%61%70%3D%22%72%6F%75%6E%64%22%20%73%74%72%6F%6B%65%2D%6C%69%6E%65%6A%6F%69%6E%3D%22%72%6F%75%6E%64%22%20%63%6C%61%73%73%3D%22%66%65%61%74%68%65%72%20%66%65%61%74%68%65%72%2D%63%68%65%76%72%6F%6E%73%2D%64%6F%77%6E%22%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%31%33%20%31%32%20%31%38%20%31%37%20%31%33%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%70%6F%6C%79%6C%69%6E%65%20%70%6F%69%6E%74%73%3D%22%37%20%36%20%31%32%20%31%31%20%31%37%20%36%22%3E%3C%2F%70%6F%6C%79%6C%69%6E%65%3E%3C%2F%73%76%67%3E");
+
+        background-image: var(--chevron);
+        background-position: center right 0.75rem;
+        background-size: 1.2rem;
+        background-repeat: no-repeat;
+    }
+    & select {
+        flex-grow: 1;
+    }
+}
+
 
 /* SEND BUTTON */
 #send {
@@ -128,23 +127,87 @@ body {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+#settings-container {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+    background: none;
+    padding: 0;
+    border: none;
+}
+#settings-container::backdrop {
+    background-color: rgba(0,0,0,0.85);
+    filter: blur(0.5);
+}
+#settings {
+    max-width: 460px;
+    margin: 0 auto;
+    background-color: #111;
+    color: white;
+    padding: 0 2rem;
+    border-radius: var(--border-radius);
+    border: 2px solid #333;
+}
 </style>
-<header>
-    <div class="wrapped">
-        <a class="no-underline" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Controls 😴</h1></a>
-        <!-- <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a> -->
-        <!-- <select class="button red" sim-parameter="capno-trace" sim-disconnect="respiratory-rate etco2">
-            <option value="capno-normal">Normal</option>
-            <option value="capno-obstructed-moderate">Moderate Obstruction</option>
-            <option value="capno-obstructed-severe">Severe Obstruction</option>
-            <hr>
-            <option value="flatline">Flatline</option>
-            <option value="rr-only">RR Only</option>
-            <option value="sim-disconnect" sim-disconnect>Disconnected</option>
-        </select> -->
+
+{% if data.demo != true %}
+
+<header class="noprint">
+        <a id="site-title" href="{{ data.index_url }}"><span class="sim-gradient-text">Sim</span> Controls 😴</a>
+        <button class="button dark" style="" title="Settings" onclick="document.querySelector('#settings-container').showModal()">⚙️</button>
         <input id="send" type="submit" value="Send" form="sim-input" class="button controller-mode stale">
-    </div>
 </header>
+{% endif %}
+<dialog id="settings-container">
+    <div id="settings">
+        <div class="sim-input-group">
+                <p>Transition Time ⏱️</p>
+                <radio-group>
+                    <div class="sim-button-group">
+                        <label>
+                            None
+                            <input type="radio" name="sim-transition-time" value="0" checked>
+                        </label>
+                        <label>
+                            30s
+                            <input type="radio" name="sim-transition-time" value="30">
+                        </label>
+                        <label>
+                            1m
+                            <input type="radio" name="sim-transition-time" value="60">
+                        </label>
+                        <label>
+                            2m
+                            <input type="radio" name="sim-transition-time" value="120">
+                        </label>
+                        <label>
+                            5m
+                            <input type="radio" name="sim-transition-time" value="300">
+                        </label>
+                    </div>
+                </radio-group>
+        </div>
+        <div class="sim-input-group">
+                <p>Beeps 🔊</p>
+                <radio-group>
+                    <div class="sim-button-group">
+                        <label>
+                            On
+                            <input type="radio" name="sim-sound" value="on">
+                        </label>
+                        <label>
+                            Off
+                            <input type="radio" name="sim-sound" value="off" checked>
+                        </label>
+                    </div>
+                </radio-group>
+                <form method="dialog">
+                    <input type="submit" value="Close" class="button red float-right">
+                </form>
+        </div>
+    </div>
+</dialog>
 <div id="controller" class="wrapped controller-mode">
     <form action="#" id="sim-input">
         <div class="sim-input-group" id="cardiac">
@@ -187,6 +250,17 @@ body {
         </div>
         <div class="sim-input-group" id="respiration">
             <p>Respiration 😮‍💨</p>
+            <sim-slider display-name="SpO<sub>2</sub>" class="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
+            <div class="sim-select blue">
+                <div class="input-label">PLETH</div>
+                <select name="" id="" sim-parameter="spo2-trace">
+                    <option value="spo2">Well Perfused</option>
+                    <option value="spo2-badtrace">Poorly Perfused</option>
+                    <hr>
+                    <option value="flatline" sim-disconnect="spo2">Flatline</option>
+                    <option value="sim-disconnect" sim-disconnect="spo2">Disconnected</option>
+                </select>
+            </div>
             <sim-slider display-name="RR" class="white" sim-parameter="respiratory-rate" type="range" min="0" max="60" sim-value="18"></sim-slider>
             <sim-slider display-name="etCO<sub>2</sub>" class="yellow" sim-parameter="etco2" type="range" min="0" max="60" sim-value="36"></sim-slider>
             <div class="sim-select yellow">
@@ -201,57 +275,20 @@ body {
                     <option value="sim-disconnect" sim-disconnect="respiratory-rate etco2">Disconnected</option>
                 </select>
             </div>
-            <sim-slider display-name="SpO<sub>2</sub>" class="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
-            <div class="sim-select blue">
-                <div class="input-label">PLETH</div>
-                <select name="" id="" sim-parameter="spo2-trace">
-                    <option value="spo2">Well Perfused</option>
-                    <option value="spo2-badtrace">Poorly Perfused</option>
-                    <hr>
-                    <option value="flatline" sim-disconnect="spo2">Flatline</option>
-                    <option value="sim-disconnect" sim-disconnect="spo2">Disconnected</option>
-                </select>
-            </div>
-        </div>
-        <div class="sim-input-group">
-                <p>Transition ⏱️</p>
-                <radio-group>
-                    <div class="sim-button-group">
-                        <label>
-                            None
-                            <input type="radio" name="sim-transition-time" value="0" checked>
-                        </label>
-                        <label>
-                            30s
-                            <input type="radio" name="sim-transition-time" value="30">
-                        </label>
-                        <label>
-                            1m
-                            <input type="radio" name="sim-transition-time" value="60">
-                        </label>
-                        <label>
-                            2m
-                            <input type="radio" name="sim-transition-time" value="120">
-                        </label>
-                        <label>
-                            5m
-                            <input type="radio" name="sim-transition-time" value="300">
-                        </label>
-                    </div>
-                </radio-group>
         </div>
     </form>
 </div>
 
 <script type="module">
 const root = document.querySelector(':root')
-
+{% if data.demo != true %}
 // SOCKET SETUP
 const socket = io({
     auth: {
         sim_room_id: '{{ data.sim_room_id }}',
     }
 })
+{% endif %}
 let sendButton = document.querySelector('#send')
 
 let form = document.querySelector('form#sim-input')
@@ -309,7 +346,6 @@ function dumpAllInputState(inputs=null) {
     message = JSON.stringify(message)
     return message
 }
-
 // MAP HANDLER
 let sbp = document.querySelector('[sim-parameter="systolic-blood-pressure"]')
 let dbp = document.querySelector('[sim-parameter="diastolic-blood-pressure"]')

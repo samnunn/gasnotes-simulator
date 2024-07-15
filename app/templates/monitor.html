@@ -9,7 +9,11 @@ body {
 #monitor {
     grid-area: modal;
     display: grid;
+    {% if data.demo == true %}
+    grid-template-rows: 1fr;
+    {% else %}
     grid-template-rows: auto 1fr;
+    {% endif %}
     height: 100vh;
 
     & #main-table {
@@ -22,10 +26,18 @@ body {
         font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif;
 
         & > * {
-            min-height: 0px;
-            /* overflow: hidden !important; */
+            /* min-height: 0px; */
             position: relative; /* needed to position the child wave elements absolutely */
-            background-color: black;
+        }
+
+        & div:has(>sim-trace) {
+            padding-top: 1rem;
+            max-width: 100%;
+        }
+
+        & sim-trace {
+            position: absolute;
+            width: 100%;
         }
 
         & sim-readout {
@@ -36,16 +48,6 @@ body {
             font-size: 1rem;
             margin: 0;
         }
-    }
-
-    & div:has(>sim-trace) {
-        padding-top: 1rem;
-        overflow-y: visible;
-    }
-
-    & sim-trace {
-        position: absolute;
-        width: 100%;
     }
 }
 
@@ -73,39 +75,17 @@ body {
     }
 }
 
-#header-strip {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1rem;
-    gap: 2rem;
-
-    h1 {
-        margin: 0;
-        padding: 0;
-    }
-
-    #sound-button {
-        margin-left: auto;
-    }
+{% if data.demo == true %}
+header {
+    display: none;
 }
-/* .wave svg:first-child {
-    background-color: pink !important;
-} */
-
+{% endif %}
 </style>
 
 <div id="monitor">
-    <header>
-        <div>
-            <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><h1><span class="sim-gradient-text">Sim</span> Monitor 😴</h1></a>
-            <a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a>
-            <!-- <button id="sound-button" title="Click to turn sound ON" class="button dark">
-                <div>🔇</div>
-            </button> -->
-            
-        </div>
+    <header class="noprint">
+        <a id="site-title" title="Return to sim index" href="{{ data.index_url }}"><span class="sim-gradient-text">Sim</span> Monitor 😴</a>
+        <span><a class="no-underline" title="Return to sim index" href="{{ data.index_url }}"><span class="simcode">{{ data.sim_room_id }}</span></a></span>
     </header>
     <div id="main-table">
         <div>
@@ -140,9 +120,9 @@ body {
         </div>
         <div id="nibp">
             <p class="readout-label">NIBP (mmHg)</p>
-            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119" sim-disabled="true"></sim-readout>
-            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57" sim-disabled="true"></sim-readout>
-            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78" sim-disabled="true"></sim-readout>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119" sim-disabled="{{ data.demo == False }}"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57" sim-disabled="{{ data.demo == False }}"></sim-readout>
+            <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78" sim-disabled="{{ data.demo == False }}"></sim-readout>
         </div>
         <div id="rr">
             <p class="readout-label">RR (/min)</p>
@@ -152,6 +132,7 @@ body {
 </div>
 
 <script type="module">
+{% if data.demo != true %}
 // SOCKET SETUP
 const socket = io({
     auth: {
@@ -192,6 +173,8 @@ socket.on('sim-update', (msg) => {
     }
 })
 
+{% endif %}
+
 // CUSTOM ELEMENTS
 customElements.define('sim-readout', class extends HTMLElement {
     
@@ -206,10 +189,7 @@ customElements.define('sim-readout', class extends HTMLElement {
         `
         
         if (this.wobble_factor != 0) {
-            console.log('wobble enabled')
             this.wobble()
-        } else {
-            console.log('wobble NOT enabled')
         }
     }
     
@@ -221,7 +201,7 @@ customElements.define('sim-readout', class extends HTMLElement {
             printedValue = this.getAttribute('sim-value')
         }
         
-        if (this.getAttribute('sim-disabled') == 'true') {
+        if (this.getAttribute('sim-disabled')?.toLowerCase() == 'true') {
             printedValue = '--'
         }
         
@@ -237,7 +217,6 @@ customElements.define('sim-readout', class extends HTMLElement {
             randomValue = Math.min(100, randomValue)
         }
         
-        
         this.updateReadout(randomValue)
         
         let randomInterval = 8000 + Math.random() * 8000
@@ -249,6 +228,12 @@ customElements.define('sim-readout', class extends HTMLElement {
 
     attributeChangedCallback (name, oldValue, newValue) {
         this.updateReadout()
+        clearInterval(this.wobble_timer)
+        
+        let randomInterval = 8000 + Math.random() * 8000
+        this.wobble_timer = setTimeout(() => {
+            this.wobble()
+        }, randomInterval)
     }
     
     static get observedAttributes () {

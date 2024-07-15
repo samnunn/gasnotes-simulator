@@ -72,6 +72,7 @@ sim-wave {
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
     grid-template-areas: "wave";
+    overflow: hidden;
 }
 .wave {
     box-sizing: content-box;
