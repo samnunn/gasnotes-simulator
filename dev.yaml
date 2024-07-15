@@ -1,0 +1,9 @@
+services:
+  simulator:
+    environment:
+      - CMD=pipenv run flask --app sim:app --debug run --host=0.0.0.0 --port=8069
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app
