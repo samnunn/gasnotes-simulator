@@ -11,7 +11,7 @@ RUN pip install pipenv
 COPY ./app /app
 
 # Install the dependencies using pipenv
-RUN pipenv sync
+RUN pipenv install
 
 # RUN apt-get update && apt-get install -y cron
 # RUN echo "0 * * * * python /app/sim_cleaner.py" >> /etc/cron.d/sim_cleaner
