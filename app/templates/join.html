@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+#join {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+}
+#join-form {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    max-width: min(27ch, 75vw);
+
+    input[type="text"] {
+        appearance: none;
+        box-shadow: none;
+        border: none;
+        width: 0; /* set width to zero and let flexbox re-grow it */
+        min-width: 6ch;
+        flex-grow: 1;
+        background-color: var(--dark-grey);
+        border-radius: var(--border-radius);
+        border: 2px solid white;
+        padding: 0 0.75rem;
+        font-size: 1rem;
+        font-family: inherit;
+        line-height: 1;
+        color: white;
+        min-height: 100%;
+    }
+}
+
+</style>
+<div id="join" class="wrapped">
+    {% include 'mega-title.html' %}
+    <form id="join-form" action="/code" method="post">
+            <input
+                type="text"
+                name="simcode"
+                id="simcode"
+                placeholder="Sim Code"
+                pattern="[a-zA-Z0-9]{6}"
+                maxlength="6"
+                oninvalid="this.setCustomValidity('Enter a valid Sim Code')"
+                oninput="this.setCustomValidity('')"
+            >
+            <input type="submit" value="Join" class="button pink sim-join">
+    </form>
+</div>
+{% endblock %}

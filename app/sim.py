@@ -100,6 +100,14 @@ def sim_room_new():
     sim_room_id = open_sim_room()
     return redirect(url_for('sim_room_monitor', sim_room_id=sim_room_id))
 
+@app.route("/join")
+def sim_room_join():
+    # Assemable page data
+    data = {}
+    data['title'] = "Gas Notes – Simulation Monitor"
+
+    return render_template('join.html', data=data)
+
 
 @app.route("/code", methods=['POST'], defaults={'simcode': None})
 def handle_simcode(simcode):
