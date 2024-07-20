@@ -1,1 +1,3 @@
-pipenv run flask --app sim:app --debug run --port 8000
+#? ! /bin/bash
+
+docker compose -f compose.base.yaml -f compose.dev.yaml up

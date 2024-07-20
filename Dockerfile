@@ -13,17 +13,13 @@ COPY ./app /app
 # Install the dependencies using pipenv
 RUN pipenv sync
 
-RUN apt-get update && apt-get install -y cron
-RUN echo "0 * * * * python /app/sim_cleaner.py" >> /etc/cron.d/sim_cleaner
+# RUN apt-get update && apt-get install -y cron
+# RUN echo "0 * * * * python /app/sim_cleaner.py" >> /etc/cron.d/sim_cleaner
 
 # Expose the port and set the command
 EXPOSE 8069
 
-# CMD pipenv run gunicorn --reload --reload-extra-file . -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
-
-# CMD ["tail", "-f", "/dev/null"]
-
-# ENV CMD pipenv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
+# CMD pipenv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
 
 # The actual command to run
 CMD ["sh", "-c", "$CMD"]
