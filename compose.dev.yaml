@@ -7,6 +7,3 @@ services:
         - action: sync
           path: ./app
           target: /app
-  tunnel:
-    env_file:
-      - .devenv

@@ -12,4 +12,4 @@ services:
     restart: unless-stopped
     command: tunnel --no-autoupdate run
     env_file:
-      - .devenv
+      - .env
