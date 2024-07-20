@@ -301,12 +301,18 @@ nav#navbar {
     min-height: 5rem;
 }
 
+#navbar-right {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 1rem;
+}
+
 #navbar-right a {
     text-decoration: none;
     font-size: 1rem;
     font-weight: bold;
     font-family: var(--sans-serif);
-    margin-left: 1em;
     white-space: nowrap;
     color: white !important;
 }
