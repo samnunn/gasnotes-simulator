@@ -700,10 +700,22 @@ sim-wave {
 
             // MAKE QRS
             let keyframes = [
-                [0, 0, -wobble],
-                [(0.5 + sidetoside) * targetDuration, this.interpolateDuration(0.5, 0.35, this.rate) + 0.1 * Math.random(), wobble, 0], // faster hr, shorter waves
-                [(0.5 - sidetoside) * targetDuration, 0, wobble]
+                [0,0, 4, -4],
+                [this.interpolateDuration(180, 100, this.rate), this.interpolateDuration(0.5, 0.4, this.rate) + 0.1 * Math.random(), this.interpolateDuration(-6, -4, this.rate), 5],
+                [this.interpolateDuration(220, 120, this.rate), 0.15, this.interpolateDuration(-10, -7, this.rate), this.interpolateDuration(15, 20, this.rate)],
+                
             ]
+
+            // SQUEEZE OR EXTRUDE
+            let draftDuration = this.getDurationOfKeyframes(keyframes)
+            let tailLength = draftDuration < targetDuration ? targetDuration - draftDuration : 100
+            keyframes[keyframes.length] = [tailLength, 0]
+
+            // let keyframes = [
+            //     [0, 0, -wobble],
+            //     [(0.5 + sidetoside) * targetDuration, this.interpolateDuration(0.5, 0.35, this.rate) + 0.1 * Math.random(), wobble, 0], // faster hr, shorter waves
+            //     [(0.5 - sidetoside) * targetDuration, 0, wobble]
+            // ]
 
             return keyframes
         },
