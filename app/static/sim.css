@@ -40,6 +40,10 @@ hr::before {
     
 }
 
+.white-outline {
+    filter: drop-shadow(1px 1px white) drop-shadow(-1px -1px white) drop-shadow(1px -1px white) drop-shadow(-1px 1px white);
+}
+
 span.simcode {
     font-family: var(--monospace);
     font-size: 1.5rem;
