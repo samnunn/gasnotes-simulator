@@ -1,18 +1,13 @@
-{% extends "base.html" %}
+{% extends "page.html" %}
 
-{% block content %}
+{% block page %}
 <style>
 #sim-index {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    row-gap: 5vh;
-    padding-top: 1.5rem;
-}
-
-.wrapped {
-    max-width: 700px;
+    /* justify-content: center; */
+    /* row-gap: 5vh; */
+    /* padding-top: 1.5rem; */
 }
 
 #bento-box {
@@ -23,6 +18,8 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
 
     & .bento-item {
         display: grid;
@@ -94,6 +91,7 @@
         justify-content: center;
         align-items: center;
         grid-area: buttons;
+        text-align: center;
 
         & h2 {
             margin: 0;
@@ -126,14 +124,15 @@
 
 }
 
-#mega-title-group {
-    font-size: 0.7rem;
-}
-
 #bento-mode-picker {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+}
+
+#enter-the-sim {
+    max-width: 70%;
+    margin: min(10vh, 3rem) auto;
 }
 
 @media (max-width: 630px) {
@@ -149,10 +148,17 @@
         "url";
         overflow: hidden;
     }
+    #enter-the-sim {
+        max-width: 85%;
+    }
+}
+div#assumption > p {
+    margin-top: 0;
 }
 </style>
 <div id="sim-index" class="wrapped">
-    {% include 'mega-title.html' %}
+    <!-- {% include 'mega-title.html' %} -->
+    <img id="enter-the-sim" src="/static/enter_the_sim.svg" alt="Enter the simulation">
     <div id="bento-box">
         <div class="bento-item">
             <div class="number">1</div>
@@ -160,9 +166,11 @@
             <div id="bento-connect">
                 <img id="index-qrcode" src="{{ data.qrcode }}" alt="">
                 <div id="bento-connect-right">
-                        <h2>Enter SimCode</h2>
-                        <span class="simcode">{{ data.sim_room_id }}</span>
-                        <span><a href="/">sim.gasnotes.net/join</a></span>
+                        <h2>Scan QR</h2>
+                        <span>or</span>
+                        <h2>Use a SimCode</h2>
+                        <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
+                        <span><a href="/connect">sim.gasnotes.net/connect</a></span>
                 </div>
                 <div id="bento-connect-bottom">
                     <input type="text" name="" id="sim-url" value="{{ data.full_url }}" disabled>
@@ -180,12 +188,12 @@
         <div class="bento-item">
             <div class="number">3</div>
             <h2>Run a Sim</h2>
-            <div>
-                <!-- <p>Don't forget your basic assumption…</p>
+            <div id="assumption">
+                <p>Remember the <a href="https://harvardmedsim.org/resources/the-basic-assumption/" class="invisible-link"><strong class="yellow">Basic Assumption</strong></a>:</p>
                 <blockquote>
-                    <p>We believe that everyone participating in activities using Gas Notes tools is intelligent, capable, cares about doing their best, and wants to improve.</p>
-                    <cite>Adapted from <a href="http://www.harvardmedsim.org/">Center for Medical Simulation</a>, Boston, Massachusetts, USA.</cite>
-                </blockquote> -->
+                    <p>We believe that everyone participating in activities using Gas Notes is intelligent, capable, cares about doing their best, and wants to improve.</p>
+                    <cite>Adapted from <a href="https://harvardmedsim.org/resources/the-basic-assumption/">Center for Medical Simulation</a>, Boston, Massachusetts, USA.</cite>
+                </blockquote>
             </div>
         </div>
     </div>

@@ -51,7 +51,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: var(--spacing-m) 0;
+    margin: var(--spacing-l) 0;
 
     & a {
         scale: var(--button-scale);
@@ -74,10 +74,10 @@ main {
 }
 #preview:hover {
     #tiny-monitor {
-        transform: rotateX(-5deg) rotate(-1.75deg) scale(1.025);
+        transform: rotate(-1.75deg) scale(1.025);
     }
     #tiny-phone {
-        transform: rotateX(-5deg) rotate(5deg) scale(1.025);
+        transform: rotate(5deg) scale(1.025);
     }
 
 }
@@ -238,23 +238,8 @@ main {
 .white-outline {
     filter: drop-shadow(1px 1px white) drop-shadow(-1px -1px white) drop-shadow(1px -1px white) drop-shadow(-1px 1px white);
 }
-
 </style>
-<header class="noprint">
-    <div class="wrapped">
-      <nav id="navbar">
-        <div id="navbar-left">
-          <a id="site-title" href="http://gasnotes.net">Gas Notes 😴</a>
-          <label id="navbar-toggle-label" for="navbar-toggle" class="button small red"><span>Menu</span></label>
-        </div>
-        <input type="checkbox" name="navbar-toggle" id="navbar-toggle">
-        <div id="navbar-right">
-            <span><a href="/join">Join</a></span>
-            <span><a href="{{ data.new_sim_url }}" class="button pink">New</a></span>
-        </div>
-      </nav>
-    </div>
-  </header>
+{% include 'header.html' %}
 <section class="wrapped" id="top-of-page">
         <img src="/static/gasnotes_sim_banner.svg" id="mega-wobble" alt="Gas Notes Simulation Monitor: a free tool for medical eduators.">
 </section>
@@ -292,7 +277,7 @@ main {
     <!-- <p>This software was written by <a href="http://nunn.science">Sam Nunn</a> for <a href="https://gasnotes.net">Gas Notes</a> and is proudly open-source. You can check out the code on <a href=https://github.com/samnunn/gasnotes-simulator">GitHub</a> and read more about how it was made in the <a href="https://gasnotes.net/nerdbox/simulator-announcement/">Nerd Box</a>.</p> -->
 </section>
 <div id="mega-new">
-    <a href="{{ data.new_sim_url }}" class="button pink sim-start">Get Started</a>
+    <a href="{{ data.new_sim_url }}" class="button pink sim-start">Start a Sim</a>
     <div class="clearfix"></div>
 </div>
 <footer class="noprint">

@@ -19,8 +19,9 @@ body {
     background-position-x: center;
     background-attachment: fixed;
 }
-
-
+a {
+    /* color: var(--hovercolour); */
+}
 h1, h2, h3, h4, h5, h6 {
     color: white;
     border: none !important;
@@ -45,13 +46,44 @@ span.simcode {
     height: unset;
     font-weight: bold;
     margin: 0;
-    padding: 0.3ch 0.6ch;
+    padding: 0.15ch 0.6ch;
     border-radius: calc(1* var(--border-radius)) !important;
+    background-color: black;
     border: 2px solid var(--color-yellow);
     /* height: var(--button-height); */
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     color: var(--color-yellow);
+    transition: all 200ms ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+span.simcode::after {
+    opacity: 0;
+    transition: all 200ms ease;
+}
+span.simcode.copied {
+    background-color: var(--color-yellow);
+    color: var(--color-yellow) !important;
+}
+span.simcode.copied::after {
+    opacity: 1;
+    content: "COPIED";
+    position: absolute;
+    top: 0;
+    padding: inherit;
+    background-color: var(--color-yellow);
+    color: black;
+}
+span.simcode:hover {
+    background-color: var(--color-yellow);
+    color: black;
+}
+span.simcode:hover:active {
+    transform: scale(0.95);
+    transform-origin: center;
 }
 
 .sim-gradient-text {
@@ -132,12 +164,23 @@ span.simcode {
 header {
     background-color: black;
     border-bottom: 3px solid #333;
-    
     padding: 0 1rem;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
-    min-height: 5rem;
+}
+@media (max-width: 576px) {
+    #navbar-right {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
+    #navbar-right > span {
+        margin: 1rem 0;
+    }
+    #navbar-right > span::before {
+        display: none;
+    }
 }

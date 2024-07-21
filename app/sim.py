@@ -100,13 +100,21 @@ def sim_room_new():
     sim_room_id = open_sim_room()
     return redirect(url_for('sim_room_monitor', sim_room_id=sim_room_id))
 
-@app.route("/join")
-def sim_room_join():
+@app.route("/connect")
+def sim_room_connect():
     # Assemable page data
     data = {}
     data['title'] = "Gas Notes – Simulation Monitor"
 
-    return render_template('join.html', data=data)
+    return render_template('connect.html', data=data)
+
+@app.route("/about")
+def sim_about():
+    # Assemable page data
+    data = {}
+    data['title'] = "Gas Notes – About"
+
+    return render_template('about.html', data=data)
 
 
 @app.route("/code", methods=['POST'], defaults={'simcode': None})
@@ -137,6 +145,7 @@ def sim_room_monitor(sim_room_id):
     data['title'] = "Gas Notes – Simulation Monitor"
     data['sim_room_id'] = sim_room_id
     data['demo'] = False
+    data['new_sim_url'] = url_for('sim_room_new')
     data['full_url'] = generate_full_url(sim_room_id, request)
     data['index_url'] = url_for('sim_room_monitor', sim_room_id=sim_room_id)
     data['controller_url'] = url_for('sim_room_monitor', sim_room_id=sim_room_id, mode='controller')

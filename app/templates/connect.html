@@ -1,13 +1,12 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "page.html" %}
+{% block page %}
 <style>
 #join {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    gap: 2rem;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 #join-form {
     display: flex;
@@ -15,6 +14,8 @@
     gap: 1rem;
     width: 100%;
     max-width: min(27ch, 75vw);
+    transform: scale(1.3);
+    margin: min(10vh, 3rem) auto;
 
     input[type="text"] {
         appearance: none;
@@ -34,22 +35,48 @@
         min-height: 100%;
     }
 }
-
+#enter-the-sim {
+    max-width: 70%;
+    margin: min(10vh, 3rem) auto;
+}
+@media (max-width: 630px) {
+    #enter-the-sim {
+        max-width: 85%;
+    }
+}
+p {
+    text-align: center;
+    text-wrap: balance;
+}
 </style>
 <div id="join" class="wrapped">
-    {% include 'mega-title.html' %}
+    <img id="enter-the-sim" src="/static/enter_the_sim.svg" alt="Enter the simulation">
     <form id="join-form" action="/code" method="post">
             <input
                 type="text"
                 name="simcode"
                 id="simcode"
-                placeholder="Sim Code"
+                placeholder="SimCode"
                 pattern="[a-zA-Z0-9]{6}"
+                autocomplete="off"
+                autofocus
                 maxlength="6"
-                oninvalid="this.setCustomValidity('Enter a valid Sim Code')"
+                oninvalid="this.setCustomValidity('Enter a valid SimCode')"
                 oninput="this.setCustomValidity('')"
             >
             <input type="submit" value="Join" class="button pink sim-join">
     </form>
+    <!-- <p><strong>Connect extra devices using a <span sim-nocopy class="simcode">SIMCODE</span></strong></p> -->
 </div>
+<script>
+    document.querySelector('#simcode').addEventListener('input', (e) => {        
+        let cursorPosition = e.target.selectionStart
+        e.target.value = e.target.value.toUpperCase()
+        e.target.selectionStart = cursorPosition
+        e.target.selectionEnd = cursorPosition
+    })
+</script>
+<!-- <footer class="noprint">
+    <p>&copy; Gas Notes</p>
+</footer> -->
 {% endblock %}

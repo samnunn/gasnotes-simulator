@@ -16,5 +16,18 @@
         {% block content %}
         {% endblock %}
     </main>
+    <script>
+        let allSimCodes = document.querySelectorAll('span.simcode')
+        for (let c of allSimCodes) {
+            c.style = `width: ${c.clientWidth}px;`
+            if (c.hasAttribute('sim-nocopy') != true) {
+                c.addEventListener('click', (e) => {
+                    navigator.clipboard.writeText(e.target.innerText)
+                    e.target.classList.add('copied')
+                    setTimeout(() => { e.target.classList.remove('copied') }, 2000)
+                })
+            }
+        }
+    </script>
 </body>
 </html>

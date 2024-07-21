@@ -368,6 +368,9 @@ nav#navbar {
         flex-direction: column;
         height: 0;
         width: 100%;
+        overflow: hidden;
+        align-items: start;
+        gap: 0;
     }
 
     #navbar-right span::before {
