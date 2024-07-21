@@ -280,10 +280,10 @@ sim-wave {
             // copy-pasta current SVG to new wave
             let outgoingSVG = targetWave.svg.cloneNode(true) // clone to avoid borking the original
             outgoingSVG.style.position = 'absolute'
-            outgoingSVG.style.left = `-${initialWidth + newComplex.width - targetWave.x_offset - overshoot}px`
+            outgoingSVG.style.left = `-${initialWidth + newComplex.width - targetWave.x_offset - overshoot - 0.5}px`
+            // shortening the leftward displacement by 0.5px prevents the little black gap between waves from appearing
             outgoingSVG.style.top = '0px'
             newWave.appendChild(outgoingSVG)
-            // TODO: add 1-2 px to outgoingSVG width
             
             // insert new wave
             this.insertWave(newWave)
