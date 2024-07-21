@@ -266,12 +266,6 @@ main {
     <p>&copy; Gas Notes</p>
 </footer>
 <script>
-    document.querySelector('#simcode').addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase()
-    })
-
-    document.addEventListener('scroll', (e) => {
-        console.log('wow')
-    })
+{% include 'starfield.js' %}
 </script>
 {% endblock %}
