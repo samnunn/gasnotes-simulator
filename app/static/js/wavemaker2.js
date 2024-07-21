@@ -149,7 +149,7 @@ sim-wave {
     // - 
     // - 
     // - 
-    beat(mandatoryWidth=0, repeating=false) {
+    beat(mandatoryWidth=0, repeating=false, animating=true) {
         // save reference to this.frontWave as targetWave
         // avoids collision in newline handler, where animate() should apply to whatever is the front wave at the start of this function call
         let targetWave = this.frontWave
@@ -316,18 +316,23 @@ sim-wave {
         // console.log('finalWidth', finalWidth)
         // console.log('initialWidth', initialWidth)
         // console.log('duration', finalWidth - initialWidth)
-        let animation = targetWave.animate(
-            [
-                { width: `${initialWidth}px` },
-                { width: `${finalWidth}px` }
-            ],
-            {
-                duration: Math.max(this.pixelsToMilliseconds(finalWidth - initialWidth), 0),
-                iterations: 1,
-                easing: 'linear',
-                fill: 'forwards'
-            }
-        )
+        let animation
+        if (animating == true) {
+            animation = targetWave.animate(
+                [
+                    { width: `${initialWidth}px` },
+                    { width: `${finalWidth}px` }
+                ],
+                {
+                    duration: Math.max(this.pixelsToMilliseconds(finalWidth - initialWidth), 0),
+                    iterations: 1,
+                    easing: 'linear',
+                    fill: 'forwards'
+                }
+            )
+        } else {
+            targetWave.style.width = `${finalWidth}px`
+        }
 
         // set a timeout (if repeating)
         if (repeating == true) {
@@ -335,7 +340,7 @@ sim-wave {
                 this.beat(mandatoryWidth, repeating)
             }
         }
-        
+
         // emit pace event
         const event = new CustomEvent("beat", { detail: newComplex.width})
         this.dispatchEvent(event)

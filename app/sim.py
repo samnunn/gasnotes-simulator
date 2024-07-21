@@ -164,12 +164,12 @@ def sim_room_monitor(sim_room_id):
     # Fallback: if no mode is specified, return the sim index
     return render_template('sim_index.html', data=data)
 
-@app.route("/waves")
+@app.route("/wavedesign")
 def wave_test_rig():
-    return render_template('wavetest.html')
-@app.route("/livewaves")
+    return render_template('wavedesign.html')
+@app.route("/wavetiming")
 def new_wavemaker():
-    return render_template('wavegen_tester.html')
+    return render_template('wavetiming.html')
 
 # ERRORS
 @app.errorhandler(HTTPException)
