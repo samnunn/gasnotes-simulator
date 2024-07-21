@@ -169,7 +169,7 @@ sim-wave {
         // save for next time
         this.last_morphology = this.morphology
         
-        if (this.morphology == 'sim-disconnect') {
+        if (this.morphology == 'sim-disconnect' || this.morphology == 'nibp-only') {
             this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
         }
         
