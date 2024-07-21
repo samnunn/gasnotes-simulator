@@ -344,6 +344,19 @@ sim-wave {
         // emit pace event
         const event = new CustomEvent("beat", { detail: newComplex.width})
         this.dispatchEvent(event)
+        
+        // emit beep event
+        
+        let beepdelay = this.pixelsToMilliseconds(newComplex.width/2)
+        if (targetWave.clientWidth == 0) {
+            // when this is the first complex in the wave
+            // delay beep by the x_offset of the first complex
+            beepdelay += this.pixelsToMilliseconds(this.frontWave.x_offset)
+        }
+        setTimeout(() => {
+            let beep = new CustomEvent("beep")
+            this.dispatchEvent(beep)
+        }, beepdelay)
     }
 
     //    __  ____  _ ___ __           ______                 __  _

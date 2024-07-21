@@ -74,6 +74,13 @@ body {
         display: none;
     }
 }
+#sound-button::before {
+    content: 'Sound  🔇';
+}
+#sound-button:checked::before {
+    content: 'Sound  🔊';
+}
+}
 
 {% if data.demo == true %}
 header {
@@ -84,8 +91,15 @@ header {
 
 <div id="monitor">
     <header class="noprint">
-        <a id="site-title" title="Return to sim index" href="{{ data.index_url }}"><span class="sim-gradient-text">Sim</span> Monitor 😴</a>
-        <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
+        <div id="navbar-left">
+            <a id="site-title" title="Return to sim index" href="{{ data.index_url }}"><span class="sim-gradient-text">Sim</span> Monitor 😴</a>
+        </div>
+        <div id="navbar-otherside">
+            <div style="display: flex; align-items: center;">
+                <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
+            </div>
+            <input type="checkbox" name="sound-button" id="sound-button" class="button dark">
+        </div>
     </header>
     <div id="main-table">
         <div>
@@ -352,12 +366,12 @@ class TransitionManager {
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 
-let beeperOn = false
+let beeperButton = document.querySelector('#sound-button')
 let beeperFrequency = 942
 let beeperDuration = 150
 
 function playTone() {
-    if (beeperOn == false) {
+    if (beeperButton.checked == false) {
         return false
     }
 
@@ -384,19 +398,11 @@ function playTone() {
     return true
 }
 
-const soundButton = document.querySelector('#sound-button')
-const soundButtonLabel = soundButton?.querySelector('div')
-soundButton?.addEventListener('click', (e) => {
-    if (beeperOn == true) {
-        soundButtonLabel.innerText = "🔇"
-        soundButton.setAttribute('title', 'Click to turn sound ON')
-        beeperOn = false
-    } else {
-        soundButtonLabel.innerText = "🔊"
-        soundButton.setAttribute('title', 'Click to turn sound OFF')
-        beeperOn = true
-    }
+
+document.querySelector('#ecg').addEventListener('beep', (e) => {
+    playTone()
 })
+
 
 //  _       __
 // | |     / /___ __   _____  _____
@@ -406,11 +412,11 @@ soundButton?.addEventListener('click', (e) => {
 
 import { } from '/static/js/wavemaker2.js'
 
+// pacemakers need to be started manually
 window.addEventListener('load', (e) => {
     document.querySelector('#ecg').beat(0, true)
     document.querySelector('#capno').beat(0, true)
 })
-
 
 // SPECIAL CASE FOR NIBP-ONLY
 // disables art line readout when nibp-only mode is picked

@@ -93,8 +93,6 @@ body {
         flex-grow: 1;
     }
 }
-
-
 /* SEND BUTTON */
 #send {
     transition: background-color 100ms ease;
@@ -149,21 +147,30 @@ body {
     border-radius: var(--border-radius);
     border: 2px solid #333;
 }
+header {
+
+}
 </style>
 
 {% if data.demo != true %}
 
 <header class="noprint">
+    <div id="navbar-left">
         <a id="site-title" href="{{ data.index_url }}"><span class="sim-gradient-text">Sim</span> Controls 😴</a>
-        <!-- <button class="button dark" style="" title="Settings" onclick="document.querySelector('#settings-container').showModal()">⚙️</button> -->
+    </div>
+    <div id="navbar-otherside">
+        <div style="display: flex; align-items: center;">
+            <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
+        </div>
         <input id="send" type="submit" value="Send" form="sim-input" class="button controller-mode stale">
+    </div>
 </header>
 {% endif %}
-<dialog id="settings-container">
-    <div id="settings">
+<div id="controller" class="wrapped controller-mode">
+    <form action="#" id="sim-input">
         <div class="sim-input-group">
                 <p>Transition Time ⏱️</p>
-                <radio-group>
+                <radio-group sim-parameter="transition-time">
                     <div class="sim-button-group">
                         <label>
                             None
@@ -178,38 +185,12 @@ body {
                             <input type="radio" name="sim-transition-time" value="60">
                         </label>
                         <label>
-                            2m
-                            <input type="radio" name="sim-transition-time" value="120">
-                        </label>
-                        <label>
-                            5m
-                            <input type="radio" name="sim-transition-time" value="300">
+                            3m
+                            <input type="radio" name="sim-transition-time" value="180">
                         </label>
                     </div>
                 </radio-group>
         </div>
-        <div class="sim-input-group">
-                <p>Beeps 🔊</p>
-                <radio-group>
-                    <div class="sim-button-group">
-                        <label>
-                            On
-                            <input type="radio" name="sim-sound" value="on">
-                        </label>
-                        <label>
-                            Off
-                            <input type="radio" name="sim-sound" value="off" checked>
-                        </label>
-                    </div>
-                </radio-group>
-                <form method="dialog">
-                    <input type="submit" value="Close" class="button red float-right">
-                </form>
-        </div>
-    </div>
-</dialog>
-<div id="controller" class="wrapped controller-mode">
-    <form action="#" id="sim-input">
         <div class="sim-input-group" id="cardiac">
             <p>Cardiac 💛</p>
             <sim-slider display-name="HR" class="green" sim-parameter="heart-rate" min="30" max="250" sim-value="67"></sim-slider>
@@ -281,14 +262,14 @@ body {
 
 <script type="module">
 const root = document.querySelector(':root')
-{% if data.demo != true %}
+// {% if data.demo != true %}
 // SOCKET SETUP
 const socket = io({
     auth: {
         sim_room_id: '{{ data.sim_room_id }}',
     }
 })
-{% endif %}
+// {% endif %}
 let sendButton = document.querySelector('#send')
 
 let form = document.querySelector('form#sim-input')
@@ -487,10 +468,13 @@ customElements.define('radio-group', class extends HTMLElement {
     constructor() {
         super()
 
+        let simParameter = this.getAttribute('sim-parameter')
+        this.removeAttribute('sim-parameter')
+
         let shamInput = document.createElement('input')
         shamInput.style.visibility = 'hidden'
         shamInput.style.display = 'none'
-        shamInput.setAttribute('sim-parameter', 'transition-time')
+        shamInput.setAttribute('sim-parameter', simParameter)
 
         let selectedElement = this.querySelector('input[type="radio"]:checked')
         shamInput.value = selectedElement.value
