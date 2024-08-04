@@ -1,5 +1,6 @@
 services:
   simulator:
+    restart: unless-stopped
     build: .
     ports:
       - "8069:8069"
