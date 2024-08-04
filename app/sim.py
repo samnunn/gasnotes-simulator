@@ -20,7 +20,7 @@ import time
 app = Flask(__name__)
 # Minify(app=app, bypass=[re.compile(r'^\/sim\/\w+\/?$')])
 socketio = SocketIO(app)
-app.secret_key = BASE_URL = os.environ.get('SIM_SECRETKEY')
+app.secret_key = os.environ.get('SIM_SECRETKEY')
 
 SIM_ROOM_STORE = 'sim_rooms'
 
