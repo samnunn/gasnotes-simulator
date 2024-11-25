@@ -31,13 +31,14 @@ body {
         }
 
         & div:has(>sim-trace) {
-            padding-top: 1rem;
             max-width: 100%;
         }
 
         & sim-trace {
             position: absolute;
             width: 100%;
+            transform-origin: top;
+            transform: scaleY(0.75);
         }
 
         & sim-readout {
@@ -81,6 +82,24 @@ body {
     content: 'Sound  🔊';
 }
 
+@media only screen and (min-height: 800px) {
+    sim-trace {
+        transform: scaleY(1) !important;
+    }
+}
+
+@media only screen and (min-height: 1000px) {
+    sim-trace {
+        transform: scaleY(1.25) !important;
+    }
+}
+
+@media only screen and (min-height: 1200px) {
+    sim-trace {
+        transform: scaleY(1.5) !important;
+    }
+}
+
 </style>
 
 <div id="monitor">
@@ -100,21 +119,21 @@ body {
 {% endif %}
     <div id="main-table">
         <div>
-            <sim-trace id="ecg" sim-parameter="ecg-rhythm" morphology="sinus" rate="67" stroke-colour="rgb(76, 209, 55)"></sim-trace>
+            <sim-trace height="200" id="ecg" sim-parameter="ecg-rhythm" morphology="sinus" rate="67" stroke-colour="rgb(76, 209, 55)"></sim-trace>
         </div>
         <div>
             <p class="readout-label">HR (/min)</p>
             <sim-readout prefix="" suffix="" sim-parameter="heart-rate" sim-colour="green" sim-value="67" sim-transitionable="true" baseline-wobble="true" wobble="3"></sim-readout>
         </div>
         <div>
-            <sim-trace id="spo2" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)" baseline-wobble="true"></sim-trace>
+            <sim-trace height="200" id="spo2" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2" stroke-colour="rgb(0, 168, 255)" baseline-wobble="true"></sim-trace>
         </div>
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
             <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true" wobble="2" limit-high="100" limit-low="90"></sim-readout>
         </div>
         <div>
-            <sim-trace mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
+            <sim-trace height="200" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
@@ -124,7 +143,7 @@ body {
             <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></sim-readout>
         </div>
         <div>
-            <sim-trace id="capno" sim-parameter="capno-trace" morphology="capno-normal" rate="18" stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60" y-scale="1"></sim-trace>
+            <sim-trace height="200" id="capno" sim-parameter="capno-trace" morphology="capno-normal" rate="18" stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60" y-scale="1"></sim-trace>
         </div>
         <div id="etco2">
             <p class="readout-label">etCO<sub>2</sub></p>

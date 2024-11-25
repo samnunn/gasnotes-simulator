@@ -629,7 +629,7 @@ path {
             ]
 
             if (Math.random() > 0.85) {
-                let randomY = Math.random() > 0.6 ? 0.75 : -0.75
+                let randomY = Math.random() > 0.6 ? 0.96 : -0.5
                 keyframes = keyframes.concat([
                     [targetDuration * 0.05, randomY],
                     [targetDuration * (Math.random() * 1.5 + 1.5), randomY, -5, 2],
