@@ -169,15 +169,22 @@ socket.on('sim-update', (msg) => {
         }
 
         // set user-defined arrest rhythms
-        let arrestEcg = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
         let ecgTrace = document.querySelector('[sim-parameter="ecg-rhythm"]')
+        let cprActive = updates.find(u => u['sim-parameter'] == 'sim-cpr')['sim-value']
+        let arrestEcg
+        if (cprActive == 'on') {
+            arrestEcg = 'cpr'
+        } else {
+            arrestEcg = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
+        }
         ecgTrace.setAttribute('sim-value', arrestEcg)
         
-        if (['sinus', 'asystole'].includes(arrestEcg)) {
+        if (['sinus', 'flatline'].includes(arrestEcg)) {
             ecgTrace.setAttribute('rate', 60)
+        } else if (arrestEcg == 'cpr') {
+            ecgTrace.setAttribute('rate', 100)
         } else {
             ecgTrace.setAttribute('rate', 200)
-
         }
         // set user-defined etco2
         let etco2 = updates.find(u => u['sim-parameter'] == 'arrest-etco2')

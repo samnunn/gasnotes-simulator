@@ -49,7 +49,7 @@ customElements.define('sim-trace', class extends HTMLElement {
         this.strokeWidth        = parseInt(this.getAttribute('stroke-width'))       || 2
         this.height             = parseInt(this.getAttribute('height'))             || 250
         this.maxLayers          = parseInt(this.getAttribute('max-layers'))         || 10
-        this.last_y             = this.height/2                                     // initial baseline = 50% of this.height
+        this.y_cursor           = this.height/2                                     // initial baseline = 50% of this.height
         this.wobble_enabled     = this.getAttribute('baseline-wobble') == "true"
 
         // INIT
@@ -161,13 +161,14 @@ path {
         
         // morphology change handler
         // would be called, for example, when an ECG changes from SR to A-fib
+        // creates a new <path> with the new morphology
         if (this.morphology != this.last_morphology) {
             let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
             newPath.setAttribute('fill', this.fillColour)
             newPath.setAttribute('fill-opacity', this.fillOpacity)
             newPath.setAttribute('stroke', this.strokeColour)
             newPath.setAttribute('stroke-width', this.strokeWidth)
-            newPath.setAttribute('d', `M ${targetWave.x_cursor},${this.last_y} `)
+            newPath.setAttribute('d', `M ${targetWave.x_cursor},${this.y_cursor} `)
             
             this.frontWave.querySelector('svg')?.appendChild(newPath)
         }
@@ -359,9 +360,12 @@ path {
             // delay beep by the x_offset of the first complex
             beepdelay += this.pixelsToMilliseconds(this.frontWave.x_offset)
         }
+
         setTimeout(() => {
-            let beep = new CustomEvent("beep")
-            this.dispatchEvent(beep)
+            if (this.morphology != 'sim-disconnect') {
+                let beep = new CustomEvent("beep")
+                this.dispatchEvent(beep)
+            }
         }, beepdelay)
     }
 
@@ -386,7 +390,7 @@ path {
         newWave.x_offset = x_offset
         newWave.x_cursor = 0
         newWave.classList.add('wave')
-        newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.last_y} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
+        newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.y_cursor} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
         newWave.svg = newWave.querySelector('svg')
         return newWave
     }
@@ -419,6 +423,7 @@ path {
             let scaleFactor = mandatoryDuration / initialDuration
             for (let i = 0; i < draftKeyframes.length; i++) {
                 draftKeyframes[i][0] = draftKeyframes[i][0] * scaleFactor
+                draftKeyframes[i][2] = draftKeyframes[i][2] * scaleFactor
             }
         }
 
@@ -454,7 +459,7 @@ path {
             y = (this.height / 2) * (1 - y)
 
             // Save Y value
-            this.last_y = y
+            this.y_cursor = y
 
             // SAVE TO MODEL
             draftKeyframes[i][0] = x
@@ -590,6 +595,48 @@ path {
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
             keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.03 * targetDuration]
 
+            return keyframes
+        },
+        "cpr": (targetDuration) => {
+            // DURATION WRNAGLING
+            if (targetDuration == 0) {
+                let idealDuration = 60000 / this.rate
+                targetDuration = this.randomNumberBetween(1.2 * idealDuration, 0.9 * idealDuration)
+            }
+
+            if (Math.random() < 0.15) {
+                let randomY = Math.random() > 0.6 ? 0.95 : -0.95
+                return [
+                    [targetDuration * 0.04, randomY * -1],
+                    [targetDuration * 0.04, randomY],
+                    [targetDuration * 0.04, randomY * -1],
+                    [targetDuration * 0.04, randomY],
+                ]
+            }
+
+            let randomBaseline = Math.random() * -0.3  - 0.4
+            let randomPeak = Math.random() * 0.3 + 0.4
+            let randomPeriod = this.randomNumberBetween(0.1, -0.1) + 0.2
+        
+            let keyframes = [
+                [0, randomBaseline, 3],
+                [targetDuration * this.randomNumberBetween(0.2, 0.05), randomPeak],
+                [targetDuration * 0.05, randomPeak * 1.1, -1],
+                [targetDuration * randomPeriod, randomPeak * this.randomNumberBetween(1.2, 1), -7, 2],
+                [targetDuration * randomPeriod, randomPeak * 0.7],
+                [targetDuration * 0.1, randomBaseline * 0.8, -2, 10],
+                [targetDuration * this.randomNumberBetween(0.3, 0.1), randomBaseline, -2, -4],
+            ]
+
+            if (Math.random() > 0.85) {
+                let randomY = Math.random() > 0.6 ? 0.75 : -0.75
+                keyframes = keyframes.concat([
+                    [targetDuration * 0.05, randomY],
+                    [targetDuration * (Math.random() * 1.5 + 1.5), randomY, -5, 2],
+                    [targetDuration * 0.2, randomBaseline],
+                ])
+            }
+        
             return keyframes
         },
         "flatline": (targetDuration) => {
