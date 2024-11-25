@@ -84,6 +84,11 @@ sim-wave {
     position: relative;
     background-color: black;
 }
+path {
+    box-sizing: content-box;
+    margin: 0;
+    padding: 0;
+}
 </style>`
 
         // add waveSet to DOM
@@ -154,14 +159,14 @@ sim-wave {
         // avoids collision in newline handler, where animate() should apply to whatever is the front wave at the start of this function call
         let targetWave = this.frontWave
         
-        // disconnected handler
+        // morphology change handler
+        // would be called, for example, when an ECG changes from SR to A-fib
         if (this.morphology != this.last_morphology) {
             let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
             newPath.setAttribute('fill', this.fillColour)
             newPath.setAttribute('fill-opacity', this.fillOpacity)
             newPath.setAttribute('stroke', this.strokeColour)
             newPath.setAttribute('stroke-width', this.strokeWidth)
-            newPath.setAttribute('fill', 'none')
             newPath.setAttribute('d', `M ${targetWave.x_cursor},${this.last_y} `)
             
             this.frontWave.querySelector('svg')?.appendChild(newPath)
@@ -169,20 +174,19 @@ sim-wave {
         // save for next time
         this.last_morphology = this.morphology
         
+        // reveal a dashed line for disconnected traces
         if (this.morphology == 'sim-disconnect' || this.morphology == 'nibp-only') {
             this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
         }
         
         // make new complex
-        let newComplex = this.constructComplex(targetWave, mandatoryWidth)
-
-        // insert new complex
-        this.insertComplex(targetWave, newComplex)
+        let newComplex = this.insertNextComplex(targetWave, mandatoryWidth)
 
         // calculate initialWidth, finalWidth, overshoot
         let initialWidth = targetWave.clientWidth
         let overshoot = initialWidth + newComplex.width - this.waveSet.clientWidth
 
+        // decide 'finalWidth' so the timing of the upcoming animation will be correct
         let finalWidth
         if (targetWave.clientWidth == 0) { // first complex in a wave
             // console.log(`finalWidth calculated for FIRST complex in a wave: targetWave.x_offset (${targetWave.x_offset}) + newComplex.width (${newComplex.width})`)
@@ -280,6 +284,8 @@ sim-wave {
             // copy-pasta current SVG to new wave
             let outgoingSVG = targetWave.svg.cloneNode(true) // clone to avoid borking the original
             outgoingSVG.style.position = 'absolute'
+            let frontmostPath = outgoingSVG.querySelector('path')
+            let frontmostPathWidth = frontmostPath.getBoundingClientRect().width
             outgoingSVG.style.left = `-${initialWidth + newComplex.width - targetWave.x_offset - overshoot - 0.5}px`
             // shortening the leftward displacement by 0.5px prevents the little black gap between waves from appearing
             outgoingSVG.style.top = '0px'
@@ -380,7 +386,7 @@ sim-wave {
         newWave.x_offset = x_offset
         newWave.x_cursor = 0
         newWave.classList.add('wave')
-        newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:relative; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.last_y} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
+        newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.last_y} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
         newWave.svg = newWave.querySelector('svg')
         return newWave
     }
@@ -392,7 +398,7 @@ sim-wave {
 
     // COMPLEX MAKING/PLACING
     // needs targetWave so it can work out how to absolute-ify the x values
-    constructComplex(targetWave=this.frontWave, mandatoryWidth=0) {
+    insertNextComplex(targetWave=this.frontWave, mandatoryWidth=0) {
         // init complex object
         let complex = {}
 
@@ -479,18 +485,16 @@ sim-wave {
         }
 
         // finish
-        complex.commands = commands
         complex.width = width
-        return complex
-    }
 
-    insertComplex(wave, complex) {
         // INSERT
-        let frontPath = wave.querySelector('path:last-child')
-        frontPath.setAttribute('d', frontPath.getAttribute('d') + complex.commands)
+        let frontPath = targetWave.querySelector('path:last-child')
+        frontPath.setAttribute('d', frontPath.getAttribute('d') + commands)
 
         // INCREMENT GLOBAL COUNTER
         this.complexCount += 1
+
+        return complex
     }
 
     interpolateDuration(at20bpm, at220bpm, rate) {
@@ -510,36 +514,6 @@ sim-wave {
             totalDuration += keyframes[i][0]
         }
         return totalDuration
-    }
-
-    makePathCommandsFromKeyframes(currentKeyframes) {
-        // INITIATE VARIABLES
-        let pathCommands = " l 0 0"
-
-        // SPECIAL CASE: FRAME[0]
-        let firstFrame = currentKeyframes[0]
-        let firstCubicBezierX = firstFrame[0] + (firstFrame[2] || 0)
-        let firstCubicBezierY = firstFrame[1] - (firstFrame[3] || 0)
-
-        // SPECIAL CASE: FRAME[1]
-        let secondFrame = currentKeyframes[1]
-        pathCommands += ` C ${firstCubicBezierX} ${firstCubicBezierY}, ${secondFrame[0] + (secondFrame[2] || 0)} ${secondFrame[1] - (secondFrame[3] || 0)}, ${secondFrame[0]} ${secondFrame[1]}`
-
-
-        // WRITE COMMANDS [1] to [-1]
-        for (let i = 2; i < currentKeyframes.length; i++) {
-            // Coordinates for the destination (x y)
-            let x = currentKeyframes[i][0]
-            let y = currentKeyframes[i][1]
-
-            let cubicBezierDX = currentKeyframes[i][2] || 0
-            let cubicBezierDY = currentKeyframes[i][3] || 0
-
-            pathCommands += ` S ${x + cubicBezierDX},${y - cubicBezierDY} ${x},${y}`
-        }
-
-        // RETURN COMMANDS
-        return pathCommands
     }
 
     //  _       __                    ______                           __

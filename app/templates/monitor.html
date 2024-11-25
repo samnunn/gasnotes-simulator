@@ -81,14 +81,11 @@ body {
     content: 'Sound  🔊';
 }
 
-{% if data.demo == true %}
-header {
-    display: none;
-}
-{% endif %}
 </style>
 
 <div id="monitor">
+{# only show the header if data.demo is falsy (false [used on the homepage] or undefined [used on the simulator page]) #}
+{% if data.demo != true %}
     <header class="noprint">
         <div id="navbar-left">
             <a id="site-title" href="/"><span class="sim-gradient-text">Sim</span> Monitor 😴</a>
@@ -100,9 +97,10 @@ header {
             <input type="checkbox" name="sound-button" id="sound-button" class="button dark">
         </div>
     </header>
+{% endif %}
     <div id="main-table">
         <div>
-            <sim-trace id="ecg" sim-parameter="ecg-rhythm" stroke-colour="rgb(76, 209, 55)"></sim-trace>
+            <sim-trace id="ecg" sim-parameter="ecg-rhythm" morphology="sinus" rate="67" stroke-colour="rgb(76, 209, 55)"></sim-trace>
         </div>
         <div>
             <p class="readout-label">HR (/min)</p>
@@ -113,15 +111,16 @@ header {
         </div>
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
-            <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true" wobble="2"></sim-readout>
+            <sim-readout prefix="" suffix="" sim-parameter="spo2" sim-colour="blue" sim-value="99" sim-transitionable="true" wobble="2" limit-high="100" limit-low="90"></sim-readout>
         </div>
         <div>
-            <sim-trace id="spo2" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
+            <sim-trace mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace" stroke-colour="rgb(232, 65, 24)" baseline-wobble="true"></sim-trace>
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
             <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="red" sim-value="119" sim-transitionable="true"></sim-readout>
             <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="red" sim-value="57" sim-transitionable="true"></sim-readout>
+            <br>
             <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></sim-readout>
         </div>
         <div>
@@ -155,6 +154,67 @@ const socket = io({
 
 socket.on('sim-update', (msg) => {
     let updates = JSON.parse(msg)['updates']
+    console.log(updates)
+
+    // special case for cardiac arrest
+    let mode = updates.find(u => u['sim-parameter'] == 'sim-mode')['sim-value']
+    document.body.setAttribute('sim-mode', mode)
+
+    if (mode == 'arrested') {
+
+        // disable all parameters by default and selectively re-enable
+        let allElements = document.querySelectorAll('[sim-parameter]')
+        for (let el of allElements) {
+            el.setAttribute('sim-disabled', 'true')
+        }
+
+        // set user-defined arrest rhythms
+        let arrestEcg = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
+        let ecgTrace = document.querySelector('[sim-parameter="ecg-rhythm"]')
+        ecgTrace.setAttribute('sim-value', arrestEcg)
+        
+        if (['sinus', 'asystole'].includes(arrestEcg)) {
+            ecgTrace.setAttribute('rate', 60)
+        } else {
+            ecgTrace.setAttribute('rate', 200)
+
+        }
+        // set user-defined etco2
+        let etco2 = updates.find(u => u['sim-parameter'] == 'arrest-etco2')
+        let capnoTrace = document.querySelector('[sim-parameter="capno-trace"]')
+        let y_scale = (etco2['sim-value'] / 36)
+        y_scale = Math.max(0.15, Math.min(1, y_scale))
+        capnoTrace.setAttribute('y-scale', y_scale)
+        capnoTrace.setAttribute('sim-value', 'capno-normal')
+
+        let etco2Readout = document.querySelector('[sim-parameter="etco2"]')
+        etco2Readout.setAttribute('sim-value', etco2['sim-value'])
+        if (etco2['sim-disabled'] == false) {
+            etco2Readout.removeAttribute('sim-disabled')
+        }
+
+        // user user-defined capno
+        let capno = updates.find(u => u['sim-parameter'] == 'arrest-capno')['sim-value']
+        capnoTrace.setAttribute('sim-value', capno)
+        capnoTrace.removeAttribute('sim-disabled')
+
+        // enable wobbly spo2
+        let spo2Readout = document.querySelector('[sim-parameter="spo2"]')
+        spo2Readout.setAttribute('sim-value', 64)
+        spo2Readout.removeAttribute('sim-disabled')
+        spo2Readout.setAttribute('wobble', 10)
+
+        // set arrest-style morphologies for remaining traces
+        document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('sim-value', 'flatline')
+        document.querySelector('[sim-parameter="artline-trace"]').setAttribute('sim-value', 'flatline')
+
+        // prevent other updates
+        return
+    } else {
+        // unset wobble on spo2
+        let spo2Readout = document.querySelector('[sim-parameter="spo2"]')
+        spo2Readout.setAttribute('wobble', 2)
+    }
 
     // update UI
     for (let u of updates) {
@@ -190,26 +250,29 @@ socket.on('sim-update', (msg) => {
 
 // CUSTOM ELEMENTS
 customElements.define('sim-readout', class extends HTMLElement {
-    
+    prefix
+    suffix
+    colour
+    limitHigh
+    limitLow
+    wobble_timer
+
     constructor () {
         super()
-        let prefix = this.getAttribute('prefix')
-        let suffix = this.getAttribute('suffix')
+        this.prefix = this.getAttribute('prefix')
+        this.suffix = this.getAttribute('suffix')
         this.wobble_factor = parseInt(this.getAttribute('wobble')) || 0
-        let colour = this.getAttribute('sim-colour')
+        this.colour = this.getAttribute('sim-colour')
+        this.limitHigh = parseInt(this.getAttribute('limit-high')) || null
+        this.limitLow = parseInt(this.getAttribute('limit-low')) || null
+        this.limitExceded = false
         this.innerHTML = `
-        <span class="readout-value ${colour}">${prefix}--${suffix}</span>
+        <span class="readout-value ${this.colour}">${this.prefix}--${this.suffix}</span>
         `
-        
-        if (this.wobble_factor != 0) {
-            this.wobble()
-        }
+        this.wobble()
     }
     
     updateReadout(printedValue = null) {
-        let prefix = this.getAttribute('prefix')
-        let suffix = this.getAttribute('suffix')
-        
         if (printedValue == null) {
             printedValue = this.getAttribute('sim-value')
         }
@@ -218,10 +281,28 @@ customElements.define('sim-readout', class extends HTMLElement {
             printedValue = '--'
         }
         
-        this.querySelector('span.readout-value').innerText = prefix + printedValue + suffix
+        this.querySelector('span.readout-value').innerText = this.prefix + printedValue + this.suffix
+
+        this.checkSafety(printedValue)
+    }
+
+    checkSafety(proposedValue) {
+        if (!this.limitHigh || !this.limitLow) return
+        let proposedInt = parseInt(proposedValue)
+        if (proposedInt > this.limitHigh || proposedInt < this.limitLow) {
+            this.classList.add('sim-readout-alarm')
+            this.limitExceded = true
+        } else {
+            this.classList.remove('sim-readout-alarm')
+            this.limitExceded = false
+        }
     }
     
     wobble() {
+        if (this.wobble_factor == 0) return
+
+        clearTimeout(this.wobble_timer)
+
         let trueValue = this.getAttribute('sim-value')
         let randomValue = parseInt(trueValue) + Math.floor(Math.random() * this.wobble_factor * 2 - this.wobble_factor)
         
@@ -232,25 +313,30 @@ customElements.define('sim-readout', class extends HTMLElement {
         
         this.updateReadout(randomValue)
         
-        let randomInterval = 8000 + Math.random() * 8000
-        
+        // update more frequently when out of range
+        let randomInterval
+        if (this.limitExceded == true) {
+            randomInterval = 2000 + Math.random() * 2000
+        } else {
+            randomInterval = 8000 + Math.random() * 8000
+        }
+
+
         this.wobble_timer = setTimeout(() => {
             this.wobble()
         }, randomInterval)
     }
 
     attributeChangedCallback (name, oldValue, newValue) {
-        this.updateReadout()
-        clearInterval(this.wobble_timer)
-        
-        let randomInterval = 8000 + Math.random() * 8000
-        this.wobble_timer = setTimeout(() => {
-            this.wobble()
-        }, randomInterval)
+        if (name == 'wobble') {
+            this.wobble_factor = parseInt(newValue)
+        } else {
+            this.updateReadout()
+        }
     }
     
     static get observedAttributes () {
-        return ['sim-value', 'sim-disabled']
+        return ['sim-value', 'sim-disabled', 'wobble']
     }
 })
 
@@ -347,6 +433,14 @@ class TransitionManager {
                 // console.log('hack! spo2 is being transitioned')
                 // console.log(this.initialValue, this.targetValue, this.currentValue)
                 beeperFrequency = 150 + 8 * parseInt(this.currentValue)
+            }
+
+            // AWFUL HACK: special case for map
+            if (this.targetElement.getAttribute('sim-parameter') == 'mean-arterial-pressure') {
+                let y_scale = ((this.currentValue - 15) / 65)
+                y_scale = Math.max(0.05, Math.min(1, y_scale))
+                document.querySelector('[sim-parameter="artline-trace"]').setAttribute('y-scale', y_scale)
+                document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('y-scale', y_scale)
             }
         }
     }

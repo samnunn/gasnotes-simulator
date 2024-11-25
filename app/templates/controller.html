@@ -147,13 +147,34 @@ body {
     border-radius: var(--border-radius);
     border: 2px solid #333;
 }
-header {
 
+#arrest-controls {
+    display: none;
 }
+body[sim-mode="arrested"] {
+    .sim-input-group:not(#arrest-controls) {
+        display: none;
+    }
+    #arrest-controls {
+        display: flex;
+        gap: 2rem;
+    }
+    #mode-picker {
+        display: flex !important;
+    }
+}
+
+/* hide #site-title > .sim-gradient-text when viewport width is less than 470px */
+@media only screen and (max-width: 470px) {
+    #site-title > .sim-gradient-text {
+        display: none !important;
+    }
+}
+
 </style>
 
+{# only show the header if data.demo is falsy (false [used on the homepage] or undefined [used on the simulator page]) #}
 {% if data.demo != true %}
-
 <header class="noprint">
     <div id="navbar-left">
         <a id="site-title" href="/"><span class="sim-gradient-text">Sim</span> Controls 😴</a>
@@ -166,34 +187,27 @@ header {
     </div>
 </header>
 {% endif %}
+
 <div id="controller" class="wrapped controller-mode">
     <form action="#" id="sim-input">
-        <div class="sim-input-group">
-                <p>Transition Time ⏱️</p>
-                <radio-group sim-parameter="transition-time">
+        <div class="sim-input-group" id="mode-picker">
+                <p>Mode 🎮</p>
+                <radio-group sim-parameter="sim-mode">
                     <div class="sim-button-group">
                         <label>
-                            None
-                            <input type="radio" name="sim-transition-time" value="0" checked>
+                            Alive
+                            <input type="radio" name="sim-mode" value="alive" checked>
                         </label>
                         <label>
-                            30s
-                            <input type="radio" name="sim-transition-time" value="30">
-                        </label>
-                        <label>
-                            1m
-                            <input type="radio" name="sim-transition-time" value="60">
-                        </label>
-                        <label>
-                            3m
-                            <input type="radio" name="sim-transition-time" value="180">
+                            Arrested
+                            <input type="radio" name="sim-mode" value="arrested" id="arrest-button">
                         </label>
                     </div>
                 </radio-group>
         </div>
         <div class="sim-input-group" id="cardiac">
             <p>Cardiac 💛</p>
-            <sim-slider display-name="HR" class="green" sim-parameter="heart-rate" min="30" max="250" sim-value="67"></sim-slider>
+            <sim-slider display-name="HR" class="green" sim-parameter="heart-rate" min="30" max="220" sim-value="67"></sim-slider>
             <div class="sim-select green">
                 <div class="input-label">ECG</div>
                 <select sim-parameter="ecg-rhythm">
@@ -232,7 +246,7 @@ header {
         <div class="sim-input-group" id="respiration">
             <p>Respiration 😮‍💨</p>
             <sim-slider display-name="SpO<sub>2</sub>" class="blue" sim-parameter="spo2" type="range" min="50" max="100" sim-value="99"></sim-slider>
-            <div class="sim-select blue">
+            <div class="sim-select blue" id="spo2-picker">
                 <div class="input-label">PLETH</div>
                 <select name="" id="" sim-parameter="spo2-trace">
                     <option value="spo2">Well Perfused</option>
@@ -244,7 +258,7 @@ header {
             </div>
             <sim-slider display-name="RR" class="white" sim-parameter="respiratory-rate" type="range" min="0" max="60" sim-value="18"></sim-slider>
             <sim-slider display-name="etCO<sub>2</sub>" class="yellow" sim-parameter="etco2" type="range" min="0" max="60" sim-value="36"></sim-slider>
-            <div class="sim-select yellow">
+            <div class="sim-select yellow" id="capno-picker">
                 <div class="input-label">CAP</div>
                 <select name="" id="" sim-parameter="capno-trace">
                     <option value="capno-normal">Normal</option>
@@ -257,14 +271,65 @@ header {
                 </select>
             </div>
         </div>
+        <div class="sim-input-group" id="arrest-controls">
+            <p>Arrest Controls 💔</p>
+            <div class="sim-select green">
+                <div class="input-label">Rhythm</div>
+                <select sim-parameter="arrest-rhythm">
+                    <option value="sinus">PEA</option>
+                    <option value="flatline">Asystole</option>
+                    <hr>
+                    <option value="vfib" selected>Ventricular Fibrillation</option>
+                    <option value="vtach-monomorphic">Ventricular Tachycardia</option>
+                    <option value="vtach-torsades">Torsades de Pointes</option>
+                    <!-- <hr> -->
+                    <!-- <option value="sim-disconnect">Disconnected</option> -->
+                </select>
+            </div>
+            <div class="sim-select yellow">
+                <div class="input-label">CAP</div>
+                <select name="" id="" sim-parameter="arrest-capno">
+                    <option value="sim-disconnect" sim-disconnect="arrest-etco2" selected>Disconnected</option>
+                    <option value="flatline" sim-disconnect="arrest-etco2">Flatline</option>
+                    <hr>
+                    <option value="capno-normal">Normal</option>
+                    <option value="capno-obstructed-moderate">Moderate Obstruction</option>
+                    <option value="capno-obstructed-severe">Severe Obstruction</option>
+                </select>
+            </div>
+            <sim-slider display-name="etCO<sub>2</sub>" class="yellow" sim-parameter="arrest-etco2" type="range" min="0" max="60" sim-value="9"></sim-slider>
+        </div>
+        <div class="sim-input-group" id="transition-time">
+                <p>Transition Time ⏱️</p>
+                <radio-group sim-parameter="transition-time">
+                    <div class="sim-button-group">
+                        <label>
+                            None
+                            <input type="radio" name="sim-transition-time" value="0" checked>
+                        </label>
+                        <label>
+                            30s
+                            <input type="radio" name="sim-transition-time" value="30">
+                        </label>
+                        <label>
+                            1m
+                            <input type="radio" name="sim-transition-time" value="60">
+                        </label>
+                        <label>
+                            3m
+                            <input type="radio" name="sim-transition-time" value="180">
+                        </label>
+                    </div>
+                </radio-group>
+        </div>
     </form>
 </div>
 
 <script type="module">
-const root = document.querySelector(':root')
+let root = document.querySelector(':root')
 // {% if data.demo != true %}
 // SOCKET SETUP
-const socket = io({
+let socket = io({
     auth: {
         sim_room_id: '{{ data.sim_room_id }}',
     }
@@ -276,7 +341,7 @@ let form = document.querySelector('form#sim-input')
 form.addEventListener('submit', (e) => {
     e.preventDefault()
     let message = dumpAllInputState()
-    console.debug(message)
+    // console.debug(message)
     socket.emit('sim-update', message)
     
     if (sendButton) {
@@ -483,45 +548,67 @@ customElements.define('radio-group', class extends HTMLElement {
         this.appendChild(shamInput)
 
         this.addEventListener('input', (e) => {
+            if (e.detail?.preventAutophagy == true) return
+
             let selectedElement = this.querySelector('input[type="radio"]:checked')
             shamInput.value = selectedElement.value
+            
+            shamInput.dispatchEvent(new CustomEvent('input', {bubbles: true, detail: {preventAutophagy: true}}))
         })
     }
 })
 
 // NON-PERFUSING RHYTHM CHECKER
 let ecg = document.querySelector('[sim-parameter="ecg-rhythm"]')
-ecg.addEventListener('input', (e) => {
+let arrestButton = document.querySelector('#arrest-button')
+
+// keep track of last non-arrested rhythm choice
+let lastEcgValue
+
+ecg.addEventListener('change', (e) => {
     let target = e.target
-    if(target.options[target.selectedIndex].hasAttribute('sim-arrest')) {
-        if (window.confirm(`Start cardiac arrest?`)) {
-            let arrestTargets = ['artline-trace', 'capno-trace', 'spo2-trace']
-            console.log(`configuring cardiac arrest for: ${arrestTargets}`)
-            
-            for (let a of arrestTargets) {
-                let trace = document.querySelector(`[sim-parameter="${a}"]`)
-                trace.value = 'flatline'
-                trace.dispatchEvent(new Event('input'))
-            }
-            
-        } else {
-            console.log('no cardiac arrest, skipping…')
+    if (target.options[target.selectedIndex].hasAttribute('sim-arrest')) {
+        // confirm with user
+        let a = confirm(`Initiate cardiac arrest?`)
+        if (!a) return
+
+        // set arrest rhythm parameter (it's a separate <select> element)
+        document.querySelector('[sim-parameter="arrest-rhythm"]').value = e.target.value
+
+        // initiate cardiac arrest
+        arrestButton.click()
+
+        // restore last non-arrested rhythm choice
+        e.target.value = lastEcgValue
+    } else {
+        // keep track of last non-arrested rhythm choice
+        lastEcgValue = e.target.value
+    }
+})
+
+document.addEventListener('input', (e) => {
+    if (e.target.matches('[sim-parameter="sim-mode"]')) {
+        // set mode parameter on body
+        // will be picked up by CSS to hide superfluous inputs
+        document.body.setAttribute('sim-mode', e.target.value)
+
+        if (e.target.value == 'arrested') {
+            // carry over non-arrested capno morphology (IF it exists)
+            // arrest capno doesn't have all the modes of non-arrest capno
+            // will default to "disconnected" if a nonexistent mode is set
+            let normalCapno = document.querySelector('[sim-parameter="capno-trace"]')
+            let arrestCapno = document.querySelector('[sim-parameter="arrest-capno"]')
+            arrestCapno.value = normalCapno.value
+            // trigger input event on arrest capno
+            // this allows it to disable the etco2 slider according to its own sim-disconnect rules
+            arrestCapno.dispatchEvent(new CustomEvent('input', {bubbles: true}))
         }
-        
-        // max out HR for non-perfusing tachyarrhythmias
-        let hr = document.querySelector('[sim-parameter="heart-rate"]')
-        hr.setAttribute('sim-value', hr.getAttribute('max'))
-        
-        // let event = document.createEvent('MouseEvents')
-        // event.initMouseEvent('mousedown', true, true, window)
-        // document.querySelector('select[sim-parameter="ecg-rhythm"]')?.dispatchEvent(event)
     }
 })
 
 // DISCONNECTION CHECKER
-// Behaviour:
-// - Runs every time an <option> is selected
-// - Re-enables all elements with a [sim-parameter] attribute
+// - Runs every time an <option> is selected anywhere
+// - Re-enables all elements with a [sim-parameter] attribute (scoped to the parent div.sim-input-group)
 // - Then disabled elements with a [sim-parameter] attribute that are in current <option>'s [sim-disconnect] attribute
 let disconnectingSelectors = document.querySelectorAll("select:has(option[sim-disconnect])")
 for (let d of disconnectingSelectors) {
