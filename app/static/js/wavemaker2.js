@@ -837,18 +837,22 @@ path {
             // DURATION WRNAGLING
             if (targetDuration == 0) {
                 let idealDuration = 60000 / this.rate
-                targetDuration = this.randomNumberBetween(1.1 * idealDuration, 0.9 * idealDuration)
+                targetDuration = this.randomNumberBetween(1.2 * idealDuration, 0.8 * idealDuration)
             }
 
-            let isoelectricLine = 0
+            let randomCompoent = Math.random() * 0.2
+            let wanderingBaseline =  0.05 * Math.sin(this.complexCount * 0.3) / Math.PI
 
-            let peakHeight = 0.8 + 0.05 * Math.random()
+            // let isoelectricLine = 0 - 0.1 * Math.sin(this.complexCount * 0.2) / Math.PI - randomCompoent + wanderingBaseline
+
+            let peakHeight = 0.8 + 0.08 * Math.random()
+            let isoelectricLine = 0 - 0.5 * peakHeight
 
             // MAKE QRS
             let keyframes = [
                 [0, isoelectricLine, 0.01 * targetDuration],
-                [targetDuration * 0.53, peakHeight, -6 * Math.random() - 4, -5 * Math.random() + 2 ],
-                [targetDuration * 0.47, isoelectricLine, -0.01 * targetDuration]
+                [targetDuration * 0.53, peakHeight, -0.05 * targetDuration, -5 * Math.random() + 2 ],
+                [targetDuration * 0.47, isoelectricLine, -0.02 * targetDuration]
             ]
             return keyframes
         },
