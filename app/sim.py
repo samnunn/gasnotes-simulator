@@ -205,3 +205,15 @@ def handle_sim_update(data):
         emit('sim-update', json.dumps(data), to=sim_room_id)
     else:
         print(f'🚨 SocketIO received a `sim-update` for a non-exitent sim room. Passing.')
+
+@socketio.on('sim-post')
+def handle_sim_post(data):
+    data = json.loads(data)
+    sim_room_id = data['sim_room_id']
+
+    # Only send an update if the sim room exists
+    if sim_room_exists(sim_room_id):
+        update_sim_room(sim_room_id)
+        emit('sim-post', json.dumps(data), to=sim_room_id)
+    else:
+        print(f'🚨 SocketIO received a `sim-post` for a non-exitent sim room. Passing.')

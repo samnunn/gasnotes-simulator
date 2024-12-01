@@ -2,32 +2,28 @@
 
 {% block content %}
 <style>
-body {
-    background-image: none;
-}
 /* MONITOR */
 #monitor {
-    grid-area: modal;
     display: grid;
     {% if data.demo == true %}
     grid-template-rows: 1fr;
     {% else %}
     grid-template-rows: auto 1fr;
     {% endif %}
-    height: 100vh;
+    
+    height: 100%;
 
     & #main-table {
-        height: auto;
         display: grid;
         grid-template-columns: 1fr 18rem;
+        /* repeat(4, 1fr) auto instead of repeat(5, 1fr) so the text in the bottom row hits the end of the screen */
         grid-template-rows: repeat(4, 1fr) auto;
         gap: 1rem;
         padding: 1rem;
         font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif;
 
         & > * {
-            /* min-height: 0px; */
-            position: relative; /* needed to position the child wave elements absolutely */
+            position: relative; /* needed to position the sim-trace elements absolutely */
         }
 
         & div:has(>sim-trace) {
@@ -35,10 +31,33 @@ body {
         }
 
         & sim-trace {
-            position: absolute;
             width: 100%;
+            
+            position: absolute;
+            /* left: ??px is set dynamically in wavemaker.js */
+
+            /* transform: scaleY varies according to height (see below media queries) */
             transform-origin: top;
             transform: scaleY(0.75);
+            
+        }
+        
+        @media only screen and (min-height: 800px) {
+            sim-trace {
+                transform: scaleY(1) !important;
+            }
+        }
+        
+        @media only screen and (min-height: 1000px) {
+            sim-trace {
+                transform: scaleY(1.25) !important;
+            }
+        }
+        
+        @media only screen and (min-height: 1200px) {
+            sim-trace {
+                transform: scaleY(1.5) !important;
+            }
         }
 
         & sim-readout {
@@ -56,47 +75,202 @@ body {
     font-size: clamp(3rem, calc(10vh - 2.5rem), 5rem) !important;
 }
 
+/* phone screens */
 @media only screen and (max-width: 630px) {
-    #monitor {
-        grid-template-rows: auto 1fr;
-    }
 
     #main-table {
-        display: flex !important;
-        flex-direction: column;
-        /* grid-template-columns: 1fr !important; */
-        /* grid-template-rows: repeat(4, 1fr); */
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(3, 1fr) !important;
 
         & div:has(>sim-trace) {
             display: none;
         }
     }
-    #bp-readout {
+    sim-readout {
+        font-size: 5rem !important;
+    }
+    #site-title > .sim-gradient-text {
+        display: none;
+    }
+    #bp-readout > sim-readout, #nibp > sim-readout {
+        font-size: clamp(2rem, 12vw, 4rem) !important;
+    }
+}
+
+/* tiny phone screens */
+@media only screen and (max-width: 470px) {
+    #monitor-name {
         display: none;
     }
 }
+
+/* sound button */
 #sound-button::before {
     content: 'Sound  🔇';
 }
 #sound-button:checked::before {
     content: 'Sound  🔊';
 }
-
-@media only screen and (min-height: 800px) {
-    sim-trace {
-        transform: scaleY(1) !important;
+sim-post {
+    figure {
+        margin: 0;
+        padding: 0;
+    }
+    figcaption {
+        display: none;
     }
 }
 
-@media only screen and (min-height: 1000px) {
-    sim-trace {
-        transform: scaleY(1.25) !important;
+#resources {
+    --tray-height: calc(min(90vh, 0.8 * 100vw));
+    max-width: calc(min(90vw, 90vh/0.8));
+
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 14rem 1fr;
+    grid-template-areas:
+        "head head"
+        "scroll marquee";
+    row-gap: 1rem;
+
+    #resource-header {
+        font-size: 2rem;
+        font-weight: bold;
+        grid-area: head;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-left: 0.25rem;
+    }
+
+    #resource-list {
+        grid-area: scroll;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        padding-right: 0.75rem;
+        margin-right: 0.25rem;
+
+
+        overflow: scroll;
+        max-height: 100%;
+
+        sim-abg {
+            display: none;
+        }
+    }
+
+    #resource-marquee {
+        grid-area: marquee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px dashed #444;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+
+        overflow: hidden;
+        max-height: 100%;
+
+        p {
+            text-align: center;
+        }
+
+        &:has(img) {
+            p {
+                display: none;
+            }
+        }
+
+        figure {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr auto;
+
+            height: 100%;
+            width: 80%;
+
+            margin: 0;
+            padding: 0;
+
+            text-align: center;
+        }
+
+        img {
+            margin: 0;
+            object-fit: cover;
+
+            align-self: center;
+
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+        }
+
+        img, sim-abg {
+            border-radius: 1rem;
+            box-shadow: 0px 10px 30px black;
+            border: 0.5rem solid white;
+            overflow: hidden;
+            
+        }
+        sim-abg {
+            width: 80%;
+            max-width: 650px;
+        }
     }
 }
 
-@media only screen and (min-height: 1200px) {
-    sim-trace {
-        transform: scaleY(1.5) !important;
+#resources-button-container {
+    position: relative;
+    #resources-badge {
+        --diameter: 1.5rem;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: var(--diameter);
+        width: var(--diameter);
+        margin: 0;
+        padding: 0;
+
+        border-radius: 50%;
+        background-color: var(--color-red);
+        padding: 0.2rem;
+
+        font-size: calc(var(--diameter) * 0.6);
+        line-height: 1;
+        font-weight: bold;
+        font-family: sans-serif;
+        
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        transform: translate(calc(var(--diameter) * 0.25), calc(var(--diameter) * -0.25));
+
+        visibility: hidden;
+    }
+}
+
+@media screen and (max-height: 1000px) {
+    sim-abg {
+        transform: scale(0.8);
+    }
+}
+@media screen and (max-height: 780px) {
+    sim-abg {
+        transform: scale(0.6);
+        width: 150%;
+    }
+}
+@media screen and (max-height: 730px) {
+    sim-abg {
+        transform: scale(0.4);
+        width: 150%;
+        font-size: 75%;
     }
 }
 
@@ -105,13 +279,15 @@ body {
 <div id="monitor">
 {# only show the header if data.demo is falsy (false [used on the homepage] or undefined [used on the simulator page]) #}
 {% if data.demo != true %}
-    <header class="noprint">
+    <header>
         <div id="navbar-left">
-            <a id="site-title" href="/"><span class="sim-gradient-text">Sim</span> Monitor 😴</a>
+            <a id="site-title" href="/"><span class="sim-gradient-text">Sim</span> <span id="monitor-name">Monitor</span> 😴</a>
+            <!-- <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span> -->
         </div>
         <div id="navbar-otherside">
-            <div style="display: flex; align-items: center;">
-                <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
+            <div id="resources-button-container">
+                <button class="button dark" onclick="document.querySelector('#resources').showModal()">Resources</button>
+                <div id="resources-badge">1</div>
             </div>
             <input type="checkbox" name="sound-button" id="sound-button" class="button dark">
         </div>
@@ -137,7 +313,7 @@ body {
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
-            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="red" sim-value="119" sim-transitionable="true"></sim-readout>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="red" sim-value="119" sim-transitionable="true"></sim-readout>
             <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="red" sim-value="57" sim-transitionable="true"></sim-readout>
             <br>
             <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="red" sim-value="78" sim-transitionable="true"></sim-readout>
@@ -151,7 +327,7 @@ body {
         </div>
         <div id="nibp">
             <p class="readout-label">NIBP (mmHg)</p>
-            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119" sim-disabled="{{ data.demo == False }}"></sim-readout>
+            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" sim-colour="purple" sim-value="119" sim-disabled="{{ data.demo == False }}"></sim-readout>
             <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" sim-colour="purple" sim-value="57" sim-disabled="{{ data.demo == False }}"></sim-readout>
             <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" sim-colour="purple" sim-value="78" sim-disabled="{{ data.demo == False }}"></sim-readout>
         </div>
@@ -161,6 +337,21 @@ body {
         </div>
     </div>
 </div>
+
+<dialog class="tray" id="resources">
+    <div id="resource-header">
+        <span>Resources</span>
+        <form method="dialog"><button type="submit" class="button red">Close</button></form>
+    </div>
+    <div id="resource-list">
+
+    </div>
+    <div id="resource-marquee">
+        <p>Resources sent from the Sim Controller will appear here.</p>
+    </div>
+</dialog>
+
+{% include 'abg_machine.html' %}
 
 <script type="module">
 {% if data.demo != true %}
@@ -180,42 +371,46 @@ socket.on('sim-update', (msg) => {
     document.body.setAttribute('sim-mode', mode)
 
     if (mode == 'arrested') {
-
         // disable all parameters by default and selectively re-enable
         let allElements = document.querySelectorAll('[sim-parameter]')
         for (let el of allElements) {
             el.setAttribute('sim-disabled', 'true')
         }
 
-        // set user-defined arrest rhythms
+        // set user-defined arrest rhythms (or CPR)
         let ecgTrace = document.querySelector('[sim-parameter="ecg-rhythm"]')
         let cprActive = updates.find(u => u['sim-parameter'] == 'sim-cpr')['sim-value']
-        let arrestEcg
+
+        let arrestedMorphology
         if (cprActive == 'on') {
-            arrestEcg = 'cpr'
+            arrestedMorphology = 'cpr'
         } else {
-            arrestEcg = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
+            arrestedMorphology = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
         }
-        ecgTrace.setAttribute('sim-value', arrestEcg)
+        ecgTrace.setAttribute('morphology', arrestedMorphology)
         
-        if (['sinus', 'flatline'].includes(arrestEcg)) {
+        // set heart rate according to morphology
+        if (['sinus', 'flatline'].includes(arrestedMorphology)) {
             ecgTrace.setAttribute('rate', 60)
-        } else if (arrestEcg == 'cpr') {
+        } else if (arrestedMorphology == 'cpr') {
             ecgTrace.setAttribute('rate', 100)
         } else {
-            ecgTrace.setAttribute('rate', 200)
+            ecgTrace.setAttribute('rate', 250)
         }
+
         // set user-defined etco2
-        let etco2 = updates.find(u => u['sim-parameter'] == 'arrest-etco2')
         let capnoTrace = document.querySelector('[sim-parameter="capno-trace"]')
-        let y_scale = (etco2['sim-value'] / 36)
+        let etco2Update = updates.find(u => u['sim-parameter'] == 'arrest-etco2')
+
+        let y_scale = (etco2Update['sim-value'] / 36)
         y_scale = Math.max(0.15, Math.min(1, y_scale))
+        
         capnoTrace.setAttribute('y-scale', y_scale)
         capnoTrace.setAttribute('sim-value', 'capno-normal')
 
         let etco2Readout = document.querySelector('[sim-parameter="etco2"]')
-        etco2Readout.setAttribute('sim-value', etco2['sim-value'])
-        if (etco2['sim-disabled'] == false) {
+        etco2Readout.setAttribute('sim-value', etco2Update['sim-value'])
+        if (etco2Update['sim-disabled'] == false) {
             etco2Readout.removeAttribute('sim-disabled')
         }
 
@@ -224,17 +419,17 @@ socket.on('sim-update', (msg) => {
         capnoTrace.setAttribute('sim-value', capno)
         capnoTrace.removeAttribute('sim-disabled')
 
-        // enable wobbly spo2
+        // set wobbly spo2 (simulates under-reading a poor trace during arrest)
         let spo2Readout = document.querySelector('[sim-parameter="spo2"]')
         spo2Readout.setAttribute('sim-value', 64)
         spo2Readout.removeAttribute('sim-disabled')
-        spo2Readout.setAttribute('wobble', 10)
+        spo2Readout.setAttribute('wobble', 15)
 
         // set arrest-style morphologies for remaining traces
         document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('sim-value', 'flatline')
         document.querySelector('[sim-parameter="artline-trace"]').setAttribute('sim-value', 'flatline')
 
-        // prevent other updates
+        // prevent further updates by returning early
         return
     } else {
         // unset wobble on spo2
@@ -242,7 +437,7 @@ socket.on('sim-update', (msg) => {
         spo2Readout.setAttribute('wobble', 2)
     }
 
-    // update UI
+    // update each [sim-parameter]
     for (let u of updates) {
         const targetElements = document.querySelectorAll(`[sim-parameter="${u['sim-parameter']}"]`)
 
@@ -373,14 +568,24 @@ class TransitionManager {
     currentValue
     timeout
     incrementSize
-    incrementDuration = 5000
+    incrementDuration = 3000
     running = true
+    nonTransitionable = false
 
     constructor(targetElement, targetValue, targetParameter='sim-value') {
         this.targetElement = targetElement
         this.targetValue = parseInt(targetValue)
         this.initialValue = parseInt(this.targetElement.getAttribute('sim-value'))
         this.currentValue = this.initialValue
+
+        // immediately commit changes for non-transitionable elements
+        // early return to prevent any further horseplay
+        if (this.targetElement.hasAttribute('sim-transitionable') != true) {
+            // needs to skip parseInt() because wave morphologies are strings
+            this.targetElement.setAttribute('sim-value', targetValue)
+            this.nonTransitionable = true
+            return
+        }
 
         // stop the currently-running transition
         if (this.targetElement.activeTransition instanceof TransitionManager) {
@@ -389,22 +594,13 @@ class TransitionManager {
 
         // substitute this transition
         this.targetElement.activeTransition = this
-        
-        // immediately commit changes for non-transitionable elements
-        if (this.targetElement.hasAttribute('sim-transitionable') == false) {
-            this.targetElement.setAttribute('sim-value', targetValue)
-            // needs to skip parseInt() because wave morphologies are strings
-        }
     }
 
     start() {
-        let duration
+        if (this.nonTransitionable) return
+
         // set duration
-        if (this.targetElement.hasAttribute('sim-transitionable')) {
-            duration = document.body.getAttribute('sim-transition-time') || 0
-        } else {
-            duration = 0
-        }
+        let duration = document.body.getAttribute('sim-transition-time') || 0
         
         // duration is an integer number of seconds
         if (duration > 0) {
@@ -419,55 +615,59 @@ class TransitionManager {
 
     increment() {
         // only increment if running == true (gets set to false as an interrupt/end of transition signal)
+        
+        // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
+        let totalChange = Math.abs(this.currentValue - this.initialValue)
+        let plannedChange = Math.abs(this.targetValue - this.initialValue)
+        if (totalChange >= plannedChange) {
+            this.currentValue = this.targetValue
+            this.running = false
+        } else {
+            this.currentValue += this.incrementSize
+        }
+
+        // commit changes to the DOM
+        // parseInt() to get rid of decimals
+        this.targetElement.setAttribute('sim-value', parseInt(this.currentValue))
+
+        // AWFUL HACK: special case for etCO2
+        if (this.targetElement.getAttribute('sim-parameter') == 'etco2') {
+            let y_scale = (this.currentValue / 36)
+            y_scale = Math.max(0.15, Math.min(1, y_scale))
+            document.querySelector('#capno').setAttribute('y-scale', y_scale)
+        }
+
+        // AWFUL HACK: special case for RR
+        if (this.targetElement.getAttribute('sim-parameter') == 'respiratory-rate') {
+            document.querySelector('#capno').setAttribute('rate', this.currentValue)
+        }
+
+        // AWFUL HACK: special case for HR
+        if (this.targetElement.getAttribute('sim-parameter') == 'heart-rate') {
+            document.querySelector('#ecg').setAttribute('rate', this.currentValue)
+        }
+
+        // AWFUL HACK: a special case for spo2
+        if (this.targetElement.getAttribute('sim-parameter') == 'spo2') {
+            // console.log('hack! spo2 is being transitioned')
+            // console.log(this.initialValue, this.targetValue, this.currentValue)
+            beeperFrequency = 150 + 8 * parseInt(this.currentValue)
+        }
+
+        // AWFUL HACK: special case for map
+        if (this.targetElement.getAttribute('sim-parameter') == 'mean-arterial-pressure') {
+            let y_scale = ((this.currentValue - 15) / 65)
+            y_scale = Math.max(0.05, Math.min(1, y_scale))
+            document.querySelector('[sim-parameter="artline-trace"]').setAttribute('y-scale', y_scale)
+            document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('y-scale', y_scale)
+        }
+        
         if (this.running == true) {
-            // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
-            if (Math.abs(this.currentValue - this.initialValue) >= Math.abs(this.targetValue - this.initialValue)) {
-                this.currentValue = this.targetValue
-                this.running = false
-            } else {
-                this.currentValue += this.incrementSize
-            }
-
-            // commit changes to the DOM
-            this.targetElement.setAttribute('sim-value', parseInt(this.currentValue))
-
             // set a timeout for next increment
-            // knowing that it will be a no-op if this.running was set to false above
+            // will be a no-op if this.running was set to false above
             this.timeout = setTimeout(() => {
                 this.increment()
             }, this.incrementDuration) // period is set in this.incrementDuration above
-
-            // AWFUL HACK: special case for etCO2
-            if (this.targetElement.getAttribute('sim-parameter') == 'etco2') {
-                let y_scale = (this.currentValue / 36)
-                y_scale = Math.max(0.15, Math.min(1, y_scale))
-                document.querySelector('#capno').setAttribute('y-scale', y_scale)
-            }
-
-            // AWFUL HACK: special case for RR
-            if (this.targetElement.getAttribute('sim-parameter') == 'respiratory-rate') {
-                document.querySelector('#capno').setAttribute('rate', this.currentValue)
-            }
-
-            // AWFUL HACK: special case for HR
-            if (this.targetElement.getAttribute('sim-parameter') == 'heart-rate') {
-                document.querySelector('#ecg').setAttribute('rate', this.currentValue)
-            }
-
-            // AWFUL HACK: a special case for spo2
-            if (this.targetElement.getAttribute('sim-parameter') == 'spo2') {
-                // console.log('hack! spo2 is being transitioned')
-                // console.log(this.initialValue, this.targetValue, this.currentValue)
-                beeperFrequency = 150 + 8 * parseInt(this.currentValue)
-            }
-
-            // AWFUL HACK: special case for map
-            if (this.targetElement.getAttribute('sim-parameter') == 'mean-arterial-pressure') {
-                let y_scale = ((this.currentValue - 15) / 65)
-                y_scale = Math.max(0.05, Math.min(1, y_scale))
-                document.querySelector('[sim-parameter="artline-trace"]').setAttribute('y-scale', y_scale)
-                document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('y-scale', y_scale)
-            }
         }
     }
 
@@ -483,7 +683,7 @@ class TransitionManager {
 // /_____/\___/\___/ .___/____/
 //                /_/
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+let audioContext = new window.AudioContext()
 
 let beeperButton = document.querySelector('#sound-button')
 let beeperFrequency = 942
@@ -495,28 +695,27 @@ function playTone() {
     }
 
     // Create the first OscillatorNode
-    const onode = audioContext.createOscillator();
-    onode.type = 'triangle';
-    onode.frequency.value = beeperFrequency;
+    let oscillatorNode = audioContext.createOscillator()
+    oscillatorNode.type = 'triangle'
+    oscillatorNode.frequency.value = beeperFrequency
 
     // Set gain to fade out
-    const gnode = new GainNode(audioContext)
+    let gainNode = new GainNode(audioContext)
 
     // Connect both OscillatorNodes to the AudioContext destination (output)
-    onode.connect(gnode).connect(audioContext.destination)
+    oscillatorNode.connect(gainNode).connect(audioContext.destination)
 
-    // Start both oscillators
-    onode.start()
+    // Start gained oscillator
+    oscillatorNode.start()
 
-    // Stop both oscillators after the specified duration
+    // Stop oscillator after the specified duration
     let stopTime = audioContext.currentTime + (beeperDuration / 1000)
-    onode.stop(stopTime)
-    gnode.gain.setValueAtTime(1, stopTime - (beeperDuration / 1000) * 0.01)
-    gnode.gain.linearRampToValueAtTime(0, stopTime)
+    oscillatorNode.stop(stopTime)
+    gainNode.gain.setValueAtTime(1, stopTime - (beeperDuration / 1000) * 0.01)
+    gainNode.gain.linearRampToValueAtTime(0, stopTime)
 
     return true
 }
-
 
 document.querySelector('#ecg').addEventListener('beep', (e) => {
     playTone()
@@ -555,6 +754,91 @@ document.querySelector('[sim-parameter="artline-trace"]').addEventListener('sim-
             n.setAttribute('sim-disabled', true)
         }
     }
+})
+
+function transitionIfAble(func) {
+    if (document.startViewTransition) {
+        document.startViewTransition(() => {
+            func()
+        })
+    } else {
+        func()
+    }
+}
+
+customElements.define('sim-post', class extends HTMLElement {
+    constructor() {
+        super()
+        this.contentTarget = document.querySelector(this.getAttribute('sim-post-target'))
+        this.content = this.querySelector('[sim-post-content]')
+        this.addEventListener('click', (e) => {
+            transitionIfAble(() => {
+                this.contentTarget.innerHTML = this.content.cloneNode(true).outerHTML
+                // special case for ABG, sigh
+                let abg = this.contentTarget.querySelector('sim-abg')
+                if (abg) {
+                    abg.digestData(this.content.abg_proxy)
+                }
+            })
+        })
+    }
+})
+
+let postListElement = document.querySelector('#resource-list')
+let postContentElement = document.querySelector('#resource-marquee')
+let resourcesBadge = document.querySelector('#resources-badge')
+
+let cxrCount = 0
+let abgCount = 0
+
+socket.on('sim-post', (msg) => {
+    let data = JSON.parse(msg)
+
+    if (data.type == "CXR") {
+        cxrCount += 1
+
+        let html = `
+        <sim-post sim-post-target="#resource-marquee">
+            <label class="tile">
+                <figure sim-post-content>
+                    <img class="thumbnail" src="${data.url}">
+                    <figcaption>Case courtesy of ${data.contributor_name}, <a href="https://radiopaedia.org/">Radiopaedia.org</a>, rID: <a href="https://radiopaedia.org/cases/${data.rid}">${data.rid}</a></figcaption>
+                </figure>
+                <span class="label">${data.type} #${cxrCount}</span>
+                <input type="radio" name="sim-post" style="display: none;">
+            </label>
+        </sim-post>
+        `
+        postListElement.insertAdjacentHTML("afterbegin", html)
+        
+    }
+
+    if (data.type == "ABG") {
+        abgCount += 1
+
+        let html = `
+        <sim-post sim-post-target="#resource-marquee">
+            <label class="tile">
+                <span class="thumbnail">💉</span>
+                <sim-abg sim-post-content readonly="true"></sim-abg>
+                <span class="label">${data.type} #${abgCount}</span>
+                <input type="radio" name="sim-post" style="display: none;">
+            </label>
+        </sim-post>
+        `
+        console.log('new ABG')
+
+        postListElement.insertAdjacentHTML("afterbegin", html)
+
+        let newAbg = postListElement.querySelector('sim-abg')
+
+        newAbg.digestData(data.abg_data)
+    }
+
+    postListElement.querySelector('input')?.click()
+    document.querySelector('#resources').showModal()
+    resourcesBadge.style.visibility = "visible"
+    resourcesBadge.innerText = cxrCount + abgCount
 })
 
 </script>

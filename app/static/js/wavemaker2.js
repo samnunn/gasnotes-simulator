@@ -4,27 +4,18 @@
 // | |/ |/ / /_/ /| |/ /  __/ /  / / /_/ / ,< /  __/ /      / __/
 // |__/|__/\__,_/ |___/\___/_/  /_/\__,_/_/|_|\___/_/      /____/
 //
-
-// ┌────────────────────────────────────────────────────────────────────────┐
-// │            ┌─────────────────────────────────────────────────────────┐ │
-// │            │                          Wave                           │ │
-// │            │ ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐ │ │
-// │            │ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
-// │            │ └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘ │ │
-// │            └─────────────────────────────────────────────────────────┘ │
-// │            ┌─────────────────────────────────────────────────────────┐ │
-// │            │                          Wave                           │ │
-// │            │ ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐ │ │
-// │  waveSet   │ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
-// │            │ └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘ │ │
-// │            └─────────────────────────────────────────────────────────┘ │
-// │            ┌─────────────────────────────────────────────────────────┐ │
-// │            │                          Wave                           │ │
-// │            │ ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐ │ │
-// │            │ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
-// │            │ └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘ │ │
-// │            └─────────────────────────────────────────────────────────┘ │
-// └────────────────────────────────────────────────────────────────────────┘
+// ┌─────────────────────────────────────────────────────────────────────────────┐
+// │           ┌─────────────────────────────────────────────────────────┐       │
+// │           │                          Wave                           │       │
+// │           │  ┌──────────────────────────────────────────────────────┴──┐    │
+// │           │  │                          Wave                           │    │
+// │           │  │  ┌──────────────────────────────────────────────────────┴──┐ │
+// │  Waveset  └──┤  │                          Wave                           │ │
+// │              │  │ ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐ │ │
+// │              └──┤ │ Complex ││ Complex ││ Complex ││ Complex ││ Complex │ │ │
+// │                 │ └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘ │ │
+// │                 └─────────────────────────────────────────────────────────┘ │
+// └─────────────────────────────────────────────────────────────────────────────┘
 
 customElements.define('sim-trace', class extends HTMLElement {
     // accumulators
@@ -43,12 +34,12 @@ customElements.define('sim-trace', class extends HTMLElement {
         this.strokeColour       = this.getAttribute('stroke-colour')                || 'green'
         this.fillColour         = this.getAttribute('fill-colour')                  || 'none'
         this.fillOpacity        = parseFloat(this.getAttribute('fill-opacity'))     || 1.0
-        this.y_scale            = parseFloat(this.getAttribute('y-scale'))          || 1
         this.pixelsPerSecond    = parseInt(this.getAttribute('x-rate'))             || 100
         this.rate               = parseInt(this.getAttribute('rate'))               || 60
         this.strokeWidth        = parseInt(this.getAttribute('stroke-width'))       || 2
         this.height             = parseInt(this.getAttribute('height'))             || 250
         this.maxLayers          = parseInt(this.getAttribute('max-layers'))         || 10
+        this.y_scale            = parseFloat(this.getAttribute('y-scale'))          || 1
         this.y_cursor           = this.height/2                                     // initial baseline = 50% of this.height
         this.wobble_enabled     = this.getAttribute('baseline-wobble') == "true"
 
@@ -66,13 +57,15 @@ sim-wave {
 }
 .waveset {
     color: white;
-    /* using grid to stack waves in the z axis*/
+    /* using 1x1 grid to stack waves in the z axis*/
     /* absolute positioning breaks the width animation */
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
     grid-template-areas: "wave";
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 .wave {
     box-sizing: content-box;
@@ -81,8 +74,10 @@ sim-wave {
     border-right: 0px solid black;
     width: 0%;
     height: 100%;
-    position: relative;
+    position: relative; /* absolute positioning breaks the width animation */
     background-color: black;
+    margin: 0;
+    padding: 0;
 }
 path {
     box-sizing: content-box;
@@ -127,7 +122,7 @@ path {
 	}
 
 	static get observedAttributes () {
-		return ['rate', 'morphology', 'sim-value', 'y-scale']
+		return ['rate', 'y-scale', 'morphology', 'sim-value']
 	}
 
     //     __  ___      _          __
@@ -137,13 +132,16 @@ path {
     // /_/  /_/\__,_/_/_/ /_/  /_____/\____/\____/ .___/
     //                                          /_/
 
-    // beat() is either called by listening for 'beat' events on the pacemaker trace or self-calling via an animation-based timeout (not setTimeout, bleh)
-    // these are its tasks:
+    // beat() is called one two ways:
+    // - By listening for 'beat' events on the pacemaker element
+    // - Self-calling via an animation-based timeout (not setTimeout, bleh)
+    //      - Initial beat() is called from the main script with a document.load event listener
+    // These are its tasks:
     // - Save a reference to the front-most wave (the frontmost wave will change in the case of a newline)
     // - Insert a new correctly-offset <path> IF there has been a morphology change
     //      - Done so the "sim-disconnect" morphology could be a dashed line without making all surrounding complexes dashed too
-    // - Makes a new complex in the current morphology
-    // - Inserts the new complex
+    // - Renders a new complex' keyframes (in the current morphology)
+    // - Inserts that new complex
     // - Calculates initial and final width of the front wave
     // - Calculates the x overshoot
     // - Initiates newline procedure of overshoot is >= 0 px:
@@ -151,19 +149,16 @@ path {
     //      - Usual case: copies the SVG from the last line into the new one and moves it leftwards
     //      - Special case for a disconnection: creates a new flat line (equal to the overshoot length) instead of copying the last SVG
     //      - Does this because discontinuous lines make the dashes appear uneven
-    // - 
-    // - 
-    // - 
     beat(mandatoryWidth=0, repeating=false, animating=true) {
         // save reference to this.frontWave as targetWave
-        // avoids collision in newline handler, where animate() should apply to whatever is the front wave at the start of this function call
+        // avoids collision in newline handler: animate() needs to apply to the last complex of the newline-triggering wave, not the first complex of the newline
         let targetWave = this.frontWave
         
         // morphology change handler
         // would be called, for example, when an ECG changes from SR to A-fib
         // creates a new <path> with the new morphology
         if (this.morphology != this.last_morphology) {
-            let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
+            let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path") // has to be "NS" for some reason
             newPath.setAttribute('fill', this.fillColour)
             newPath.setAttribute('fill-opacity', this.fillOpacity)
             newPath.setAttribute('stroke', this.strokeColour)
@@ -172,10 +167,11 @@ path {
             
             this.frontWave.querySelector('svg')?.appendChild(newPath)
         }
-        // save for next time
+        // save to compare next time
         this.last_morphology = this.morphology
         
         // reveal a dashed line for disconnected traces
+        // has to go outside morphology change handler (above) so that it also applies to regular newlines (where there has been no delta)
         if (this.morphology == 'sim-disconnect' || this.morphology == 'nibp-only') {
             this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
         }
@@ -380,6 +376,7 @@ path {
         return 1000 * pixels / this.pixelsPerSecond
     }
     millisecondsToPixels(ms) {
+        // always paints complexes a 100px per second, no matter the xPixelsPerSecond (which is the reveal rate, not the paint rate)
         return this.pixelsPerSecond * ms / 1000
     }
 
@@ -404,7 +401,9 @@ path {
     // needs targetWave so it can work out how to absolute-ify the x values
     insertNextComplex(targetWave=this.frontWave, mandatoryWidth=0) {
         // init complex object
-        let complex = {}
+        let complex = {
+            width: 0,
+        }
 
         // get time-based keyframes
         let mandatoryDuration = this.pixelsToMilliseconds(mandatoryWidth)
@@ -422,53 +421,38 @@ path {
             let initialDuration = this.getDurationOfKeyframes(draftKeyframes)
             let scaleFactor = mandatoryDuration / initialDuration
             for (let i = 0; i < draftKeyframes.length; i++) {
-                draftKeyframes[i][0] = draftKeyframes[i][0] * scaleFactor
-                draftKeyframes[i][2] = draftKeyframes[i][2] * scaleFactor
+                draftKeyframes[i][0] = draftKeyframes[i][0] * scaleFactor // x
+                draftKeyframes[i][2] = draftKeyframes[i][2] * scaleFactor // x spline
             }
         }
 
         // convert time-based keyframes to px-based
         // AND convert dx values to absolute x
         // AND calculate x width of this complex
-        let width = 0
-        let x = targetWave.x_cursor
         for (let i = 0; i < draftKeyframes.length; i++) {
-            // CONVERT DX UNITS FROM MS TO PX
-            // always paints complexes a 100px per second, no matter the xPixelsPerSecond (which is the reveal rate, no the paint rate)
+            // X
             let dx = this.millisecondsToPixels(draftKeyframes[i][0])
+            // accumulate width
+            complex.width += dx
+            // change x from relative to absolute
+            targetWave.x_cursor += dx
+            // save
+            draftKeyframes[i][0] = targetWave.x_cursor
 
-            // Accumulate width
-            width += dx
-
-            // CHANGE X FROM RELATIVE TO ABSOLUTE
-            x = x + dx
-
-            let y = draftKeyframes[i][1]
-
-            // Apply Y scaling
-            y = y * this.y_scale
-
-            // Add baseline wander
-            // if (this.wobble_enabled == true) {
-            //     this.baselineWanderAccumulator += dx
-            //     let wander = 0.05 * Math.sin(this.baselineWanderAccumulator/250)
-            //     y = y + wander
-            // }
-
-            // CONVERT Y UNITS FROM FRACTION (0.0-1.0) TO PX
-            y = (this.height / 2) * (1 - y)
-
-            // Save Y value
-            this.y_cursor = y
-
-            // SAVE TO MODEL
-            draftKeyframes[i][0] = x
-            draftKeyframes[i][1] = y
+            // Y
+            let fractionY = draftKeyframes[i][1]
+            // apply scaling
+            let scaledFractionY = fractionY * this.y_scale
+            // convert from fraction (0.0-1.0) to px
+            let absoluteY = (this.height / 2) * (1 - scaledFractionY)
+            //  update cursor
+            this.y_cursor = absoluteY
+            // save
+            draftKeyframes[i][1] = absoluteY
         }
-        targetWave.x_cursor = x
 
-        // MAKE COMMANDS
-        let commands = " "
+        // make commands
+        let commands = ""
 
         // special case: frame[0]
         let firstFrame = draftKeyframes[0]
@@ -477,8 +461,10 @@ path {
 
         // special case: frame[1]
         let secondFrame = draftKeyframes[1]
+        let secondCubicBezierX = secondFrame[0] + (secondFrame[2] || 0)
+        let secondCubicBezierY = secondFrame[1] - (secondFrame[3] || 0)
 
-        commands += ` C ${firstCubicBezierX} ${firstCubicBezierY}, ${secondFrame[0] + (secondFrame[2] || 0)} ${secondFrame[1] - (secondFrame[3] || 0)}, ${secondFrame[0]} ${secondFrame[1]}`
+        commands += ` C ${firstCubicBezierX} ${firstCubicBezierY}, ${secondCubicBezierX} ${secondCubicBezierY}, ${secondFrame[0]} ${secondFrame[1]}`
 
         // general case: frame[2] to frame[-1]
         for (let i = 2; i < draftKeyframes.length; i++) {
@@ -488,9 +474,6 @@ path {
             let cubicBezierDY = draftKeyframes[i][3] || 0
             commands += ` S ${x + cubicBezierDX},${y - cubicBezierDY} ${x},${y}`
         }
-
-        // finish
-        complex.width = width
 
         // INSERT
         let frontPath = targetWave.querySelector('path:last-child')

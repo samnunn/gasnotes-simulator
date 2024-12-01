@@ -2,12 +2,15 @@
 
 {% block page %}
 <style>
+div.wrapped:has(#sim-index) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 #sim-index {
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
-    /* row-gap: 5vh; */
-    /* padding-top: 1.5rem; */
+    margin-bottom: 3rem;
 }
 
 #bento-box {
@@ -157,7 +160,6 @@ div#assumption > p {
 }
 </style>
 <div id="sim-index" class="wrapped">
-    <!-- {% include 'mega-title.html' %} -->
     <img id="enter-the-sim" src="/static/enter_the_sim.svg" alt="Enter the simulation">
     <div id="bento-box">
         <div class="bento-item">

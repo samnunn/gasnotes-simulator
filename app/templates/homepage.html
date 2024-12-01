@@ -8,34 +8,6 @@
     --spacing-m: calc(1vh + 1vw);
     --spacing-s: calc(0.5vh + 0.5vw);
 }
-.sim-join {
-    --button-color: rgb(247 85 94);
-}
-#mega-join {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    width: 100%;
-    max-width: min(27ch, 75vw);
-
-    input[type="text"] {
-        appearance: none;
-        box-shadow: none;
-        border: none;
-        width: 0; /* set width to zero and let flexbox re-grow it */
-        min-width: 6ch;
-        flex-grow: 1;
-        background-color: var(--dark-grey);
-        border-radius: var(--border-radius);
-        border: 2px solid white;
-        padding: 0 0.75rem;
-        font-size: 1rem;
-        font-family: inherit;
-        line-height: 1;
-        color: white;
-        min-height: 100%;
-    }
-}
 
 #top-of-page {
     width: 80vw;
@@ -55,7 +27,6 @@
 
     & a {
         scale: var(--button-scale);
-        /* margin: calc(var(--button-height) * (var(--scale) - 1)/2) 0; */
     }
 }
 main {
@@ -65,11 +36,10 @@ main {
 #preview {
     --scale: 5;
     position: relative;
-    margin: var(--spacing-l) auto var(--spacing-l) auto;
-    padding: 0.5rem 0 calc(6rem) 0;
+    margin: var(--spacing-l) auto;
+    padding: 0.5rem 0 6rem 0;
     max-width: 1000px;
     width: 80vw;
-    position: relative;
     --glow-color: rgb(226, 50, 141);
 }
 #preview:hover {
@@ -116,7 +86,6 @@ main {
     aspect-ratio: 4/3;
 
     position: relative;
-    left: 0px;
     transform: rotate(-1.5deg);
 
     & #tiny-monitor-browser-chrome {
@@ -237,7 +206,7 @@ main {
 </style>
 {% include 'header.html' %}
 <section class="wrapped" id="top-of-page">
-        <img src="/static/gasnotes_sim_banner.svg" id="mega-wobble" alt="Gas Notes Simulation Monitor: a free tool for medical eduators.">
+    <img src="/static/gasnotes_sim_banner.svg" id="mega-wobble" alt="Gas Notes Simulation Monitor: a free tool for medical eduators.">
 </section>
 
 <section class="wrapped warm-glow" id="preview">

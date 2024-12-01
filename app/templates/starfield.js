@@ -29,7 +29,9 @@ document
     .querySelector('body')
     .setAttribute('style', `background-image: 
     url("${dataUrl}")
-    ;`)
+    ;
+    background-position-x: center;
+    background-attachment: fixed;`)
 
 // document
 //     .querySelector('#top-of-page')
