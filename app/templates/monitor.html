@@ -837,9 +837,8 @@ beeperButton?.addEventListener('click', () => {
 })
 
 function playTone() {
-    if (beeperButton?.getAttribute('beeping') == 'false') {
-        return false
-    }
+    if (!beeperButton) return false
+    if (beeperButton.getAttribute('beeping') == 'false') return false
 
     // Create the first OscillatorNode
     let oscillatorNode = audioContext.createOscillator()
