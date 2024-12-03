@@ -2,6 +2,11 @@
     --sim-gradient: linear-gradient(20deg, rgb(255, 170, 0), rgb(252, 66, 123) 75%);
 }
 
+html:has(dialog[open]) {
+    /* suppress scroll when there is an open dialog */
+    overflow: hidden;
+}
+
 body {
     font-family: var(--sans-serif);
     font-weight: var(--font-weight);

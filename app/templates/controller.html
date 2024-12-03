@@ -189,6 +189,10 @@ body[sim-mode="arrested"] {
     .resource-picker {
         grid-template-rows: auto;
     }
+    .resource-collection {
+        display: block;
+        background-color: white;
+    }
     #abg-parameters {
         display: grid;
         grid-template-columns: 1fr;
@@ -215,7 +219,7 @@ body[sim-mode="arrested"] {
         <div style="display: flex; align-items: center;">
             <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{ data.sim_room_id }}</span>
         </div>
-        <input id="send" type="submit" value="Send" form="sim-input" class="button dark red">
+        <input id="send" type="submit" value="Send" form="sim-input" class="button small dark red">
     </div>
 </header>
 {% endif %}
@@ -376,13 +380,13 @@ body[sim-mode="arrested"] {
     <dialog class="tray">
         <div class="resource-picker">
             <div class="resource-header">
-                <span>CXR Picker 🦴</span>
+                <span>CXR Picker 🩻</span>
             </div>
             <div class="resource-collection" image-picker-collection>
             </div>
             <div class="resource-footer">
-                <button class="button red" id="cxr-send" onclick="document.querySelector('#cxr-picker').send()">Send to Sim</button>
-                <form method="dialog"><button type="submit" class="button dark">Cancel</button></form>
+                <button class="button dark small" id="cxr-send" onclick="document.querySelector('#cxr-picker').send()">Send to Sim</button>
+                <form method="dialog"><button type="submit" class="button dark small">Cancel</button></form>
             </div>
         </div>
     </dialog>
@@ -393,20 +397,21 @@ body[sim-mode="arrested"] {
         <div class="resource-header">
             <span>ABG Picker 🩸</span>
         </div>
-        <div>
-            <div class="sim-select light">
-                <select id="abg-presets">
-                    <option selected disabled>Presets</option>
-                    <hr>
-                </select>
-            </div>
-        </div>
         <div class="resource-collection" id="abg-parameters">
             <sim-abg id="sendable-abg"></sim-abg>
         </div>
+        <div class="sim-select light" style="z-index: 999;">
+            <!-- this is needed to get rid of a putrid mobileSafari bug where a <select> element in a <dialog> doesn't work unless there's another <select> element around -->
+            <div style="opacity: 0; height: 0px; width: 0; position: absolute; pointer-events: none; margin: 0; padding: 0;"><select></select></div>
+            <!-- would love to see it gone someday -->
+            <select id="abg-presets">
+                <option selected disabled value="default">Presets…</option>
+                <hr>
+            </select>
+        </div>
         <div class="resource-footer">
-            <button class="button red" id="abg-send">Send to Sim</button>
-            <form method="dialog"><button type="submit" class="button dark">Cancel</button></form>
+            <button class="button red small" id="abg-send">Send to Sim</button>
+            <form method="dialog"><button type="submit" class="button dark small">Cancel</button></form>
         </div>
     </div>
 </dialog>
@@ -794,13 +799,21 @@ customElements.define('image-picker', class extends HTMLElement {
 
             this.collectionElement.insertAdjacentHTML('beforeend', html)
         }
+
+        // make the button turn red
+        this.addEventListener('input', (e) => {
+            this.querySelector('button').classList.add('red')
+        })
     }
 
     send() {
         let chosenRadio = this.collectionElement.querySelector('input[type="radio"]:checked')
         
         // ignore repeats
-        if (this.lastChosenElement == chosenRadio) return
+        if (this.lastChosenElement == chosenRadio) {
+            let c = confirm('You have already sent this image. Are you sure you want to send it again?')
+            if (!c) return
+        }
 
         let value = chosenRadio?.value
         if (!value) return
@@ -816,7 +829,10 @@ customElements.define('image-picker', class extends HTMLElement {
         socket.emit('sim-post', JSON.stringify(message))
 
         this.lastChosenElement = chosenRadio
+        
+        chosenRadio.checked = false
 
+        this.querySelector('button').classList.remove('red')
         this.querySelector('dialog')?.close()
     }
 })
@@ -863,11 +879,22 @@ let presets = {
         'cl': 96,
         'ca': 1.21,
     },
+    'HHS' : {
+        'ph': 7.36,
+        'pco2': 35,
+        'bsl': 43,
+        'lactate': 0.8,
+        'na': 124,
+        'k': 3.7,
+        'cl': 114,
+        'cr': 119,
+    },
 }
 document.addEventListener('DOMContentLoaded', (e) => {
     for (let p in presets) {
         let option = document.createElement('option')
         option.innerText = p
+        option.value = p
         option.parameters = presets[p]
         presetPicker.insertAdjacentElement('beforeend', option)
     }
@@ -878,6 +905,9 @@ presetPicker.addEventListener('change', (e) => {
     for (let p in parameters) {
         sendableAbg.abg_proxy[p] = parameters[p]
     }
+})
+sendableAbg.addEventListener('input', (e) => {
+    presetPicker.selectedIndex = 0
 })
 
 </script>

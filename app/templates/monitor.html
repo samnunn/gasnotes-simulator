@@ -105,12 +105,17 @@
 }
 
 /* sound button */
+/* #sound-button {
+    flex-shrink: 0;
+}
 #sound-button::before {
     content: 'Sound  🔇';
+    flex-shrink: 0;
 }
 #sound-button:checked::before {
     content: 'Sound  🔊';
-}
+    flex-shrink: 0;
+} */
 sim-post {
     figure {
         margin: 0;
@@ -119,10 +124,14 @@ sim-post {
     figcaption {
         display: none;
     }
+    sim-abg {
+        display: none;
+    }
 }
 
 #resources {
     --tray-height: calc(min(90vh, 0.8 * 100vw));
+    --botted-border: 1px dashed #444;
     max-width: calc(min(90vw, 90vh/0.8));
 
     display: grid;
@@ -156,9 +165,9 @@ sim-post {
         overflow: scroll;
         max-height: 100%;
 
-        sim-abg {
-            display: none;
-        }
+        container-name: resource-list;
+        container-type: size;
+
     }
 
     #resource-marquee {
@@ -166,9 +175,13 @@ sim-post {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-left: 1px dashed #444;
+        border-left: var(--botted-border);
         margin-bottom: 1rem;
         padding-left: 1rem;
+        position: relative;
+
+        container-name: resource-container;
+        container-type: size;
 
         overflow: hidden;
         max-height: 100%;
@@ -216,8 +229,141 @@ sim-post {
             
         }
         sim-abg {
-            width: 80%;
-            max-width: 650px;
+            width: 600px;
+            min-width: 600px;
+            height: auto;
+            font-size: 100%;
+            scale: 20vw;
+        }
+
+        /* scale to avoid hitting edges */
+        --width-scaler: 1;
+        --height-scaler: 1;
+        @container resource-container (width < 600px) {
+            sim-abg {
+                --width-scaler: 0.8;
+            }
+        }
+        @container resource-container (width < 480px) {
+            sim-abg {
+                --width-scaler: 0.6;
+            }
+        }
+        @container resource-container (width < 360px) {
+            sim-abg {
+                --width-scaler: 0.5;
+            }
+        }
+        @container resource-container (width < 240px) {
+            sim-abg {
+                --width-scaler: 0.4;
+            }
+        }
+        @container resource-container (width < 180px) {
+            sim-abg {
+                --width-scaler: 0.3;
+            }
+        }
+        @container resource-container (height < 850px) {
+            sim-abg {
+                --height-scaler: 0.8;
+            }
+        }
+        @container resource-container (height < 680px) {
+            sim-abg {
+                --height-scaler: 0.6;
+            }
+        }
+        @container resource-container (height < 510px) {
+            sim-abg {
+                --height-scaler: 0.5;
+            }
+        }
+        @container resource-container (height < 340px) {
+            sim-abg {
+                --height-scaler: 0.4;
+            }
+        }
+        @container resource-container (height < 249px) {
+            sim-abg {
+                --height-scaler: 0.3;
+            }
+        }
+
+        sim-abg {
+            scale: calc(min(var(--height-scaler), var(--width-scaler)));
+        }
+    }
+}
+
+@media screen and (max-height: 750px) and (min-width: 630px) {
+    #monitor #main-table {
+        grid-template-columns: 1fr 8rem 1fr 8rem;
+        grid-template-rows: repeat(2, 1fr) auto;
+
+        #nibp {
+            grid-column: 1/4;
+        }
+        #bp-readout sim-readout {
+            font-size: 2rem !important;
+        }
+    }
+}
+
+@media only screen and (max-width: 850px) {
+    #resources {
+        --tray-height: 90vh;
+        --tray-height: 98dvh;
+
+        grid-template-rows: auto 1fr calc(min(20cqh, 10rem));
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "head"
+            "marquee"
+            "scroll";
+
+        #resource-list {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            overflow: scroll;
+            max-width: 100%;
+            height: 100%;
+            max-height: 100%;
+            padding: 0 0 1rem 0;
+            margin: 0;
+        }
+
+        #resource-marquee {
+            padding: 0 0 1rem 0;
+            margin: 0;
+
+            border-left: none;
+            border-bottom: var(--botted-border);
+
+            figure { /*images only*/
+
+            }
+        }
+        
+        .tile {
+            width: auto;
+            height: 100%;
+            aspect-ratio: 1/1;
+
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr auto;
+
+            figure {
+                display: block;
+                width: auto;
+                height: 100%;
+                min-height: 0; /* this stops the images from getting huge */
+                min-width: 0; /* this stops the images from getting huge */
+                aspect-ratio: 1/1;
+                margin: 0 auto;
+            }
         }
     }
 }
@@ -255,25 +401,17 @@ sim-post {
     }
 }
 
-@media screen and (max-height: 1000px) {
+/* 
+@media screen and (max-width: 1000px) {
     sim-abg {
-        transform: scale(0.8);
-    }
-}
-@media screen and (max-height: 780px) {
-    sim-abg {
-        transform: scale(0.6);
-        width: 150%;
-    }
-}
-@media screen and (max-height: 730px) {
-    sim-abg {
-        transform: scale(0.4);
-        width: 150%;
         font-size: 75%;
     }
 }
-
+@media screen and (max-width: 750px) {
+    sim-abg {
+        font-size: 50%;
+    }
+} */
 </style>
 
 <div id="monitor">
@@ -289,7 +427,7 @@ sim-post {
                 <button class="button dark" onclick="document.querySelector('#resources').showModal()">Resources</button>
                 <div id="resources-badge">1</div>
             </div>
-            <input type="checkbox" name="sound-button" id="sound-button" class="button dark">
+            <button class="button dark" id="sound-button" beeping="false">Sound  🔇</button>
         </div>
     </header>
 {% endif %}
@@ -341,10 +479,9 @@ sim-post {
 <dialog class="tray" id="resources">
     <div id="resource-header">
         <span>Resources</span>
-        <form method="dialog"><button type="submit" class="button red">Close</button></form>
+        <form method="dialog"><button type="submit" class="button small red">Close</button></form>
     </div>
     <div id="resource-list">
-
     </div>
     <div id="resource-marquee">
         <p>Resources sent from the Sim Controller will appear here.</p>
@@ -689,8 +826,18 @@ let beeperButton = document.querySelector('#sound-button')
 let beeperFrequency = 942
 let beeperDuration = 150
 
+beeperButton.addEventListener('click', () => {
+    if (beeperButton.getAttribute('beeping') == 'false') {
+        beeperButton.setAttribute('beeping', 'true')
+        beeperButton.innerHTML = 'Sound  🔊'
+    } else {
+        beeperButton.setAttribute('beeping', 'false')
+        beeperButton.innerHTML = 'Sound  🔇'
+    }
+})
+
 function playTone() {
-    if (beeperButton.checked == false) {
+    if (beeperButton.getAttribute('beeping') == 'false') {
         return false
     }
 
@@ -826,7 +973,6 @@ socket.on('sim-post', (msg) => {
             </label>
         </sim-post>
         `
-        console.log('new ABG')
 
         postListElement.insertAdjacentHTML("afterbegin", html)
 
