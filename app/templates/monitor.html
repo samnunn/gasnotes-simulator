@@ -826,7 +826,7 @@ let beeperButton = document.querySelector('#sound-button')
 let beeperFrequency = 942
 let beeperDuration = 150
 
-beeperButton.addEventListener('click', () => {
+beeperButton?.addEventListener('click', () => {
     if (beeperButton.getAttribute('beeping') == 'false') {
         beeperButton.setAttribute('beeping', 'true')
         beeperButton.innerHTML = 'Sound  🔊'
@@ -837,7 +837,7 @@ beeperButton.addEventListener('click', () => {
 })
 
 function playTone() {
-    if (beeperButton.getAttribute('beeping') == 'false') {
+    if (beeperButton?.getAttribute('beeping') == 'false') {
         return false
     }
 
