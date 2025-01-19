@@ -157,6 +157,13 @@ main {
     touch-action: none;
     overflow: hidden;
 }
+#source {
+    display: grid;
+    grid-template-columns: 10% 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin: var(--spacing-l) auto;
+}
 
 @media (min-width: 200px) {
     #preview {
@@ -231,6 +238,10 @@ main {
     <a href="{{ data.new_sim_url }}" class="button pink sim-start">Start a Sim</a>
     <div class="clearfix"></div>
 </div>
+<section class="wrapped" id="source">
+    <a href="https://github.com/samnunn/gasnotes-simulator"><img src="/static/github-mark-white.svg" alt="GitHub"></a>
+    <p>Simulation Monitor is proudly free and open-source software. You can check out all the code <a href="https://github.com/samnunn/gasnotes-simulator">on GitHub</a> anytime.</p>
+</section>
 <script>
 {% include 'starfield.js' %}
 </script>
