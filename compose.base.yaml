@@ -1,13 +1,15 @@
 services:
   simulator:
     restart: unless-stopped
-    build: .
+    build:
+      context: app
+      dockerfile: Dockerfile
     ports:
       - "8069:8069"
     volumes:
       - ./sim_rooms:/app/sim_rooms
     environment:
-      - CMD=pipenv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
+      - CMD=uv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
     labels:
       - dev.orbstack.domains=sim.local
   tunnel:

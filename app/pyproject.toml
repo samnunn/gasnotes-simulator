@@ -1,0 +1,14 @@
+[project]
+name = "gasnotes-simulator"
+version = "0.1.0"
+description = "A remote-controlled bedside monitor to help you run medical simulations."
+readme = "README.md"
+requires-python = ">=3.14.0"
+dependencies = [
+    "eventlet>=0.40.3",
+    "flask>=3.1.2",
+    "flask-minify>=0.50",
+    "flask-socketio>=5.5.1",
+    "gunicorn>=23.0.0",
+    "segno>=1.6.6",
+]
