@@ -1,0 +1,107 @@
+<html>
+<body>
+    <h1>Walkie Talkie</h1>
+    <style>
+        #outgoing {
+            width: 600px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+    </style>
+    <pre id="state">not yet connected</pre>
+    <form>
+        <textarea id="incoming"></textarea>
+        <button type="submit">submit</button>
+    </form>
+    <pre id="state-display"></pre>
+        <button id="nominateSelf" onclick="nominateSelf()">nominateSelf</button>
+    <script src="/static/js/simplepeer.min.js"></script>
+    <!-- <script src="/static/socketio.min.js"></script> -->
+    <script type="module">
+        import { WalkieTalkieConnection } from "/static/js/walkietalkie.js";
+        window.wt = new WalkieTalkieConnection("{{ data.txrx_mode }}", "{{ data.sim_room_id }}");
+        window.wt.onConnectionStateChanged = (state) => {
+            document.querySelector("#state").innerText = state;
+        }
+        window.wt.start()
+    </script>
+    <script>
+        // // GLOBALS
+        // let p
+        // ROOM_ID = "{{ data.sim_room_id }}"
+        // TXRX_MODE = "{{ data.txrx_mode }}"
+        // CONNECTION_DESCRIPTION = null
+        // CLIENT_ID = localStorage.getItem("wt-client-id") || Math.random().toString(36).substring(2,12)
+        // localStorage.setItem("wt-client-id", CLIENT_ID)
+
+        // // SOCKET SETUP
+        // const socket = io({
+        //     auth: {
+        //         sim_room_id: ROOM_ID,
+        //     }
+        // })
+        
+        // socket.on("sim-walkietalkie-connection-description", (json) => {
+        //     let data = JSON.parse(json)
+        //     CONNECTION_DESCRIPTION = data
+        //     if (CONNECTION_DESCRIPTION[TXRX_MODE] == CLIENT_ID) {
+        //         establishNewConnection()
+        //     }
+        // })
+        
+        // socket.on("sim-walkietalkie-signal", (envelope) => {
+        //     console.debug("received signal envelope", envelope)
+        //     let data = JSON.parse(envelope)
+        //     if (data[TXRX_MODE] != CLIENT_ID) return // ignore messages not addressed to this client in its current mode
+        //     p?.signal(data["signal"])
+        // })
+        
+        // function updateState(state) {
+        //     document.querySelector("#state").innerText = state;
+        // }
+        // function nominateSelf() {
+        //     socket.emit("sim-walkietalkie-nominate", JSON.stringify({
+        //         sim_room_id: ROOM_ID,
+        //         client_id: CLIENT_ID,
+        //         client_type: TXRX_MODE,
+        //     }))
+        // }
+        // function establishNewConnection() {
+        //     // fresh start
+        //     updateState("connecting")
+        //     p?.destroy()
+        //     p = new SimplePeer({
+        //         initiator: TXRX_MODE == "transmitter",
+        //         // config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+        //         trickle: false
+        //     })
+            
+        //     // callbacks
+        //     p.on("signal", (signal) => {
+        //         let envelope = JSON.stringify({
+        //             signal: signal,
+        //             ...CONNECTION_DESCRIPTION,
+        //         })
+        //         socket.emit('sim-walkietalkie-signal', envelope);
+        //         // console.debug("emitted signal envelope", envelope)
+        //     })
+        //     p.on('error', err => console.log('error', err))
+        //     p.on('connect', () => { updateState("connected") })
+        //     p.on('close', () => { updateState("disconnected") })
+        //     p.on('data', data => {
+        //         let string = new TextDecoder().decode(data)
+        //         console.log("got data", string)
+        //     })
+
+        //     return true
+        // }
+
+        // document.querySelector('form').addEventListener('submit', (e) => {
+        //     e.preventDefault()
+        //     p?.send(document.querySelector('#incoming').value)
+        // })
+
+        // nominateSelf()
+    </script>
+</body>
+</html>

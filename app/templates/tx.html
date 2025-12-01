@@ -1,0 +1,120 @@
+<html>
+<body>
+    <style>
+        #outgoing {
+            width: 600px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+    </style>
+    <form>
+        <textarea id="incoming"></textarea>
+        <button type="submit">submit</button>
+    </form>
+    <button id="nominateSelf" onclick="nominateSelf()">nominateSelf</button>
+    <pre id="state-display"></pre>
+    <pre id="outgoing"></pre>
+    <script src="/static/js/simplepeer.min.js"></script>
+    <script src="/static/socketio.min.js"></script>
+    <script>
+        // GLOBALS
+        ROOM_ID = "demo_room"
+        TXRX_MODE = "transmitter"
+        CLIENT_ID = localStorage.getItem("wt-client-id") || Math.random().toString(36).substring(2,12)
+        localStorage.setItem("wt-client-id", CLIENT_ID)
+
+        // SOCKET SETUP
+        const socket = io({
+            auth: {
+                sim_room_id: ROOM_ID,
+            }
+        })
+        
+        function nominateSelf() {
+            socket.emit("sim-walkietalkie-nominate", JSON.stringify({
+                sim_room_id: ROOM_ID,
+                client_id: CLIENT_ID,
+                client_type: TXRX_MODE,
+            }))
+        }
+
+        socket.on("sim-walkietalkie-connection-description", (json) => {
+            let data = JSON.parse(json)
+            console.log(data)
+        })
+
+        // let p
+        // ROOM_ID = "demo_room"
+        // TRANSMITTER_ID = localStorage.getItem("wt-client-id") || Math.random().toString(36).substring(2,12)
+        // localStorage.setItem("wt-client-id", TRANSMITTER_ID)
+        // RECEIVER_ID = ""
+
+        // function updateStateDisplay(txt) {
+        //     document.getElementById("state-display").innerText = txt
+        // }
+        // updateStateDisplay("not yet connected")
+
+        // function killConnectionToReceiver() {
+        //     p?.destroy()
+        // }
+
+        // function startConnectionToReceiver() {
+        //     // wipe existing connection
+        //     killConnectionToReceiver()
+
+        //     // start new connection
+        //     p = new SimplePeer({
+        //         initiator: true,
+        //         config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+        //         trickle: false
+        //     })
+
+        //     // callbacks
+        //     p.on("signal", (signal) => {
+        //         console.log('OUTGOING SIGNAL', signal)
+        //         let envelope = JSON.stringify({
+        //             sim_room_id: ROOM_ID,
+        //             target_id: RECEIVER_ID,
+        //             source_id: TRANSMITTER_ID,
+        //             signal: signal,
+        //         })
+        //         socket.emit('sim-webrtc-signal', envelope);
+        //     })
+        //     p.on('error', err => console.log('error', err))
+        //     p.on('connect', () => { updateStateDisplay("connected") })
+        // }
+
+        // document.querySelector('form').addEventListener('submit', (e) => {
+        //     e.preventDefault()
+        //     p?.write(document.querySelector('#incoming').value)
+        // })
+
+        //         // SOCKET SETUP
+        // const socket = io({
+        //     auth: {
+        //         sim_room_id: ROOM_ID,
+        //     }
+        // })
+
+        // socket.on("sim-webrtc-signal", (envelope) => {
+        //     if (envelope.target_id != TRANSMITTER_ID) return
+        //     console.log('INCOMING SIGNAL', envelope["signal"])
+        //     p.signal(envelope["signal"])
+        // })
+
+        // socket.on("sim-webrtc-assert-transmitter", (json) => {
+        //     let data = JSON.parse(json)
+        //     if (data.client_id != TRANSMITTER_ID) {
+        //         killConnectionToReceiver()
+        //         updateStateDisplay("disconnected (new transmitter asserted elsewhere)")
+        //     }
+        // })
+
+        // socket.on("sim-webrtc-assert-receiver", (json) => {
+        //     let data = JSON.parse(json)
+        //     RECEIVER_ID = data.client_id
+        // })
+        
+    </script>
+</body>
+</html>
