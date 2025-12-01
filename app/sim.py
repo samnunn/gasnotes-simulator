@@ -207,7 +207,7 @@ def tx():
         "sim_room_id": "demo",
         "txrx_mode": "transmitter",
     }
-    return render_template("wt.html", data=data)
+    return render_template("tx.html", data=data)
 
 
 @app.route("/rx")
@@ -216,21 +216,7 @@ def rx():
         "sim_room_id": "demo",
         "txrx_mode": "receiver",
     }
-    return render_template("wt.html", data=data)
-
-
-@app.route("/rooms")
-def rooms():
-    return WT_ROOMS
-
-
-@app.route("/wt")
-def wt():
-    data = {
-        "sim_room_id": "demo",
-        "txrx_mode": "receiver",
-    }
-    return render_template("wt_demo.html", data=data)
+    return render_template("rx.html", data=data)
 
 
 # ERRORS

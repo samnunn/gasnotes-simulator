@@ -1,21 +1,22 @@
 import { io } from '/static/js/socket.io.esm.min.js';
 
 export class WalkieTalkieConnection {
-    constructor(mode, sim_room_id) {
+    constructor(mode, sim_room_id, stream = null) {
         this.mode = mode;
         this.sim_room_id = sim_room_id;
         this.clientID = Math.random().toString(36).substring(2, 12);
 
         this.socket = null;
         this.peer = null;
+        this.stream = stream;
 
         this.connectionState = "not yet connected";
         this.connectionDescription = null;
-        this.onConnectionStateChanged = (state) => { };
 
         this.onData = () => { };
         this.onAudio = () => { };
         this.onData = (data) => { console.log("data:", data) };
+        this.onConnectionStateChanged = (state) => { };
     }
 
     start() {
@@ -58,6 +59,8 @@ export class WalkieTalkieConnection {
     }
 
     startFreshConnection() {
+        this.updateConnectionState("connecting…")
+
         // sanity checks
         if (!this.connectionDescription) {
             console.error("Unable to start connection until there is a connectionDescription")
@@ -65,11 +68,15 @@ export class WalkieTalkieConnection {
         }
 
         // init peer
-        this.peer = new window.SimplePeer({
+        let config = {
             initiator: this.mode == "transmitter",
             config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
             trickle: false
-        })
+        }
+        if (this.stream) {
+            config.stream = this.stream;
+        }
+        this.peer = new window.SimplePeer(config)
 
         // callbacks
         this.peer.on("signal", (signal) => {
@@ -87,11 +94,16 @@ export class WalkieTalkieConnection {
             let string = new TextDecoder().decode(data)
             this.onData(string)
         })
+        this.peer.on('track', (track, stream) => { this.onAudio(stream) })
 
         return true
     }
 
     attachStream() {
 
+    }
+
+    sendText(txt) {
+        this.peer.send(txt)
     }
 }

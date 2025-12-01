@@ -1,0 +1,28 @@
+<html>
+<body>
+    <pre id="txt-out"></pre>
+    <pre id="state">not yet connected</pre>
+    <audio id="audio" autoplay playsinline></audio>
+
+    <script src="/static/js/simplepeer.min.js"></script>
+    <script type="module">
+        import { WalkieTalkieConnection } from "/static/js/walkietalkie.js";
+        window.wt = new WalkieTalkieConnection("{{ data.txrx_mode }}", "{{ data.sim_room_id }}");
+        window.wt.onConnectionStateChanged = (state) => {
+            document.querySelector("#state").innerText = state;
+
+            
+        }
+        window.wt.onData = (txt) => {
+            document.querySelector("#txt-out").innerText += `\n${txt}`
+        }
+        window.wt.onAudio = (stream) => {
+            console.log("onAudio")
+            let player = document.querySelector("audio")
+            player.srcObject = stream
+            player.play()
+        }
+        window.wt.start()
+    </script>
+</body>
+</html>
