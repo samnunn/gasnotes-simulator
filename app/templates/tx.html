@@ -9,22 +9,24 @@
 
     <script src="/static/js/simplepeer.min.js"></script>
     <script type="module">
-        import { WalkieTalkieConnection } from "/static/js/walkietalkie.js";
-        
-        // get local audio stream
-        let microphoneStreamHandler = await navigator.mediaDevices.getUserMedia({ audio: true })
-        
-        // make connection
-        window.wt = new WalkieTalkieConnection("{{ data.txrx_mode }}", "{{ data.sim_room_id }}", microphoneStreamHandler);
-        window.wt.onConnectionStateChanged = (state) => {
-            document.querySelector("#state").innerText = state;
-        }
-        window.wt.start()
+        import { WebRTC } from "/static/js/walkietalkie.js";
 
-        document.querySelector('form').addEventListener('submit', (e) => {
-            e.preventDefault()
-            window.wt.sendText(document.querySelector('#txt-in').value)
-        })
+        window.wtc = new WebRTC("{{ data.txrx_mode }}", "{{ data.sim_room_id }}");
+        
+        // // get local audio stream
+        // let microphoneStreamHandler = await navigator.mediaDevices.getUserMedia({ audio: true })
+        
+        // // make connection
+        // window.wt = new WalkieTalkieConnection("{{ data.txrx_mode }}", "{{ data.sim_room_id }}", microphoneStreamHandler);
+        // window.wt.onConnectionStateChanged = (state) => {
+        //     document.querySelector("#state").innerText = state;
+        // }
+        // window.wt.start()
+
+        // document.querySelector('form').addEventListener('submit', (e) => {
+        //     e.preventDefault()
+        //     window.wt.sendText(document.querySelector('#txt-in').value)
+        // })
 
 
     </script>
