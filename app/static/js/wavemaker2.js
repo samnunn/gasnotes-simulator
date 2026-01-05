@@ -27,21 +27,21 @@ customElements.define('sim-trace', class extends HTMLElement {
         super()
 
         // setup and defaults
-        this.pacemaker_id       = this.getAttribute('pacemaker')                    || null
-        this.mode               = this.getAttribute('mode')                         || 'pacemaker'
-        this.morphology         = this.getAttribute('morphology')                   || 'sinus'
-        this.last_morphology    = this.morphology
-        this.strokeColour       = this.getAttribute('stroke-colour')                || 'green'
-        this.fillColour         = this.getAttribute('fill-colour')                  || 'none'
-        this.fillOpacity        = parseFloat(this.getAttribute('fill-opacity'))     || 1.0
-        this.pixelsPerSecond    = parseInt(this.getAttribute('x-rate'))             || 100
-        this.rate               = parseInt(this.getAttribute('rate'))               || 60
-        this.strokeWidth        = parseInt(this.getAttribute('stroke-width'))       || 2
-        this.height             = parseInt(this.getAttribute('height'))             || 250
-        this.maxLayers          = parseInt(this.getAttribute('max-layers'))         || 10
-        this.y_scale            = parseFloat(this.getAttribute('y-scale'))          || 1
-        this.y_cursor           = this.height/2                                     // initial baseline = 50% of this.height
-        this.wobble_enabled     = this.getAttribute('baseline-wobble') == "true"
+        this.pacemaker_id = this.getAttribute('pacemaker') || null
+        this.mode = this.getAttribute('mode') || 'pacemaker'
+        this.morphology = this.getAttribute('morphology') || 'sinus'
+        this.last_morphology = this.morphology
+        this.strokeColour = this.getAttribute('stroke-colour') || 'green'
+        this.fillColour = this.getAttribute('fill-colour') || 'none'
+        this.fillOpacity = parseFloat(this.getAttribute('fill-opacity')) || 1.0
+        this.pixelsPerSecond = parseInt(this.getAttribute('x-rate')) || 100
+        this.rate = parseInt(this.getAttribute('rate')) || 60
+        this.strokeWidth = parseInt(this.getAttribute('stroke-width')) || 2
+        this.height = parseInt(this.getAttribute('height')) || 250
+        this.maxLayers = parseInt(this.getAttribute('max-layers')) || 10
+        this.y_scale = parseFloat(this.getAttribute('y-scale')) || 1
+        this.y_cursor = this.height / 2                                     // initial baseline = 50% of this.height
+        this.wobble_enabled = this.getAttribute('baseline-wobble') == "true"
 
         // INIT
         // make a waveSet element
@@ -106,7 +106,7 @@ path {
         }
     }
 
-	attributeChangedCallback (name, oldValue, newValue) {
+    attributeChangedCallback(name, oldValue, newValue) {
         if (name == 'rate') {
             this.rate = newValue
         }
@@ -116,14 +116,14 @@ path {
         if (name == 'morphology' || name == 'sim-value') {
             this.morphology = newValue
         }
-        
+
         let event = new Event("sim-value-changed")
         this.dispatchEvent(event)
-	}
+    }
 
-	static get observedAttributes () {
-		return ['rate', 'y-scale', 'morphology', 'sim-value']
-	}
+    static get observedAttributes() {
+        return ['rate', 'y-scale', 'morphology', 'sim-value']
+    }
 
     //     __  ___      _          __
     //    /  |/  /___ _(_)___     / /   ____  ____  ____
@@ -149,11 +149,11 @@ path {
     //      - Usual case: copies the SVG from the last line into the new one and moves it leftwards
     //      - Special case for a disconnection: creates a new flat line (equal to the overshoot length) instead of copying the last SVG
     //      - Does this because discontinuous lines make the dashes appear uneven
-    beat(mandatoryWidth=0, repeating=false, animating=true) {
+    beat(mandatoryWidth = 0, repeating = false, animating = true) {
         // save reference to this.frontWave as targetWave
         // avoids collision in newline handler: animate() needs to apply to the last complex of the newline-triggering wave, not the first complex of the newline
         let targetWave = this.frontWave
-        
+
         // morphology change handler
         // would be called, for example, when an ECG changes from SR to A-fib
         // creates a new <path> with the new morphology
@@ -164,18 +164,18 @@ path {
             newPath.setAttribute('stroke', this.strokeColour)
             newPath.setAttribute('stroke-width', this.strokeWidth)
             newPath.setAttribute('d', `M ${targetWave.x_cursor},${this.y_cursor} `)
-            
+
             this.frontWave.querySelector('svg')?.appendChild(newPath)
         }
         // save to compare next time
         this.last_morphology = this.morphology
-        
+
         // reveal a dashed line for disconnected traces
         // has to go outside morphology change handler (above) so that it also applies to regular newlines (where there has been no delta)
         if (this.morphology == 'sim-disconnect' || this.morphology == 'nibp-only') {
             this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
         }
-        
+
         // make new complex
         let newComplex = this.insertNextComplex(targetWave, mandatoryWidth)
 
@@ -287,7 +287,7 @@ path {
             // shortening the leftward displacement by 0.5px prevents the little black gap between waves from appearing
             outgoingSVG.style.top = '0px'
             newWave.appendChild(outgoingSVG)
-            
+
             // insert new wave
             this.insertWave(newWave)
 
@@ -297,12 +297,12 @@ path {
                     { borderWidth: '0px' },
                     { borderWidth: '20px' },
                 ], {
-                    duration: 100,
-                    iterations: 1,
-                    easing: 'linear',
-                    fill: 'forwards',
-                    delay: this.pixelsToMilliseconds(newComplex.width - overshoot),
-                }
+                duration: 100,
+                iterations: 1,
+                easing: 'linear',
+                fill: 'forwards',
+                delay: this.pixelsToMilliseconds(newComplex.width - overshoot),
+            }
             )
 
 
@@ -314,7 +314,7 @@ path {
                 }
             }
         }
-        
+
         // animate this complex
         // console.log('finalWidth', finalWidth)
         // console.log('initialWidth', initialWidth)
@@ -345,12 +345,12 @@ path {
         }
 
         // emit pace event
-        const event = new CustomEvent("beat", { detail: newComplex.width})
+        const event = new CustomEvent("beat", { detail: newComplex.width })
         this.dispatchEvent(event)
-        
+
         // emit beep event
-        
-        let beepdelay = this.pixelsToMilliseconds(newComplex.width/2)
+
+        let beepdelay = this.pixelsToMilliseconds(newComplex.width / 2)
         if (targetWave.clientWidth == 0) {
             // when this is the first complex in the wave
             // delay beep by the x_offset of the first complex
@@ -381,7 +381,7 @@ path {
     }
 
     // WAVE MAKING/PLACING
-    constructWave(x_offset=0) {
+    constructWave(x_offset = 0) {
         // create .wave element (and its SVG)
         let newWave = document.createElement('div')
         newWave.x_offset = x_offset
@@ -399,7 +399,7 @@ path {
 
     // COMPLEX MAKING/PLACING
     // needs targetWave so it can work out how to absolute-ify the x values
-    insertNextComplex(targetWave=this.frontWave, mandatoryWidth=0) {
+    insertNextComplex(targetWave = this.frontWave, mandatoryWidth = 0) {
         // init complex object
         let complex = {
             width: 0,
@@ -530,7 +530,7 @@ path {
             ]
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
-            keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.01 * targetDuration]
+            keyframes[keyframes.length] = [targetDuration - measuredDuration, 0, -0.01 * targetDuration]
 
             return keyframes
         },
@@ -553,7 +553,7 @@ path {
             ]
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
-            keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.1 * (targetDuration-measuredDuration)]
+            keyframes[keyframes.length] = [targetDuration - measuredDuration, 0, -0.1 * (targetDuration - measuredDuration)]
 
             return keyframes
         },
@@ -576,7 +576,7 @@ path {
             ]
             // ADD FINAL DESCENT
             let measuredDuration = this.getDurationOfKeyframes(keyframes)
-            keyframes[keyframes.length] = [targetDuration-measuredDuration, 0, -0.03 * targetDuration]
+            keyframes[keyframes.length] = [targetDuration - measuredDuration, 0, -0.03 * targetDuration]
 
             return keyframes
         },
@@ -597,10 +597,10 @@ path {
                 ]
             }
 
-            let randomBaseline = Math.random() * -0.3  - 0.4
+            let randomBaseline = Math.random() * -0.3 - 0.4
             let randomPeak = Math.random() * 0.3 + 0.4
             let randomPeriod = this.randomNumberBetween(0.1, -0.1) + 0.2
-        
+
             let keyframes = [
                 [0, randomBaseline, 3],
                 [targetDuration * this.randomNumberBetween(0.2, 0.05), randomPeak],
@@ -619,7 +619,7 @@ path {
                     [targetDuration * 0.2, randomBaseline],
                 ])
             }
-        
+
             return keyframes
         },
         "flatline": (targetDuration) => {
@@ -627,12 +627,12 @@ path {
             if (targetDuration == 0) {
                 targetDuration = 60000 / this.rate
             }
-        
+
             let keyframes = [
-                [0,0],
+                [0, 0],
                 [targetDuration, 0]
             ]
-        
+
             return keyframes
         },
         "sim-disconnect": (targetDuration) => {
@@ -717,10 +717,10 @@ path {
 
             // MAKE QRS
             let keyframes = [
-                [0,0, 4, -4],
+                [0, 0, 4, -4],
                 [this.interpolateDuration(180, 100, this.rate), this.interpolateDuration(0.5, 0.4, this.rate) + 0.1 * Math.random(), this.interpolateDuration(-6, -4, this.rate), 5],
                 [this.interpolateDuration(220, 120, this.rate), 0.15, this.interpolateDuration(-10, -7, this.rate), this.interpolateDuration(15, 20, this.rate)],
-                
+
             ]
 
             // SQUEEZE OR EXTRUDE
@@ -747,7 +747,7 @@ path {
             // MAKE QRS
             let keyframes = [
                 [0, 0, -wobble],
-                [0.45 * (60000/this.rate), 0.1 * this.interpolateDuration(0.7, 0.2, this.rate) + 0.1 * Math.random(), wobble, 0],
+                [0.45 * (60000 / this.rate), 0.1 * this.interpolateDuration(0.7, 0.2, this.rate) + 0.1 * Math.random(), wobble, 0],
             ]
 
             // SQUEEZE OR EXTRUDE
@@ -802,7 +802,7 @@ path {
 
             let randomCompoent = Math.random() * 0.5
 
-            let wanderingBaseline =  0.3 * Math.sin(this.complexCount * 0.05) / Math.PI
+            let wanderingBaseline = 0.3 * Math.sin(this.complexCount * 0.05) / Math.PI
 
             let isoelectricLine = 0 - randomCompoent + wanderingBaseline
 
@@ -811,7 +811,7 @@ path {
             // MAKE QRS
             let keyframes = [
                 [0, isoelectricLine, 0.01 * targetDuration],
-                [targetDuration * 0.52, peakHeight, -5 * Math.random() - 1, -5 * Math.random() + 2 ],
+                [targetDuration * 0.52, peakHeight, -5 * Math.random() - 1, -5 * Math.random() + 2],
                 [targetDuration * 0.47, isoelectricLine, -0.01 * targetDuration]
             ]
             return keyframes
@@ -824,7 +824,7 @@ path {
             }
 
             let randomCompoent = Math.random() * 0.2
-            let wanderingBaseline =  0.05 * Math.sin(this.complexCount * 0.3) / Math.PI
+            let wanderingBaseline = 0.05 * Math.sin(this.complexCount * 0.3) / Math.PI
 
             // let isoelectricLine = 0 - 0.1 * Math.sin(this.complexCount * 0.2) / Math.PI - randomCompoent + wanderingBaseline
 
@@ -834,7 +834,7 @@ path {
             // MAKE QRS
             let keyframes = [
                 [0, isoelectricLine, 0.01 * targetDuration],
-                [targetDuration * 0.53, peakHeight, -0.05 * targetDuration, -5 * Math.random() + 2 ],
+                [targetDuration * 0.53, peakHeight, -0.05 * targetDuration, -5 * Math.random() + 2],
                 [targetDuration * 0.47, isoelectricLine, -0.02 * targetDuration]
             ]
             return keyframes
@@ -847,7 +847,7 @@ path {
             }
 
             let randomCompoent = Math.random() * 0.2
-            let wanderingBaseline =  0.2 * Math.sin(this.complexCount * 0.3) / Math.PI
+            let wanderingBaseline = 0.2 * Math.sin(this.complexCount * 0.3) / Math.PI
 
             let isoelectricLine = 0 - 0.5 * Math.sin(this.complexCount * 0.2) / Math.PI - randomCompoent + wanderingBaseline
 
@@ -856,7 +856,7 @@ path {
             // MAKE QRS
             let keyframes = [
                 [0, isoelectricLine, 0.01 * targetDuration],
-                [targetDuration * 0.52, peakHeight, -9 * Math.random() - 1, -5 * Math.random() + 2 ],
+                [targetDuration * 0.52, peakHeight, -9 * Math.random() - 1, -5 * Math.random() + 2],
                 [targetDuration * 0.47, isoelectricLine, -0.01 * targetDuration]
             ]
             return keyframes
@@ -881,6 +881,40 @@ path {
                 [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(1, 0.9), -0.05],                                                     // r wave (peak)
                 [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(-0.1, -0.05), -0.05],                                                                               // s wave (trough)
                 [this.interpolateDuration(70, 30, this.rate), 0, this.interpolateDuration(-5, 0, this.rate), 5],                                                // st segment
+                [this.interpolateDuration(180, 60, this.rate), 0.175, this.interpolateDuration(-6, -2, this.rate)],                                                // t wave (peak)
+                [this.interpolateDuration(180, 60, this.rate), isoelectricLine, this.interpolateDuration(-8, 0, this.rate)],  // qt (isoelectric)
+            ]
+
+            // ADD FILLER OR SQUEEZE TO SIZE
+            let keyframeDuration = this.getDurationOfKeyframes(keyframes)
+            if (keyframeDuration < targetDuration) {
+                let shortFall = targetDuration - keyframeDuration
+                keyframes[keyframes.length] = [shortFall, isoelectricLine, 0]
+            }
+
+            return keyframes
+        },
+        "avnrt": (targetDuration) => {
+            // DURATION WRNAGLING
+            if (targetDuration == 0) {
+                let idealDuration = 60000 / this.rate
+                targetDuration = this.randomNumberBetween(1.1 * idealDuration, 0.9 * idealDuration)
+            }
+
+            let isoelectricLine = this.rate > 120 ? this.rate * 0.0006 : 0
+
+            // DRAFT KEYFRAMES
+            let keyframes = [
+                // dx (ms), y (0-1), squishX, squishY
+                [0, isoelectricLine, 5, 0],                                   // start (isoelectric)
+                [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, -2, this.rate)],                                                 // p wave (peak)
+                [this.interpolateDuration(100, 80, this.rate), 0, this.interpolateDuration(-4, 0, this.rate), 0],                                                // pr segment start (isoelectric)
+                [this.interpolateDuration(80, 0, this.rate), 0, this.interpolateDuration(-2, 0, this.rate), 0],                                                  // end of pr segment (isoelectric)
+                [this.interpolateDuration(40, 25, this.rate), this.randomNumberBetween(-0.07, -0.04), -0.05],                                                                            // q wave (trough)
+                [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(1, 0.9), -0.05],                                                     // r wave (peak)
+                [this.interpolateDuration(50, 25, this.rate), this.randomNumberBetween(-0.1, -0.05), -0.05],                                                                               // s wave (trough)
+                [this.interpolateDuration(70, 30, this.rate), 0, this.interpolateDuration(-5, 0, this.rate), 5],                                                                           // s wave (trough)
+                [this.interpolateDuration(170, 130, this.rate), isoelectricLine, 0, 0],
                 [this.interpolateDuration(180, 60, this.rate), 0.175, this.interpolateDuration(-6, -2, this.rate)],                                                // t wave (peak)
                 [this.interpolateDuration(180, 60, this.rate), isoelectricLine, this.interpolateDuration(-8, 0, this.rate)],  // qt (isoelectric)
             ]
