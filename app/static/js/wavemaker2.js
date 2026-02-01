@@ -108,7 +108,11 @@ path {
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (name == 'rate') {
-            this.rate = newValue
+            if (newValue > 60) {
+                this.rate = Math.min(240, ((newValue - 20) * 1.4)) // ONE AWFUL HACK
+            } else {
+                this.rate = newValue
+            }
         }
         if (name == 'y-scale') {
             this.y_scale = newValue
@@ -116,13 +120,18 @@ path {
         if (name == 'morphology' || name == 'sim-value') {
             this.morphology = newValue
         }
+        if (name == 'sim-disabled') {
+            if (this.getAttribute("sim-disabled").toLowerCase() == "true") {
+                this.setAttribute('sim-value', 'sim-disconnect')
+            }
+        }
 
         let event = new Event("sim-value-changed")
         this.dispatchEvent(event)
     }
 
     static get observedAttributes() {
-        return ['rate', 'y-scale', 'morphology', 'sim-value']
+        return ['rate', 'y-scale', 'morphology', 'sim-value', 'sim-disabled']
     }
 
     //     __  ___      _          __
@@ -172,7 +181,7 @@ path {
 
         // reveal a dashed line for disconnected traces
         // has to go outside morphology change handler (above) so that it also applies to regular newlines (where there has been no delta)
-        if (this.morphology == 'sim-disconnect' || this.morphology == 'nibp-only') {
+        if (this.morphology == 'sim-disconnect') {
             this.frontWave.querySelector('path:last-child').setAttribute('stroke-dasharray', '20,20')
         }
 
@@ -636,10 +645,6 @@ path {
             return keyframes
         },
         "sim-disconnect": (targetDuration) => {
-            // alias of sim-disconnect
-            return this.waveGenerators["flatline"](targetDuration)
-        },
-        "nibp-only": (targetDuration) => {
             // alias of sim-disconnect
             return this.waveGenerators["flatline"](targetDuration)
         },

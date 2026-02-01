@@ -1,0 +1,234 @@
+<style>
+    #connect-modal {
+        /* max-width: 800px; */
+        height: min-content;
+    }
+
+
+    #enter-the-simulation {
+        width: 75%;
+        max-width: 400px;
+        margin: 1rem auto 2rem;
+        display: none;
+    }
+
+    #sequence-box {
+        margin: clamp(0rem, 2vw, 2rem);
+        --gutter-size: 3rem;
+
+        & .sequence-step {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: var(--gutter-size) 1fr;
+            grid-template-areas:
+                "number header"
+                "body body"
+            ;
+
+            &>h2 {
+                display: flex;
+                align-items: center;
+                font-size: clamp(1.75rem, calc(0.7 * var(--gutter-size)), 3rem);
+                margin: 0;
+                margin-left: calc(var(--gutter-size) * 0.5);
+            }
+
+            &>div.number {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                aspect-ratio: 1/1;
+                font-size: calc(0.6 * var(--gutter-size));
+                color: black;
+                background-color: white;
+                border-radius: 50% 50%;
+                font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
+                font-weight: 600;
+            }
+
+            &>div:last-of-type {
+                grid-area: body;
+                padding: 0;
+                margin-left: calc(var(--gutter-size) * 0.5);
+                padding-left: calc(var(--gutter-size) * 1);
+                border-left: 4px dotted var(--color-yellow);
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+
+        & .sequence-step:last-of-type>div:last-of-type {
+            border-color: transparent;
+        }
+    }
+
+    #sequence-connect {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr auto;
+        grid-template-areas:
+            "qr buttons"
+            "url url";
+        column-gap: 1rem;
+        row-gap: 2rem;
+
+
+        & #sequence-connect-right {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75em;
+            justify-content: center;
+            align-items: center;
+            grid-area: buttons;
+            text-align: center;
+
+            & h2 {
+                margin: 0;
+            }
+        }
+
+        & #sequence-connect-bottom {
+            display: none !important;
+            grid-area: url;
+            display: flex;
+            gap: 1rem;
+
+            & pre {
+                flex-grow: 1;
+            }
+        }
+
+        & #sim-url {
+            width: 100%;
+            background-color: black;
+            color: white;
+            border: 2px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        & .simcode {
+            font-size: 2em;
+        }
+
+    }
+
+    #sequence-mode-picker {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    @media (min-height: 800px) and (min-width: 630px) {
+        #enter-the-simulation {
+            display: block;
+        }
+    }
+
+    @media (max-width: 630px) {
+        #sequence-box {
+            --gutter-size: 2rem;
+            padding-right: calc(0.5 * var(--gutter-size)) !important;
+        }
+
+
+        .sequence-step h2 {
+            font-size: clamp(1.5rem, calc(0.7 * var(--gutter-size)), 2rem) !important;
+        }
+
+        #sequence-connect {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "qr"
+                "buttons"
+                "url";
+            overflow: hidden;
+            justify-items: center;
+
+            img {
+                margin-top: 1rem;
+            }
+        }
+
+        #sequence-mode-picker {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            text-align: center;
+            gap: 0.5rem;
+        }
+        
+    }
+
+</style>
+
+<dialog class="tray" id="connect-modal" closedby="any">
+
+    <img id="enter-the-simulation" src="{{ url_for('static', filename='img/enter_the_sim.svg') }}" alt="Enter the simulation">
+    <div id="sequence-box">
+        <div class="sequence-step">
+            <div class="number">1</div>
+            <h2>Connect Controller</h2>
+            <div id="sequence-connect">
+                <img class="sim-qrcode"
+                    src="{{ qrcode(url_for('sim_index', sim_room_id=data.sim_room_id, _external=True)) }}">
+                <div id="sequence-connect-right">
+                    <h2>Scan QR</h2>
+                    <span>or</span>
+                    <h2>Use a SimCode</h2>
+                    <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{
+                        data.sim_room_id }}</span>
+                    <span><a href="/connect">sim.gasnotes.net/connect</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="sequence-step">
+            <div class="number">2</div>
+            <h2>Run a Sim</h2>
+            <div id="sequence-mode-picker">
+                
+                <button form="dialog-closer" type="submit" class="button red" autofocus>Open Simulation</button>
+                <span>or</span>
+                <!-- <a class="button red" href="{{ url_for('sim_monitor', sim_room_id=data.sim_room_id) }}">Open Monitor</a> -->
+                <a class="button dark"
+                href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}">Switch to Controller</a>
+            </div>
+        </div>
+        <form method="dialog" id="dialog-closer"></form>
+        <!-- <div class="sequence-step">
+            <div class="number">2</div>
+            <h2>Run a Sim</h2>
+            <div id="assumption">
+                <p>Remember the <a href="https://harvardmedsim.org/resources/the-basic-assumption/"
+                        class="invisible-link"><strong class="yellow">Basic Assumption</strong></a>:</p>
+                <blockquote>
+                    <p>We believe that everyone participating in activities using Gas Notes is intelligent, capable,
+                        cares about doing their best, and wants to improve.</p>
+                    <cite>Adapted from <a href="https://harvardmedsim.org/resources/the-basic-assumption/">Center for
+                            Medical Simulation</a>, Boston, Massachusetts, USA.</cite>
+                </blockquote>
+            </div>
+        </div> -->
+    </div>
+
+        <!-- <p class="centered">You can control this simulated patient monitor using any internet-connected device, like a
+            smartphone.</p>
+        <img id="connection-diagram" src="{{ url_for('static', filename='img/sim_server_architecture.svg') }}" alt="">
+        <p class="centered">This shit's running in the cloud, so your devices don't even have to be on the same network.</p> -->
+        <!-- <div class="hstack">
+            {% if mode == "controller" %}
+            <a class="button dark" href="{{ url_for('sim_monitor', sim_room_id=data.sim_room_id) }}">Switch to Monitor</a>
+            {% else %}
+            <a class="button dark" href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}">Switch to
+                Controller</a>
+            {% endif %}
+        </div> -->
+        
+
+</dialog>
+
+<script>
+    let connectionDialog = document.querySelector("dialog#connect-modal")
+    connectionDialog.showModal()
+</script>

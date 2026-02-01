@@ -1,5 +1,5 @@
 # Gas Notes Simulator 😴
-<img width="200" src="app/static/monitorpanel.svg" alt="" align="right" />
+<img width="200" src="app/static/img/monitorpanel.svg" alt="" align="right" />
 
 **The [Gas Notes Simulator][gasnotes-sim] is a remote-controlled bedside monitor.**
 
@@ -32,7 +32,7 @@ Pending changes are stored and sent *en bloc* at the user's request. There are o
 The Gas Notes Simulator uses a client-server architecture to avoid all the headaches of P2P connection in potentially-hostile corporate networks. That means that **the [hosted version][gasnotes-sim] requires an internet connection**.
 
 <p align="center">
-    <img width="500" src="app/static/sim_server_architecture.svg" alt="" />
+    <img width="500" src="app/static/img/sim_server_architecture.svg" alt="" />
 </p>
 
 The server component is written in Python using the excellent [Flask][flask] framework. Message passing between clients and the server is done with WebSockets via [SocketIO][socketio] (made easy in Flask with [Flask-SocketIO][flask-socketio]).

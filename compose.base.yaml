@@ -10,6 +10,7 @@ services:
       - ./sim_rooms:/app/sim_rooms
     environment:
       - CMD=uv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
+      - DEBUG=0
     labels:
       - dev.orbstack.domains=sim.local
   tunnel:

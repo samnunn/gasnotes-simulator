@@ -3,14 +3,12 @@ import logging
 import os
 import random
 import re
-import string
 import time
-from enum import Enum
 
 import segno
-from flask import Flask, abort, redirect, render_template, request, session, url_for
-from flask_minify import Minify
-from flask_socketio import SocketIO, close_room, emit, join_room, leave_room
+from flask import Flask, abort, redirect, render_template, request, url_for
+from flask_assets import Bundle, Environment
+from flask_socketio import SocketIO, emit, join_room
 from werkzeug.exceptions import HTTPException
 
 #    _____      __
@@ -21,13 +19,12 @@ from werkzeug.exceptions import HTTPException
 #                    /_/
 
 app = Flask(__name__)
-# Minify(app=app, bypass=[re.compile(r'^\/sim\/\w+\/?$')])
 socketio = SocketIO(app)
+assets = Environment(app)
 app.secret_key = os.environ.get("SIM_SECRETKEY")
 
 SIM_ROOM_STORE = "sim_rooms"
-
-logger = logging.getLogger(__name__)
+DEUBG = os.environ.get("DEBUG", "0") == "1"
 
 
 #     __  __     __                   __  ___     __  __              __
@@ -36,6 +33,8 @@ logger = logging.getLogger(__name__)
 #  / __  /  __/ / /_/ /  __/ /     / /  / /  __/ /_/ / / / /_/ / /_/ (__  )
 # /_/ /_/\___/_/ .___/\___/_/     /_/  /_/\___/\__/_/ /_/\____/\__,_/____/
 #             /_/
+
+
 def sim_room_exists(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
     sim_path = make_sim_room_filepath(sim_room_id)
@@ -48,11 +47,16 @@ def open_sim_room():
     return sim_room_id
 
 
-def update_sim_room(sim_room_id):
-    current_time = time.time()
+def update_sim_room(sim_room_id, data=[]):
     sim_path = make_sim_room_filepath(sim_room_id)
-    open(sim_path, "w").write(str(current_time))
-    return current_time
+    json.dump(data, open(sim_path, "w"))
+    return True
+
+
+def get_sim_room_data(sim_room_id):
+    sim_path = make_sim_room_filepath(sim_room_id)
+    data = json.load(open(sim_path, "r"))
+    return data
 
 
 def generate_qrcode(url):
@@ -60,19 +64,18 @@ def generate_qrcode(url):
     return qrcode.svg_data_uri(scale=10, dark="black", border=0)
 
 
-def generate_full_url(sim_room_id, request):
-    return request.host_url.strip("/") + url_for(
-        "sim_room_monitor", sim_room_id=sim_room_id
-    )
+@app.context_processor
+def jinja_qrcode():
+    return dict(qrcode=generate_qrcode)
 
 
 def generate_room_id():
     while True:
         propsed_id = "".join(
-            random.choices("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789", k=6)
-        )  # no O or 0 here!
+            random.choices("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", k=6)
+        )  # skips 1, I, 0, O
         propsed_id = normalise_room_id(propsed_id)
-        if sim_room_exists(propsed_id) == False:
+        if not sim_room_exists(propsed_id):
             return propsed_id
 
 
@@ -84,16 +87,6 @@ def make_sim_room_filepath(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
     return os.path.join(SIM_ROOM_STORE, sim_room_id + ".txt")
 
-
-#     ____       ____                            ___    ______
-#    / __ )___  / __/___  ________       __     /   |  / __/ /____  _____
-#   / __  / _ \/ /_/ __ \/ ___/ _ \   __/ /_   / /| | / /_/ __/ _ \/ ___/
-#  / /_/ /  __/ __/ /_/ / /  /  __/  /_  __/  / ___ |/ __/ /_/  __/ /
-# /_____/\___/_/  \____/_/   \___/    /_/    /_/  |_/_/  \__/\___/_/
-
-
-# @app.before_request
-# @app.after_request
 
 #     ____              __
 #    / __ \____  __  __/ /____  _____
@@ -107,55 +100,44 @@ def index():
     data = {}
     data["demo"] = True
     data["title"] = "Gas Notes – Simulation Monitor"
-    data["new_sim_url"] = url_for("sim_room_new")
-    data["monitor_html"] = render_template("monitor.html", data=data)
-    data["controller_html"] = render_template("controller.html", data=data)
-    return render_template("homepage.html", data=data)
-    # return redirect('https://gasnotes.net/tools')
+    data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
+    data["controller_html"] = render_template(
+        "sim_views/sim_controller.html", data=data
+    )
+    data["demo"] = False
+    return render_template("pages/homepage.html", data=data)
 
 
 @app.route("/new")
-def sim_room_new():
+def sim_new():
     sim_room_id = open_sim_room()
-    return redirect(url_for("sim_room_monitor", sim_room_id=sim_room_id))
+    return redirect(url_for("sim_monitor", sim_room_id=sim_room_id, autoconnect=True))
 
 
-@app.route("/connect")
-def sim_room_connect():
-    # Assemable page data
-    data = {}
-    data["title"] = "Gas Notes – Simulation Monitor"
+@app.route("/connect", methods=["GET", "POST"])
+def sim_connect():
+    if request.method == "GET":
+        # Assemable page data
+        data = {}
+        data["title"] = "Gas Notes – Simulation Monitor"
+        return render_template("sim_views/sim_connect.html", data=data)
+    elif request.method == "POST":
+        sim_room_id = request.form.get("simcode")
+        sim_room_id = normalise_room_id(sim_room_id)
 
-    return render_template("connect.html", data=data)
-
-
-@app.route("/about")
-def sim_about():
-    # Assemable page data
-    data = {}
-    data["title"] = "Gas Notes – About"
-
-    return render_template("about.html", data=data)
-
-
-@app.route("/code", methods=["POST"], defaults={"simcode": None})
-def handle_simcode(simcode):
-    sim_room_id = request.form.get("simcode")
-    sim_room_id = normalise_room_id(sim_room_id)
-
-    if sim_room_exists(sim_room_id):
-        return redirect(url_for("sim_room_monitor", sim_room_id=sim_room_id))
-    else:
-        abort(404, "This sim room does not exist.")
+        if sim_room_exists(sim_room_id):
+            return redirect(url_for("sim_controller", sim_room_id=sim_room_id))
+        else:
+            abort(404, "This sim room does not exist.")
 
 
 @app.route("/sim/<string:sim_room_id>")
-def sim_room_monitor(sim_room_id):
+def sim_index(sim_room_id):
     # Normalise SimCode (upper case)
     sim_room_id = normalise_room_id(sim_room_id)
 
     # Validate SimCode
-    if bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)) == False:
+    if not bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)):
         abort(400, "Invalid SimCode.")
 
     # Check that room exists
@@ -164,67 +146,72 @@ def sim_room_monitor(sim_room_id):
 
     # Assemable page data
     data = {}
-    data["title"] = "Gas Notes – Simulation Monitor"
+    data["title"] = f"Sim Room ({sim_room_id})"
     data["sim_room_id"] = sim_room_id
-    data["demo"] = False
-    data["new_sim_url"] = url_for("sim_room_new")
-    data["full_url"] = generate_full_url(sim_room_id, request)
-    data["index_url"] = url_for("sim_room_monitor", sim_room_id=sim_room_id)
-    data["controller_url"] = url_for(
-        "sim_room_monitor", sim_room_id=sim_room_id, mode="controller"
-    )
-    data["monitor_url"] = url_for(
-        "sim_room_monitor", sim_room_id=sim_room_id, mode="monitor"
-    )
-    data["qrcode"] = generate_qrcode(data["full_url"])
 
-    # Return page (contingent on mode= argument)
-    mode = request.args.get("mode")
-    if mode == "monitor":
-        data["title"] = "Sim Monitor"
-        return render_template("monitor.html", data=data)
-    elif mode == "controller":
-        data["title"] = "Sim Controller"
-        return render_template("controller.html", data=data)
-
-    # Fallback: if no mode is specified, return the sim index
-    return render_template("sim_index.html", data=data)
+    return render_template("sim_views/sim_index.html", data=data)
 
 
-@app.route("/wavedesign")
-def wave_test_rig():
-    return render_template("wavedesign.html")
+@app.route("/sim/<string:sim_room_id>/monitor")
+def sim_monitor(sim_room_id):
+    # Normalise SimCode (upper case)
+    sim_room_id = normalise_room_id(sim_room_id)
+
+    # Validate SimCode
+    if not bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)):
+        abort(400, "Invalid SimCode.")
+
+    data = {}
+    data["sim_room_id"] = sim_room_id
+    data["title"] = f"Monitor ({sim_room_id.upper()})"
+
+    return render_template("sim_views/sim_monitor.html", data=data)
 
 
-@app.route("/wavetiming")
-def new_wavemaker():
-    return render_template("wavetiming.html")
+@app.route("/sim/<string:sim_room_id>/controller")
+def sim_controller(sim_room_id):
+    # Normalise SimCode (upper case)
+    sim_room_id = normalise_room_id(sim_room_id)
+
+    # Validate SimCode
+    if not bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)):
+        abort(400, "Invalid SimCode.")
+
+    data = {}
+    data["sim_room_id"] = sim_room_id
+    data["title"] = f"Controller ({sim_room_id.upper()})"
+
+    return render_template("sim_views/sim_controller.html", data=data)
 
 
-@app.route("/tx")
-def tx():
-    data = {
-        "sim_room_id": "demo",
-        "txrx_mode": "transmitter",
-    }
-    return render_template("tx.html", data=data)
+@app.route("/simlayout")
+def demo_simlayout():
+    data = {}
+    data["sim_room_id"] = "42069"
+    data["title"] = f"Simlayout Demo"
+
+    return render_template("layouts/sim_layout.html", data=data)
 
 
-@app.route("/rx")
-def rx():
-    data = {
-        "sim_room_id": "demo",
-        "txrx_mode": "receiver",
-    }
-    return render_template("rx.html", data=data)
+# @app.route("/wavedesign")
+# def wave_test_rig():
+#     return render_template("pages/wavedesign.html")
+
+
+# @app.route("/wavetiming")
+# def new_wavemaker():
+#     return render_template("pages/wavetiming.html")
 
 
 # ERRORS
 @app.errorhandler(HTTPException)
 def handle_error(error):
+    # override default 404 message
     if error.code == 404:
         error.description = "Not found."
-    return render_template("error.html", data={"error": error}), error.code
+
+    # return generic error template
+    return render_template("pages/error.html", data={"error": error}), error.code
 
 
 #    _____            __        __
@@ -233,81 +220,80 @@ def handle_error(error):
 #  ___/ / /_/ / /__/ ,< /  __/ /_(__  )
 # /____/\____/\___/_/|_|\___/\__/____/
 
-WT_ROOMS = {}
-
 
 @socketio.on("connect")
 def handle_connect(auth):
     sim_room_id = auth["sim_room_id"]
-    if sim_room_id not in WT_ROOMS:
-        WT_ROOMS[sim_room_id] = {}
     join_room(sim_room_id)
-    print(
+    try:
+        existing_data = get_sim_room_data(sim_room_id)
+        emit("sim-update", json.dumps(existing_data), to=sim_room_id)
+    except Exception as e:
+        app.logger.error(
+            f"Failed to gather/send existing data for sim room {sim_room_id}: {e}"
+        )
+
+    app.logger.info(
         f"🚨 SocketIO fired the 'connect' event. Client was added to room {sim_room_id}"
     )
 
 
-@socketio.on("sim-walkietalkie-nominate")
-def handle_walkietalkie_nomination(data):
-    data = json.loads(data)
-
-    sim_room_id = data["sim_room_id"]
-    client_type = data["client_type"]
-    client_id = data["client_id"]
-
-    WT_ROOMS[sim_room_id][client_type] = client_id
-
-    if "transmitter" and "receiver" in WT_ROOMS[sim_room_id]:
-        payload = json.dumps(
-            {
-                "sim_room_id": sim_room_id,
-                "transmitter": WT_ROOMS[sim_room_id]["transmitter"],
-                "receiver": WT_ROOMS[sim_room_id]["receiver"],
-            }
-        )
-        emit("sim-walkietalkie-connection-description", payload, to=sim_room_id)
-
-
+# routine parameter updates
 @socketio.on("sim-update")
 def handle_sim_update(data):
-    data = json.loads(data)
-    sim_room_id = data["sim_room_id"]
+    json_data = json.loads(data)
+    sim_room_id = json_data["sim_room_id"]
+    sim_room_id = normalise_room_id(sim_room_id)
 
     # Only send an update if the sim room exists
     if sim_room_exists(sim_room_id):
-        update_sim_room(sim_room_id)
-        emit("sim-update", json.dumps(data), to=sim_room_id)
+        update_sim_room(sim_room_id, json_data)
+        emit("sim-update", data, to=sim_room_id)
+        app.logger.info(f"Relayed sim-update to room {sim_room_id}: {repr(json_data)}")
     else:
-        print(
+        app.logger.info(
             "🚨 SocketIO received a `sim-update` for a non-exitent sim room. Passing."
         )
 
 
+# sendable investigations (e.g. CXR)
 @socketio.on("sim-post")
 def handle_sim_post(data):
+    json_data = json.loads(data)
+    sim_room_id = json_data["sim_room_id"]
+
+    # Only send an update if the sim room exists
+    if sim_room_exists(sim_room_id):
+        emit("sim-post", data, to=sim_room_id)
+    else:
+        app.logger.info(
+            "🚨 SocketIO received a `sim-post` for a non-exitent sim room. Passing."
+        )
+
+
+@socketio.on("sim-run-nibp")
+def handle_sim_run_nibp(data):
     data = json.loads(data)
     sim_room_id = data["sim_room_id"]
 
     # Only send an update if the sim room exists
     if sim_room_exists(sim_room_id):
-        update_sim_room(sim_room_id)
-        emit("sim-post", json.dumps(data), to=sim_room_id)
+        emit("sim-run-nibp", json.dumps(data), to=sim_room_id)
+
+
+@socketio.on("sim-nibp-state-update")
+def handle_sim_nibp_state_update(data):
+    json_data = json.loads(data)
+    sim_room_id = json_data["sim_room_id"]
+    sim_room_id = normalise_room_id(sim_room_id)
+
+    # Only send an update if the sim room exists
+    if sim_room_exists(sim_room_id):
+        emit("sim-nibp-state-update", data, to=sim_room_id, include_self=False)
+        app.logger.info(
+            f"Relayed sim-nibp-state-update to room {sim_room_id}: {repr(json_data)}"
+        )
     else:
-        print("🚨 SocketIO received a `sim-post` for a non-exitent sim room. Passing.")
-
-
-@socketio.on("sim-walkietalkie-signal")
-def forward_webrtc_signal_to_room(envelope):
-    # {
-    #     "sim_room_id": str,
-    #     "transmitter": str,
-    #     "receiver": str,
-    #     "signal": sdp junk,
-    # }
-    data = json.loads(envelope)
-    emit(
-        "sim-walkietalkie-signal",
-        envelope,
-        to=data["sim_room_id"],
-        include_self=False,
-    )
+        app.logger.info(
+            "🚨 SocketIO received a `sim-nibp-state-update` for a non-exitent sim room. Passing."
+        )

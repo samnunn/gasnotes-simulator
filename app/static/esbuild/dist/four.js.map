@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../four.js"],
+  "sourcesContent": ["console.log(\"four\")"],
+  "mappings": "MAAA,QAAQ,IAAI,MAAM",
+  "names": []
+}

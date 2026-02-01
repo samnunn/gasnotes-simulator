@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>{{ data.title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -7,14 +8,33 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)">
     <link rel="stylesheet" type="text/css" href="/static/main.css">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <script src="/static/socketio.min.js"></script>
+    <script src="{{ url_for('static', filename='js/socketio.min.js') }}"></script>
     <meta name="color-scheme" content="light only">
+    {% if data.demo != true %}
+    <script>
+        // apply slide in/out logic only to pages where an actual sim is rendered
+        // window.addEventListener("pagereveal", (e) => {
+        //     console.log("incoming page", e)
+        //     if (!e.viewTransition) return;
+            
+        //     let outgoingUrl = new URL(navigation.activation.from.url);
+        //     let incomingUrl = new URL(navigation.activation.entry.url);
+
+        //     if (!incomingUrl.pathname.startsWith("/sim")) return
+            
+        //     let direction = outgoingUrl.pathname.startsWith(incomingUrl.pathname) ? "backward" : "forward"
+        //     document.documentElement.dataset.simNavDirection = direction
+        // })
+        </script>
+{% endif %}
+
+
+
 </head>
+
 <body>
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    {% block content %}
+    {% endblock %}
     <script>
         let allSimCodes = document.querySelectorAll('span.simcode')
         for (let c of allSimCodes) {
@@ -28,5 +48,10 @@
             }
         }
     </script>
+
+{% assets filters="jsmin", output="gen/packed.js", "js/starfield.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 </body>
+
 </html>
