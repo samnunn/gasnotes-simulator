@@ -5,3 +5,4 @@ Pipfile.lock
 sim_rooms/*
 private/*
 *.pyc
+node_modules/
