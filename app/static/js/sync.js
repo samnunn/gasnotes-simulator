@@ -164,7 +164,6 @@ export function transitionIfAble(func) {
     }
 }
 
-import { updateNibpReadoutImmediately } from "./nibp";
 export function registerMonitorSyncReceiver(socket) {
     function handleSimUpdate(msg) {
         let message = JSON.parse(msg);
