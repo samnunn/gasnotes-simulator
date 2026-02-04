@@ -29,62 +29,61 @@
                 <option value="magenta">Pink</option>
                 <option value="deepskyblue">Blue</option>
             </select>
-            <input type="submit" value="Generate">
+            <input type="submit" value="Generate" />
         </form>
-        <div id="all-waves">
-        </div>
+        <div id="all-waves"></div>
 
         <script type="module">
-            import { } from '/static/js/wavemaker2.js'
+            import {} from "/static/js/wavemaker2.js";
 
             // Override form submission
-            let allWavesContainer = document.getElementById('all-waves')
-            let formPicker = document.querySelector('#wavegen-form')
-            let wavePicker = formPicker.querySelector('select[name="wave"]')
-            let colourPicker = formPicker.querySelector('select[name="colour"]')
+            let allWavesContainer = document.getElementById("all-waves");
+            let formPicker = document.querySelector("#wavegen-form");
+            let wavePicker = formPicker.querySelector('select[name="wave"]');
+            let colourPicker = formPicker.querySelector(
+                'select[name="colour"]',
+            );
 
-            formPicker.addEventListener('submit', (e) => {
-                e.preventDefault()
+            formPicker.addEventListener("submit", (e) => {
+                e.preventDefault();
 
                 // Clear wave container
-                allWavesContainer.innerHTML = ""
+                allWavesContainer.innerHTML = "";
 
                 // Genreate new waves
-                let nominalRhythm = wavePicker.value
-                let nominalColour = colourPicker.value
+                let nominalRhythm = wavePicker.value;
+                let nominalColour = colourPicker.value;
                 // paintWaves(20, 5, 200, nominalRhythm, nominalColour)
 
-                for (let i=20; i <= 200; i+=5) {
-                    let newTrace = document.createElement('div')
-                    newTrace.innerHTML = `<sim-trace rate="${i}" morphology="${nominalRhythm}" stroke-colour="${nominalColour}"></sim-trace>`
-                    allWavesContainer.append(newTrace)
+                for (let i = 20; i <= 200; i += 5) {
+                    let newTrace = document.createElement("div");
+                    newTrace.innerHTML = `<sim-trace rate="${i}" morphology="${nominalRhythm}" stroke-colour="${nominalColour}"></sim-trace>`;
+                    allWavesContainer.append(newTrace);
 
-                    for (let j=0; j<i*0.12+10; j++) {
-                        newTrace.firstChild.beat(0, false, false)
+                    for (let j = 0; j < i * 0.12 + 10; j++) {
+                        newTrace.firstChild.beat(0, false, false);
                     }
                 }
 
                 // Save state
-                localStorage.setItem('last-wave', nominalRhythm)
-                localStorage.setItem('last-colour', nominalColour)
-            })
-
+                localStorage.setItem("last-wave", nominalRhythm);
+                localStorage.setItem("last-colour", nominalColour);
+            });
 
             // Save state between reloads
-            window.addEventListener('load', async (e) => {
-                let lastColour = localStorage.getItem('last-colour')
+            window.addEventListener("load", async (e) => {
+                let lastColour = localStorage.getItem("last-colour");
                 if (lastColour != null) {
-                    colourPicker.value = lastColour
+                    colourPicker.value = lastColour;
                 }
 
-                let lastWave = localStorage.getItem('last-wave')
+                let lastWave = localStorage.getItem("last-wave");
                 if (lastWave != null) {
-                    wavePicker.value = lastWave
+                    wavePicker.value = lastWave;
                 }
 
-                formPicker.querySelector('input[type="submit"]').click()
-            })
-
+                formPicker.querySelector('input[type="submit"]').click();
+            });
         </script>
 
         <!-- <script type="module">

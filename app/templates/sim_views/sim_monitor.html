@@ -1,1417 +1,785 @@
 {% extends "layouts/sim_layout.html" %}
 
-{# only show the toolbars if data.demo is falsy (false [used on the homepage] or undefined [used on the simulator
-page]) #}
-
+{# only show the toolbars if data.demo is falsy (false [used on the homepage] or undefined [used on the simulator page]) #}
 {% block sim_toolbar_top %}
-{% if data.demo != true %}
-<style>
-    :root {
-        --sim-toolbar-top-height: 4rem;
-    }
-</style>
-<div class="flex justify-between align-center ht-100 pl-1 pr-1">
-    <h1 class="mt-0 mb-0 flex gap-1" sim-responsive-text data-rt-big="Simulation" data-rt-small="😴">
-        <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{
-                            data.sim_room_id }}</span>
-        </h1>
-    <label class="flex align-center gap-1 yellow">
-        <h3 class="mt-0 mb-0">Sound</h3>
-        <input type="checkbox" role="switch" id="sound-switch">
-    </label>
-</div>
-{% else %}
-{{ super() }}
-{% endif %}
+    {% if data.demo != true %}
+        <style>
+            :root {
+                --sim-toolbar-top-height: 4rem;
+            }
+        </style>
+        <div class="flex justify-between align-center ht-100 pl-1 pr-1">
+            <span
+                class="simcode"
+                aria-roledescription="button"
+                title="Click to copy SimCode"
+                >{{ data.sim_room_id }}</span
+            >
+            <label class="flex align-center gap-1 yellow">
+                <h3 class="mt-0 mb-0">Sound</h3>
+                <input type="checkbox" role="switch" id="sound-switch" />
+            </label>
+        </div>
+    {% else %}
+        {{ super() }}
+    {% endif %}
 {% endblock %}
 
 {% block sim_toolbar_buttom %}
-{% if data.demo != true %}
-<div id="control-buttons">
-    <div class="cell" onclick="document.querySelector('#connect-modal').showModal()">
-        <div class="cell-icon">
-            <span class="icon">🔗</span>
-            <span class="label">Connect</span>
+    {% if data.demo != true %}
+        <div id="control-buttons">
+            <div
+                class="cell"
+                onclick="document.querySelector('#connect-modal').showModal()"
+            >
+                <div class="cell-icon">
+                    <span class="icon">🔗</span>
+                    <span class="label">Connect</span>
+                </div>
+            </div>
+            <div
+                class="cell"
+                onclick="document.querySelector('#resources').showModal()"
+            >
+                <div class="cell-icon">
+                    <span class="icon">🩻</span>
+                    <span class="label">Resources</span>
+                </div>
+                <!-- <div id="resources-badge">1</div> -->
+            </div>
+            <label class="cell">
+                <div class="cell-icon">
+                    <span class="icon"
+                        ><input
+                            type="checkbox"
+                            class="purple"
+                            role="switch"
+                            style="display: block"
+                            sim-nibp-cycle-switch
+                    /></span>
+                    <span class="label">Auto NIBP</span>
+                </div>
+            </label>
+            <div class="cell" sim-nibp-trigger-manual>
+                <div class="cell-icon">
+                    <span class="icon">💨</span>
+                    <span class="label">Cycle BP</span>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            {# <div class="cell" id="silence-button">
+                <span class="cell-icon">
+                    <span class="icon">🚨</span>
+                    <span class="label">Silence</span>
+                </span>
+            </div> #}
+            <label class="cell">
+                <div class="cell-icon">
+                    <span class="icon"
+                        ><input
+                            type="checkbox"
+                            class="yellow"
+                            role="switch"
+                            style="display: block"
+                            sim-alarm-acknowledge-switch
+                            checked
+                    /></span>
+                    <span sim-alarm-acknowledge-text class="label">Alarms</span>
+                </div>
+            </label>
         </div>
-    </div>
-    <div class="cell" onclick="document.querySelector('#resources').showModal()">
-        <div class="cell-icon">
-            <span class="icon">🩻</span>
-            <span class="label">Resources</span>
-        </div>
-        <!-- <div id="resources-badge">1</div> -->
-    </div>
-    <label class="cell">
-        <div class="cell-icon">
-            <span class="icon"><input type="checkbox" class="purple" role="switch" sim-parameter="nibp-cycling" style="display: block;"></span>
-            <span class="label">Auto NIBP</span>
-        </div>
-    </label>
-    <div class="cell" sim-nibp-trigger-manual>
-        <div class="cell-icon">
-            <span class="icon">💨</span>
-            <span class="label">Cycle BP</span>
-        </div>
-    </div>
-    <div class="spacer"></div>
-    <div class="cell" id="silence-button">
-        <span class="cell-icon">
-            <span class="icon">🚨</span>
-            <span class="label">Silence</span>
-        </span>
-    </div>
-</div>
-{% else %}
-{{ super() }}
-{% endif %}
+    {% else %}
+        {{ super() }}
+    {% endif %}
 {% endblock %}
-
-
-
-
 {% block sim_mainarea %}
-<style>
-
-    #control-buttons {
-        --cell-colour: var(--dark-grey);
-        display: flex;
-        flex-direction: row;
-        gap: 2px;
-        flex-wrap: nowrap;
-        overflow-x: scroll;
-
-        .cell,
-        .spacer {
-            background-color: var(--cell-colour);
-        }
-
-        .cell {
-            height: 5rem;
-            width: min-content;
-            min-width: 5rem;
+    <style>
+        #control-buttons {
+            --cell-colour: var(--dark-grey);
             display: flex;
-            gap: 0.2rem;
-            flex-shrink: 0;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            flex-direction: row;
+            gap: 2px;
+            flex-wrap: nowrap;
+            overflow-x: scroll;
 
-            transition: all 100ms ease;
-
-            &:hover {
-                background-color: oklch(from var(--cell-colour) 0.3 c h);
+            .cell,
+            .spacer {
+                background-color: var(--cell-colour);
             }
 
-            &:active {
-                background-color: oklch(from var(--cell-colour) 0.2 c h);
-            }
+            .cell {
+                height: 5rem;
+                width: min-content;
+                min-width: 5rem;
+                display: flex;
+                gap: 0.2rem;
+                flex-shrink: 0;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
 
-        }
+                transition: all 100ms ease;
 
-        .cell-icon {
-            aspect-ratio: 1.25;
-            height: 100%;
-            display: flex;
-            gap: 0.3rem;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+                &:hover {
+                    background-color: oklch(from var(--cell-colour) 0.3 c h);
+                }
 
-            .icon {
-                font-size: 1.5rem;
-                height: min-content;
-            }
-
-            .label {
-                font-size: 1rem;
-                text-align: center;
-            }
-        }
-
-        .spacer {
-            flex-grow: 10;
-        }
-    }
-
-    /* MONITOR */
-
-
-    #sim-monitor {
-        flex-grow: 1;
-        /* takes up full height, since its container is a flex column with only one member */
-        display: grid;
-        grid-template-columns: 1fr clamp(15rem, 25vh, 18rem);
-        grid-template-rows: repeat(auto-fill, 1fr);
-        gap: 1rem;
-        padding: 1rem;
-        font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif;
-
-        &>* {
-            position: relative;
-            /* needed to position the sim-trace elements absolutely */
-        }
-
-        & div:has(>sim-trace) {
-            max-width: 100%;
-        }
-
-        & sim-trace {
-            width: 100%;
-
-            /* left: ??px is set dynamically in wavemaker2.js */
-            position: absolute;
-
-            /* transform: scaleY varies according to height (see below media queries) */
-            transform-origin: top;
-            transform: scaleY(0.75);
-        }
-
-        @media only screen and (min-height: 800px) {
-            sim-trace {
-                transform: scaleY(1) !important;
-            }
-        }
-
-        @media only screen and (min-height: 1000px) {
-            sim-trace {
-                transform: scaleY(1.25) !important;
-            }
-        }
-
-        @media only screen and (min-height: 1200px) {
-            sim-trace {
-                transform: scaleY(1.5) !important;
-            }
-        }
-    }
-
-    sim-readout {
-        &:not([hidden]) {
-            /* get rid of excessive padding seen on inline elements, makes the alarm background look neat */
-            display: inline-block;
-            padding: 0.1em;
-        }
-
-        font-size: clamp(3rem, calc(18vh - 5rem), 10rem);
-        line-height: 0.9;
-    }
-
-    /* alarm styling */
-    /* sim-readout[sim-alarm] is toggled true and false in JS */
-    /* body[sim-alarm-bright] is toggled on and off in JS */
-    /* not using a CSS animation because the flashes should be synchronous between readouts */
-    body[sim-alarm-bright="true"] sim-readout[sim-alarm="on"] {
-        background-color: currentColor;
-
-        span {
-            color: white;
-        }
-
-
-        &.white {
-            span {
-                color: black;
-            }
-        }
-    }
-
-    .readout-label {
-        font-size: 1rem;
-        margin: 0;
-    }
-
-    #bp-readout sim-readout {
-        font-size: clamp(3rem, calc(10vh - 2.5rem), 5rem) !important;
-    }
-    #nibp sim-readout {
-        font-size: clamp(3rem, calc(18vh - 5rem), min(10rem, 12vw));
-    }
-
-    #nibp-timer-widget {
-        background-color: var(--color-purple);
-        height: 1rem;
-        width: 50px;
-        padding: 0 0.5ch;
-    }
-    #nibp-timer-widget:not([data-next-trigger]) {
-        visibility: hidden;
-    }
-
-    sim-post {
-        figure {
-            margin: 0;
-            padding: 0;
-        }
-
-        figcaption {
-            display: none;
-        }
-
-        sim-abg {
-            display: none;
-        }
-    }
-
-    #resources {
-        view-transition-name: sim-resources-tray;
-        --dotted-border: 1px dashed #444;
-
-        display: grid;
-        grid-template-rows: auto 1fr;
-        grid-template-columns: 14rem 1fr;
-        grid-template-areas:
-            "head head"
-            "scroll marquee";
-        row-gap: 1rem;
-
-        #resource-header {
-            font-size: 2rem;
-            font-weight: bold;
-            grid-area: head;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-left: 0.25rem;
-        }
-
-        #resource-list {
-            grid-area: scroll;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-
-            padding-right: 0.75rem;
-            margin-right: 0.25rem;
-
-
-            overflow: scroll;
-            max-height: 100%;
-
-            container-name: resource-list;
-            container-type: size;
-
-        }
-
-        #resource-marquee {
-            grid-area: marquee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-left: var(--dotted-border);
-            margin-bottom: 1rem;
-            padding-left: 1rem;
-            position: relative;
-
-            container-name: resource-container;
-            container-type: size;
-
-            overflow: hidden;
-            max-height: 100%;
-
-            p {
-                text-align: center;
-            }
-
-            &:has(img) {
-                p {
-                    display: none;
+                &:active {
+                    background-color: oklch(from var(--cell-colour) 0.2 c h);
                 }
             }
 
-            figure {
-                display: grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr auto;
-
+            .cell-icon {
+                aspect-ratio: 1.25;
                 height: 100%;
-                width: 80%;
+                display: flex;
+                gap: 0.3rem;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
 
-                margin: 0;
-                padding: 0;
+                .icon {
+                    font-size: 1.5rem;
+                    height: min-content;
+                }
 
-                text-align: center;
-            }
-
-            img {
-                margin: 0;
-                object-fit: cover;
-
-                align-self: center;
-
-                width: 100%;
-                height: auto;
-                aspect-ratio: 1/1;
-            }
-
-            img,
-            sim-abg {
-                border-radius: 1rem;
-                box-shadow: 0px 10px 30px black;
-                border: 0.5rem solid white;
-                overflow: hidden;
-
-            }
-
-            sim-abg {
-                width: 600px;
-                min-width: 600px;
-                height: auto;
-                font-size: 100%;
-                scale: 20vw;
-            }
-
-            /* scale to avoid hitting edges */
-            --width-scaler: 1;
-            --height-scaler: 1;
-
-            @container resource-container (width < 600px) {
-                sim-abg {
-                    --width-scaler: 0.8;
+                .label {
+                    font-size: 1rem;
+                    text-align: center;
                 }
             }
 
-            @container resource-container (width < 480px) {
-                sim-abg {
-                    --width-scaler: 0.6;
-                }
-            }
-
-            @container resource-container (width < 360px) {
-                sim-abg {
-                    --width-scaler: 0.5;
-                }
-            }
-
-            @container resource-container (width < 240px) {
-                sim-abg {
-                    --width-scaler: 0.4;
-                }
-            }
-
-            @container resource-container (width < 180px) {
-                sim-abg {
-                    --width-scaler: 0.3;
-                }
-            }
-
-            @container resource-container (height < 850px) {
-                sim-abg {
-                    --height-scaler: 0.8;
-                }
-            }
-
-            @container resource-container (height < 680px) {
-                sim-abg {
-                    --height-scaler: 0.6;
-                }
-            }
-
-            @container resource-container (height < 510px) {
-                sim-abg {
-                    --height-scaler: 0.5;
-                }
-            }
-
-            @container resource-container (height < 340px) {
-                sim-abg {
-                    --height-scaler: 0.4;
-                }
-            }
-
-            @container resource-container (height < 249px) {
-                sim-abg {
-                    --height-scaler: 0.3;
-                }
-            }
-
-            sim-abg {
-                scale: calc(min(var(--height-scaler), var(--width-scaler)));
+            .spacer {
+                flex-grow: 10;
             }
         }
-    }
 
-    /* phone screens */
-    @media (max-height: 700px), (max-width: 600px) {
+        /* MONITOR */
 
         #sim-monitor {
-            grid-template-columns: repeat(2, 1fr) !important;
-            grid-template-rows: repeat(auto-fill, 1fr) !important;
+            flex-grow: 1;
+            /* takes up full height, since its container is a flex column with only one member */
+            display: grid;
+            grid-template-columns: 1fr clamp(15rem, 25vh, 18rem);
+            grid-template-rows: repeat(auto-fill, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            font-family:
+                Bahnschrift, "DIN Alternate", "Franklin Gothic Medium",
+                "Nimbus Sans Narrow", sans-serif-condensed, sans-serif;
 
-            & div:has(>sim-trace) {
+            & > * {
+                position: relative;
+                /* needed to position the sim-trace elements absolutely */
+            }
+
+            & div:has(> sim-trace) {
+                max-width: 100%;
+                container-type: size;
+            }
+
+            & sim-trace {
+                width: 100%;
+                height: calc(min(300px, 150cqh));
+
+                /* left: ??px is set dynamically in wavemaker2.js */
+                position: absolute;
+
+                /* transform: scaleY varies according to height (see below media queries) */
+                transform-origin: top;
+            }
+
+            & div:has(sim-trace[sim-disabled="true"])::after {
+                content: "[ Disabled ]";
+                position: absolute;
+                inset: 0; /* stretches to full height/width */
+                display: grid;
+                place-items: center;
+                font-size: 1.5rem;
+                pointer-events: none;
+            }
+
+            {# @media only screen and (min-height: 800px) {
+                sim-trace {
+                    transform: scaleY(1) !important;
+                }
+            }
+
+            @media only screen and (min-height: 1000px) {
+                sim-trace {
+                    transform: scaleY(1.25) !important;
+                }
+            }
+
+            @media only screen and (min-height: 1200px) {
+                sim-trace {
+                    transform: scaleY(1.5) !important;
+                }
+            } #}
+        }
+
+        sim-readout {
+            &:not([hidden]) {
+                /* get rid of excessive padding seen on inline elements, makes the alarm background look neat */
+                display: inline-block;
+                padding: 0.1em;
+            }
+
+            font-size: clamp(3rem, calc(18vh - 5rem), 10rem);
+            line-height: 0.9;
+        }
+
+        /* alarm styling */
+        /* sim-readout[sim-alarm] is toggled true and false in JS */
+        /* body[sim-alarm-bright] is toggled on and off in JS */
+        /* not using a CSS animation because the flashes should be synchronous between readouts */
+        body[sim-alarm-bright="true"] sim-readout[sim-alarm="on"] {
+            background-color: currentColor;
+
+            span {
+                color: white;
+            }
+
+            &.white {
+                span {
+                    color: black;
+                }
+            }
+        }
+
+        .readout-label {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        #bp-readout sim-readout {
+            font-size: clamp(3rem, calc(10vh - 2.5rem), 5rem) !important;
+        }
+        #nibp sim-readout {
+            font-size: clamp(3rem, calc(18vh - 5rem), min(10rem, 12vw));
+        }
+
+        #nibp-timer-widget {
+            background-color: var(--color-purple);
+            height: 1rem;
+            width: 50px;
+            padding: 0 0.5ch;
+        }
+        #nibp-timer-widget[sim-disabled="true"] {
+            visibility: hidden;
+        }
+
+        sim-post {
+            figure {
+                margin: 0;
+                padding: 0;
+            }
+
+            figcaption {
+                display: none;
+            }
+
+            sim-abg {
                 display: none;
             }
         }
 
-        sim-readout {
-            font-size: clamp(1rem, 10vh, 4rem) !important;
-        }
-
-        #bp-readout sim-readout,
-        #nibp sim-readout {
-            font-size: clamp(1rem, 5vh, 4rem) !important;
-        }
-
-
-    }
-
-    @media only screen and (max-width: 850px) {
         #resources {
-            --tray-height: 90vh;
-            --tray-height: 98dvh;
+            view-transition-name: sim-resources-tray;
+            --dotted-border: 1px dashed #444;
 
-            grid-template-rows: auto 1fr calc(min(20cqh, 10rem));
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 14rem 1fr;
             grid-template-areas:
-                "head"
-                "marquee"
-                "scroll";
+                "head head"
+                "scroll marquee";
+            row-gap: 1rem;
+
+            #resource-header {
+                font-size: 2rem;
+                font-weight: bold;
+                grid-area: head;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-left: 0.25rem;
+            }
 
             #resource-list {
+                grid-area: scroll;
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 gap: 1rem;
+
+                padding-right: 0.75rem;
+                margin-right: 0.25rem;
+
                 overflow: scroll;
-                max-width: 100%;
-                height: 100%;
                 max-height: 100%;
-                padding: 0 0 1rem 0;
-                margin: 0;
+
+                container-name: resource-list;
+                container-type: size;
             }
 
             #resource-marquee {
-                padding: 0 0 1rem 0;
-                margin: 0;
+                grid-area: marquee;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-left: var(--dotted-border);
+                margin-bottom: 1rem;
+                padding-left: 1rem;
+                position: relative;
 
-                border-left: none;
-                border-bottom: var(--dotted-border);
-            }
+                container-name: resource-container;
+                container-type: size;
 
-            .tile {
-                width: auto;
-                height: 100%;
-                aspect-ratio: 1/1;
+                overflow: hidden;
+                max-height: 100%;
 
-                display: grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr auto;
+                p {
+                    text-align: center;
+                }
+
+                &:has(img) {
+                    p {
+                        display: none;
+                    }
+                }
 
                 figure {
-                    display: block;
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    grid-template-rows: 1fr auto;
+
+                    height: 100%;
+                    width: 80%;
+
+                    margin: 0;
+                    padding: 0;
+
+                    text-align: center;
+                }
+
+                img {
+                    margin: 0;
+                    object-fit: cover;
+
+                    align-self: center;
+
+                    width: 100%;
+                    height: auto;
+                    aspect-ratio: 1/1;
+                }
+
+                img,
+                sim-abg {
+                    border-radius: 1rem;
+                    box-shadow: 0px 10px 30px black;
+                    border: 0.5rem solid white;
+                    overflow: hidden;
+                }
+
+                sim-abg {
+                    width: 600px;
+                    min-width: 600px;
+                    height: auto;
+                    font-size: 100%;
+                    scale: 20vw;
+                }
+
+                /* scale to avoid hitting edges */
+                --width-scaler: 1;
+                --height-scaler: 1;
+
+                @container resource-container (width < 600px) {
+                    sim-abg {
+                        --width-scaler: 0.8;
+                    }
+                }
+
+                @container resource-container (width < 480px) {
+                    sim-abg {
+                        --width-scaler: 0.6;
+                    }
+                }
+
+                @container resource-container (width < 360px) {
+                    sim-abg {
+                        --width-scaler: 0.5;
+                    }
+                }
+
+                @container resource-container (width < 240px) {
+                    sim-abg {
+                        --width-scaler: 0.4;
+                    }
+                }
+
+                @container resource-container (width < 180px) {
+                    sim-abg {
+                        --width-scaler: 0.3;
+                    }
+                }
+
+                @container resource-container (height < 850px) {
+                    sim-abg {
+                        --height-scaler: 0.8;
+                    }
+                }
+
+                @container resource-container (height < 680px) {
+                    sim-abg {
+                        --height-scaler: 0.6;
+                    }
+                }
+
+                @container resource-container (height < 510px) {
+                    sim-abg {
+                        --height-scaler: 0.5;
+                    }
+                }
+
+                @container resource-container (height < 340px) {
+                    sim-abg {
+                        --height-scaler: 0.4;
+                    }
+                }
+
+                @container resource-container (height < 249px) {
+                    sim-abg {
+                        --height-scaler: 0.3;
+                    }
+                }
+
+                sim-abg {
+                    scale: calc(min(var(--height-scaler), var(--width-scaler)));
+                }
+            }
+        }
+
+        /* phone screens */
+        @media (max-height: 700px), (max-width: 600px) {
+            #sim-monitor {
+                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-rows: repeat(auto-fill, 1fr) !important;
+
+                & div:has(> sim-trace) {
+                    display: none;
+                }
+            }
+
+            sim-readout {
+                font-size: clamp(1rem, 10vh, 4rem) !important;
+            }
+
+            #bp-readout sim-readout,
+            #nibp sim-readout {
+                font-size: clamp(1rem, 5vh, 4rem) !important;
+            }
+        }
+
+        @media only screen and (max-width: 850px) {
+            #resources {
+                --tray-height: 90vh;
+                --tray-height: 98dvh;
+
+                grid-template-rows: auto 1fr calc(min(20cqh, 10rem));
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "head"
+                    "marquee"
+                    "scroll";
+
+                #resource-list {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 1rem;
+                    overflow: scroll;
+                    max-width: 100%;
+                    height: 100%;
+                    max-height: 100%;
+                    padding: 0 0 1rem 0;
+                    margin: 0;
+                }
+
+                #resource-marquee {
+                    padding: 0 0 1rem 0;
+                    margin: 0;
+
+                    border-left: none;
+                    border-bottom: var(--dotted-border);
+                }
+
+                .tile {
                     width: auto;
                     height: 100%;
-                    min-height: 0;
-                    /* this stops the images from getting huge */
-                    min-width: 0;
-                    /* this stops the images from getting huge */
                     aspect-ratio: 1/1;
-                    margin: 0 auto;
-                }
-            }
-        }
-    }
-</style>
-<div id="sim-monitor">
-    <div>
-        <sim-trace height="200" id="ecg" sim-parameter="ecg-rhythm" morphology="sinus" rate="67"
-            stroke-colour="rgb(76, 209, 55)" data-sim-enabled-by="ecg"></sim-trace>
-    </div>
-    <div>
-        <p class="readout-label">HR (/min)</p>
-        <sim-readout prefix="" suffix="" sim-parameter="heart-rate" class="green" sim-value="67"
-            sim-transitionable="true" baseline-wobble="true" wobble="3" data-sim-enabled-by="ecg" sim-limit-low="50"
-            sim-limit-high="100"></sim-readout>
-    </div>
-    <div>
-        <sim-trace height="200" id="spo2" sim-parameter="spo2-trace" mode="copycat" pacemaker="ecg" morphology="spo2"
-            stroke-colour="rgb(0, 168, 255)" baseline-wobble="true" data-sim-enabled-by="spo2"></sim-trace>
-    </div>
-    <div>
-        <p class="readout-label">SpO<sub>2</sub> (%)</p>
-        <sim-readout prefix="" suffix="" sim-parameter="spo2" class="blue" sim-value="99" sim-transitionable="true"
-            wobble="2" data-sim-enabled-by="spo2" sim-limit-low="93" sim-limit-high="200"></sim-readout>
-    </div>
-    <div>
-        <sim-trace height="200" mode="copycat" pacemaker="ecg" morphology="artline" sim-parameter="artline-trace"
-            stroke-colour="rgb(232, 65, 24)" baseline-wobble="true" data-sim-enabled-by="art"></sim-trace>
-    </div>
-    <div id="bp-readout">
-        <p class="readout-label">ART (mmHg)</p>
-        <div class="flex wrap">
-            <sim-readout prefix="" suffix=" / " sim-parameter="systolic-blood-pressure" class="red" sim-value="119"
-                sim-transitionable="true" data-sim-enabled-by="art"></sim-readout>
-            <sim-readout prefix="" suffix="" sim-parameter="diastolic-blood-pressure" class="red" sim-value="57"
-                sim-transitionable="true" data-sim-enabled-by="art"></sim-readout>
-        </div>
-        <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure" class="red" sim-value="78"
-            sim-transitionable="true" data-sim-enabled-by="art" sim-limit-low="60" sim-limit-high="120"></sim-readout>
-    </div>
-    <div>
-        <sim-trace height="200" id="capno" sim-parameter="capno-trace" morphology="capno-normal" rate="18"
-            stroke-colour="rgb(251, 197, 49)" fill-colour="rgb(251, 197, 49)" fill-opacity="0.15" x-rate="60"
-            y-scale="1" data-sim-enabled-by="capno"></sim-trace>
-    </div>
-    <div id="etco2">
-        <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
-        <sim-readout prefix="" suffix="" sim-parameter="etco2" class="yellow" sim-value="36" sim-transitionable="true"
-            wobble="2" data-sim-enabled-by="capno" sim-limit-low="34" sim-limit-high="46"></sim-readout>
-    </div>
-    <audio id="nibp-audio" src="{{ url_for('static', filename='audio/nibp.mp3') }}" preload="auto"></audio>
-    <div id="nibp">
-        <p class="readout-label">NIBP (mmHg) <span id="nibp-timer-widget"></span></p>
-        <!-- slow-updating -->
-        <div class="flex wrap">
-            <sim-readout prefix="" suffix="" data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
-                class="purple" sim-value="104" data-sim-enabled-by="nibp"></sim-readout>
-            <sim-readout prefix=" / " suffix="" data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
-                class="purple" sim-value="66" data-sim-enabled-by="nibp"></sim-readout>
-            <sim-readout prefix="(" suffix=")" data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
-                class="purple" sim-value="78" data-sim-enabled-by="nibp" sim-limit-low="60"
-                sim-limit-high="120"></sim-readout>
-        </div>
-        <!-- live-updating -->
-        <sim-readout prefix="" suffix="" sim-parameter="systolic-blood-pressure-noninvasive" class="purple"
-            sim-value="104" data-sim-enabled-by="nibp" hidden></sim-readout>
-        <sim-readout prefix=" / " suffix="" sim-parameter="diastolic-blood-pressure-noninvasive" class="purple"
-            sim-value="66" data-sim-enabled-by="nibp" hidden></sim-readout>
-        <sim-readout prefix="(" suffix=")" sim-parameter="mean-arterial-pressure-noninvasive" class="purple"
-            sim-value="78" data-sim-enabled-by="nibp" hidden></sim-readout>
-    </div>
-    <div id="rr">
-        <p class="readout-label">RR (/min)</p>
-        <sim-readout prefix="" suffix="" display-name="Respiratory Rate" sim-parameter="respiratory-rate" class="white"
-            sim-value="18" sim-transitionable="true" wobble="1" data-sim-enabled-by="capno" sim-limit-low="8"
-            sim-limit-high="20"></sim-readout>
-    </div>
-</div>
-{% with mode = "monitor" %}
-{% include "components/connection_modal.html" %}
-{% endwith %}
-<dialog class="tray" id="resources">
-    <div id="resource-header">
-        <span>Resources</span>
-        <form method="dialog"><button type="submit" class="button small red">Close</button></form>
-    </div>
-    <div id="resource-list">
-    </div>
-    <div id="resource-marquee">
-        <p>Resources sent from the Sim Controller will appear here.</p>
-    </div>
-</dialog>
 
-{% include 'components/abg_machine.html' %}
-
-<script type="module">
-    {% if data.demo != true %}
-    // SOCKET SETUP
-    const socket = io({
-        auth: {
-            sim_room_id: '{{ data.sim_room_id }}',
-        }
-    })
-
-    socket.on('sim-update', (msg) => {
-        let message = JSON.parse(msg)
-        let updates = message['updates']
-        let enablers = message["enablers"]
-        console.log(updates, enablers)
-
-        // special case for cardiac arrest
-        let mode = updates.find(u => u['sim-parameter'] == 'sim-mode')['sim-value']
-        document.body.setAttribute('sim-mode', mode)
-
-        if (mode == 'arrested') {
-            // disable all parameters by default and selectively re-enable
-            let allElements = document.querySelectorAll('[sim-parameter]')
-            for (let el of allElements) {
-                el.setAttribute('sim-disabled', 'true')
-            }
-
-            // set user-defined arrest rhythms (or CPR)
-            let ecgTrace = document.querySelector('[sim-parameter="ecg-rhythm"]')
-            let cprActive = updates.find(u => u['sim-parameter'] == 'sim-cpr')['sim-value']
-
-            let arrestedMorphology
-            if (cprActive == 'on') {
-                arrestedMorphology = 'cpr'
-            } else {
-                arrestedMorphology = updates.find(u => u['sim-parameter'] == 'arrest-rhythm')['sim-value']
-            }
-            ecgTrace.setAttribute('morphology', arrestedMorphology)
-
-            // set heart rate according to morphology
-            if (['sinus', 'flatline'].includes(arrestedMorphology)) {
-                ecgTrace.setAttribute('rate', 60)
-            } else if (arrestedMorphology == 'cpr') {
-                ecgTrace.setAttribute('rate', 100)
-            } else {
-                ecgTrace.setAttribute('rate', 250)
-            }
-
-            // set user-defined etco2
-            let capnoTrace = document.querySelector('[sim-parameter="capno-trace"]')
-            let etco2Update = updates.find(u => u['sim-parameter'] == 'arrest-etco2')
-
-            let y_scale = (etco2Update['sim-value'] / 36)
-            y_scale = Math.max(0.15, Math.min(1, y_scale))
-
-            capnoTrace.setAttribute('y-scale', y_scale)
-            capnoTrace.setAttribute('sim-value', 'capno-normal')
-
-            let etco2Readout = document.querySelector('[sim-parameter="etco2"]')
-            etco2Readout.setAttribute('sim-value', etco2Update['sim-value'])
-            if (etco2Update['sim-disabled'] == false) {
-                etco2Readout.removeAttribute('sim-disabled')
-            }
-
-            // user user-defined capno
-            let capno = updates.find(u => u['sim-parameter'] == 'arrest-capno')['sim-value']
-            capnoTrace.setAttribute('sim-value', capno)
-            capnoTrace.removeAttribute('sim-disabled')
-
-            // set wobbly spo2 (simulates under-reading a poor trace during arrest)
-            let spo2Readout = document.querySelector('[sim-parameter="spo2"]')
-            spo2Readout.setAttribute('sim-value', 64)
-            spo2Readout.removeAttribute('sim-disabled')
-            spo2Readout.setAttribute('wobble', 15)
-
-            // set arrest-style morphologies for remaining traces
-            document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('sim-value', 'flatline')
-            document.querySelector('[sim-parameter="artline-trace"]').setAttribute('sim-value', 'flatline')
-
-            // prevent further updates by returning early
-            return
-        } else {
-            // unset wobble on spo2
-            let spo2Readout = document.querySelector('[sim-parameter="spo2"]')
-            spo2Readout.setAttribute('wobble', 2)
-        }
-
-        // update each [sim-parameter]
-        for (let u of updates) {
-            const targetElements = document.querySelectorAll(`[sim-parameter="${u['sim-parameter']}"]`)
-
-            for (let el of targetElements) {
-                // start transition
-                // non-transitioning elements will automatically get a transition time of zero
-                new TransitionManager(el, u['sim-value'])
-            }
-
-            // transition time
-            if (u['sim-parameter'] == 'transition-time') {
-                document.body.setAttribute('sim-transition-time', u['sim-value'])
-            }
-        }
-
-        // enable or disable elements
-        for (let e in enablers) {
-            let listeningElements = document.querySelectorAll(`[data-sim-enabled-by="${e}"]`)
-            for (let le of listeningElements) {
-                le.setAttribute("sim-disabled", !enablers[e])
-            }
-
-            // special case: HR defined by spo2 trace
-            let hr = document.querySelector([`[sim-parameter="heart-rate"]`])
-            if (enablers["ecg"] == false && enablers["spo2"] == true) {
-                hr.setAttribute("sim-disabled", false)
-            }
-
-        }
-
-        // start all transitions
-        // do this after state has been loaded in, so they all start/finish at the same time
-        const transitionableElements = document.querySelectorAll('[sim-transitionable]')
-        for (let el of transitionableElements) {
-            el.activeTransition.start()
-        }
-    })
-
-    {% endif %}
-
-    // CUSTOM ELEMENTS
-    customElements.define('sim-readout', class extends HTMLElement {
-        prefix
-        suffix
-        limitHigh
-        limitLow
-        wobble_timer
-
-        constructor() {
-            super()
-            this.prefix = this.getAttribute('prefix')
-            this.suffix = this.getAttribute('suffix')
-            this.wobble_factor = parseInt(this.getAttribute('wobble')) || 0
-            this.limitHigh = parseInt(this.getAttribute('sim-limit-high')) || null
-            this.limitLow = parseInt(this.getAttribute('sim-limit-low')) || null
-            this.limitExceded = false
-            this.innerHTML = `
-        <span class="readout-value">${this.prefix}--${this.suffix}</span>
-        `
-            this.wobble()
-        }
-
-        updateReadout(printedValue = null) {
-            if (printedValue == null) {
-                printedValue = this.getAttribute('sim-value')
-            }
-
-            if (this.getAttribute('sim-disabled')?.toLowerCase() == 'true') {
-                printedValue = '--'
-            }
-
-            this.querySelector('span.readout-value').innerText = this.prefix + printedValue + this.suffix
-
-            this.checkSafety(printedValue)
-        }
-
-        checkSafety(proposedValue) {
-            if (!this.limitHigh || !this.limitLow) return
-            let proposedInt = parseInt(proposedValue)
-            if (proposedInt > this.limitHigh || proposedInt < this.limitLow) {
-                this.setAttribute("sim-alarm", "on")
-                this.limitExceded = true
-            } else {
-                this.setAttribute("sim-alarm", "off")
-                this.limitExceded = false
-            }
-        }
-
-        wobble() {
-            if (this.wobble_factor == 0) return
-
-            clearTimeout(this.wobble_timer)
-
-            let trueValue = this.getAttribute('sim-value')
-            let randomValue = parseInt(trueValue) + Math.floor(Math.random() * this.wobble_factor * 2 - this.wobble_factor)
-
-            // dirty, ugly hack
-            if (this.getAttribute('sim-parameter') == 'spo2') {
-                randomValue = Math.min(100, randomValue)
-            }
-
-            this.updateReadout(randomValue)
-
-            // update more frequently when out of range
-            let randomInterval
-            if (this.limitExceded == true) {
-                randomInterval = 2000 + Math.random() * 2000
-            } else {
-                randomInterval = 8000 + Math.random() * 8000
-            }
-
-
-            this.wobble_timer = setTimeout(() => {
-                this.wobble()
-            }, randomInterval)
-        }
-
-        attributeChangedCallback(name, oldValue, newValue) {
-            if (name == 'wobble') {
-                this.wobble_factor = parseInt(newValue)
-            } else {
-                this.updateReadout()
-            }
-        }
-
-        static get observedAttributes() {
-            return ['sim-value', 'sim-disabled', 'wobble']
-        }
-    })
-
-    class TransitionManager {
-        targetElement
-        targetValue
-        initialValue
-        currentValue
-        timeout
-        incrementSize
-        incrementDuration = 3000
-        running = true
-        nonTransitionable = false
-
-        constructor(targetElement, targetValue, targetParameter = 'sim-value') {
-            this.targetElement = targetElement
-            this.targetValue = parseInt(targetValue)
-            this.initialValue = parseInt(this.targetElement.getAttribute('sim-value'))
-            this.currentValue = this.initialValue
-
-            // immediately commit changes for non-transitionable elements
-            // early return to prevent any further horseplay
-            if (this.targetElement.hasAttribute('sim-transitionable') != true) {
-                // needs to skip parseInt() because wave morphologies are strings
-                setValue(this.targetElement, targetValue)
-                this.nonTransitionable = true
-                return
-            }
-
-            // stop the currently-running transition
-            if (this.targetElement.activeTransition instanceof TransitionManager) {
-                this.targetElement.activeTransition.running = false
-            }
-
-            // substitute this transition
-            this.targetElement.activeTransition = this
-        }
-
-        start() {
-            if (this.nonTransitionable) return
-
-            // set duration
-            let duration = document.body.getAttribute('sim-transition-time') || 0
-
-            // duration is an integer number of seconds
-            if (duration > 0) {
-                this.incrementSize = (this.targetValue - this.initialValue) / ((duration * 1000) / this.incrementDuration)
-            } else {
-                this.incrementSize = this.targetValue - this.initialValue
-            }
-
-            // begin
-            this.increment()
-        }
-
-        increment() {
-            // only increment if running == true (gets set to false as an interrupt/end of transition signal)
-
-            // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
-            let totalChange = Math.abs(this.currentValue - this.initialValue)
-            let plannedChange = Math.abs(this.targetValue - this.initialValue)
-            if (totalChange >= plannedChange) {
-                this.currentValue = this.targetValue
-                this.running = false
-            } else {
-                this.currentValue += this.incrementSize
-            }
-
-            // commit changes to the DOM
-            // parseInt() to get rid of decimals
-            setValue(this.targetElement, parseInt(this.currentValue))
-
-            // AWFUL HACK: special case for etCO2
-            if (this.targetElement.getAttribute('sim-parameter') == 'etco2') {
-                let y_scale = (this.currentValue / 36)
-                y_scale = Math.max(0.15, Math.min(1, y_scale))
-                document.querySelector('#capno').setAttribute('y-scale', y_scale)
-            }
-
-            // AWFUL HACK: special case for RR
-            if (this.targetElement.getAttribute('sim-parameter') == 'respiratory-rate') {
-                document.querySelector('#capno').setAttribute('rate', this.currentValue)
-            }
-
-            // AWFUL HACK: special case for HR
-            if (this.targetElement.getAttribute('sim-parameter') == 'heart-rate') {
-                document.querySelector('#ecg').setAttribute('rate', this.currentValue)
-            }
-
-            // AWFUL HACK: a special case for spo2
-            if (this.targetElement.getAttribute('sim-parameter') == 'spo2') {
-                // console.log('hack! spo2 is being transitioned')
-                // console.log(this.initialValue, this.targetValue, this.currentValue)
-                heartBeepFrequency = 150 + 8 * parseInt(this.currentValue)
-            }
-
-            // AWFUL HACK: special case for map
-            if (this.targetElement.getAttribute('sim-parameter') == 'mean-arterial-pressure') {
-                let y_scale = ((this.currentValue - 15) / 65)
-                y_scale = Math.max(0.05, Math.min(1, y_scale))
-                document.querySelector('[sim-parameter="artline-trace"]').setAttribute('y-scale', y_scale)
-                document.querySelector('[sim-parameter="spo2-trace"]').setAttribute('y-scale', y_scale * 0.8 + 0.2)
-            }
-
-            if (this.running == true) {
-                // set a timeout for next increment
-                // will be a no-op if this.running was set to false above
-                this.timeout = setTimeout(() => {
-                    this.increment()
-                }, this.incrementDuration) // period is set in this.incrementDuration above
-            }
-        }
-
-        cancel() {
-            this.timeout = null
-        }
-    }
-
-    function setValue(target, value) {
-        if (target.hasAttribute("sim-value")) {
-            target.setAttribute("sim-value", value)
-        } else if (target.matches(`input[type="checkbox"]`)) {
-            target.checked = value == "true" ? true : false
-        } else if (target.matches(`p, span`)) {
-            target.innerText = value
-        } else {
-            target.value = value
-        }
-    }
-
-    //     ____
-    //    / __ )___  ___  ____  _____
-    //   / __  / _ \/ _ \/ __ \/ ___/
-    //  / /_/ /  __/  __/ /_/ (__  )
-    // /_____/\___/\___/ .___/____/
-    //                /_/
-
-    let audioContext = new window.AudioContext()
-
-    // ---- master bus (headroom + limiter) ----
-    const masterGain = audioContext.createGain();
-    masterGain.gain.value = 0.2; // headroom: start ~0.25–0.5 and adjust
-
-    const limiter = audioContext.createDynamicsCompressor();
-    // "Limiter-ish" settings
-    limiter.threshold.value = -10; // dB
-    limiter.knee.value = 0;
-    limiter.ratio.value = 20;
-    limiter.attack.value = 0.003;  // seconds
-    limiter.release.value = 0.08;  // seconds
-
-    masterGain.connect(limiter);
-    limiter.connect(audioContext.destination);
-
-    let soundIcon = document.querySelector("#sound-icon")
-    let heartBeepFrequency = 942
-    let beeperDuration = 150
-
-    function audioIsRunning() {
-        let audioContextEnabled = audioContext.state === "running"
-        let soundSwitchEnabled = document.getElementById("sound-switch")?.checked == true
-
-        if (audioContextEnabled && soundSwitchEnabled) {
-            return true
-        }
-
-        return false
-    }
-
-    function playHeartBeep() {
-        if (audioIsRunning() == false) return
-
-        // Create the first OscillatorNode
-        let oscillatorNode = audioContext.createOscillator()
-        oscillatorNode.type = 'triangle'
-        oscillatorNode.frequency.value = heartBeepFrequency
-
-        // Set gain to fade out
-        let gainNode = new GainNode(audioContext)
-
-        // Connect both OscillatorNodes to the AudioContext destination (output)
-        oscillatorNode.connect(gainNode).connect(masterGain);
-
-        // Start gained oscillator
-        oscillatorNode.start()
-
-        // Stop oscillator after the specified duration
-        let stopTime = audioContext.currentTime + (beeperDuration / 1000)
-        oscillatorNode.stop(stopTime)
-        gainNode.gain.setValueAtTime(1, stopTime - (beeperDuration / 1000) * 0.01)
-        gainNode.gain.linearRampToValueAtTime(0, stopTime)
-
-        return true
-    }
-
-    document.querySelector('#ecg').addEventListener('beep', (e) => {
-        playHeartBeep()
-    })
-
-    function playAlarmBong() {
-        if (audioIsRunning() == false) return
-
-        const now = audioContext.currentTime;
-
-        const osc1 = audioContext.createOscillator(); // fundamental
-        osc1.type = "sine";
-        osc1.frequency.value = 440;
-
-        const osc2 = audioContext.createOscillator(); // octave
-        osc2.type = "sine";
-        osc2.frequency.value = 1320;
-
-
-        const gain = audioContext.createGain();
-        gain.gain.value = 0;
-
-        // Relative levels (kept clinical, not musical)
-        const g1 = audioContext.createGain(); g1.gain.value = 0.5;
-        const g2 = audioContext.createGain(); g2.gain.value = 0.2;
-        const g3 = audioContext.createGain(); g3.gain.value = 0;
-
-        osc1.connect(g1);
-        osc2.connect(g2);
-
-        g1.connect(gain);
-        g2.connect(gain);
-        g3.connect(gain);
-
-        gain.connect(masterGain);
-
-        // Envelope
-        const attack = 0.05;
-        const duration = 1.5;
-
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(1.0, now + attack);
-        gain.gain.linearRampToValueAtTime(0, now + duration);
-
-        osc1.start(now);
-        osc2.start(now);
-
-        osc1.stop(now + duration + 10);
-        osc2.stop(now + duration + 10);
-    }
-
-    function autoRunAlarmBong() {
-        let animating
-        try {
-            animating = document.querySelector("#ecg").getAnimations({ subtree: true }).at(-1).playState == "running"
-        } catch {
-            animating = false
-        }
-        if (document.querySelector(`[sim-alarm="on"]`) && animating) {
-            playAlarmBong()
-        }
-        document.body.setAttribute("sim-alarm-bright", true)
-        setTimeout(() => {
-            document.body.setAttribute("sim-alarm-bright", false)
-        }, 1500)
-        setTimeout(() => {
-            autoRunAlarmBong()
-        }, 3000);
-    }
-    autoRunAlarmBong()
-
-
-    //  _       __
-    // | |     / /___ __   _____  _____
-    // | | /| / / __ `/ | / / _ \/ ___/
-    // | |/ |/ / /_/ /| |/ /  __(__  )
-    // |__/|__/\__,_/ |___/\___/____/
-
-    import { } from '/static/js/wavemaker2.js'
-
-    // pacemakers need to be started manually
-    window.addEventListener('load', (e) => {
-        setTimeout(() => {
-            document.querySelector('#ecg').beat(0, true)
-            document.querySelector('#capno').beat(0, true)
-        }, 300)
-    })
-
-    //     ____                     __  _             __  _                    
-    //    /  _/___ _   _____  _____/ /_(_)___ _____ _/ /_(_)___  ____  _____   
-    //    / // __ \ | / / _ \/ ___/ __/ / __ `/ __ `/ __/ / __ \/ __ \/ ___/   
-    //  _/ // / / / |/ /  __(__  ) /_/ / /_/ / /_/ / /_/ / /_/ / / / (__  )    
-    // /___/_/ /_/|___/\___/____/\__/_/\__, /\__,_/\__/_/\____/_/ /_/____/     
-    //                                /____/                                   
-
-    function transitionIfAble(func) {
-        if (document.startViewTransition) {
-            document.startViewTransition(() => {
-                func()
-            })
-        } else {
-            func()
-        }
-    }
-
-    customElements.define('sim-post', class extends HTMLElement {
-        constructor() {
-            super()
-            this.contentTarget = document.querySelector(this.getAttribute('sim-post-target'))
-            this.content = this.querySelector('[sim-post-content]')
-            this.addEventListener('click', (e) => {
-                transitionIfAble(() => {
-                    this.contentTarget.innerHTML = this.content.cloneNode(true).outerHTML
-                    // special case for ABG, sigh
-                    let abg = this.contentTarget.querySelector('sim-abg')
-                    if (abg) {
-                        abg.digestData(this.content.abg_proxy)
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    grid-template-rows: 1fr auto;
+
+                    figure {
+                        display: block;
+                        width: auto;
+                        height: 100%;
+                        min-height: 0;
+                        /* this stops the images from getting huge */
+                        min-width: 0;
+                        /* this stops the images from getting huge */
+                        aspect-ratio: 1/1;
+                        margin: 0 auto;
                     }
-                })
-            })
-        }
-    })
-
-    let postListElement = document.querySelector('#resource-list')
-    let postContentElement = document.querySelector('#resource-marquee')
-
-    let cxrCount = 0
-    let abgCount = 0
-
-    socket.on('sim-post', (msg) => {
-        let data = JSON.parse(msg)
-
-        if (data.type == "CXR") {
-            cxrCount += 1
-
-            let html = `
-        <sim-post sim-post-target="#resource-marquee">
-            <label class="tile">
-                <figure sim-post-content>
-                    <img class="thumbnail" src="${data.url}">
-                    <figcaption>Case courtesy of ${data.contributor_name}, <a href="https://radiopaedia.org/">Radiopaedia.org</a>, rID: <a href="https://radiopaedia.org/cases/${data.rid}">${data.rid}</a></figcaption>
-                </figure>
-                <span class="label">${data.type} #${cxrCount}</span>
-                <input type="radio" name="sim-post" style="display: none;">
-            </label>
-        </sim-post>
-        `
-            postListElement.insertAdjacentHTML("afterbegin", html)
-
-        }
-
-        if (data.type == "ABG") {
-            abgCount += 1
-
-            let html = `
-        <sim-post sim-post-target="#resource-marquee">
-            <label class="tile">
-                <span class="thumbnail">💉</span>
-                <sim-abg sim-post-content readonly="true"></sim-abg>
-                <span class="label">${data.type} #${abgCount}</span>
-                <input type="radio" name="sim-post" style="display: none;">
-            </label>
-        </sim-post>
-        `
-
-            postListElement.insertAdjacentHTML("afterbegin", html)
-
-            let newAbg = postListElement.querySelector('sim-abg')
-
-            newAbg.digestData(data.abg_data)
-        }
-
-        postListElement.querySelector('input')?.click()
-        document.querySelector('#resources').showModal()
-    })
-
-
-    //     _   __________  ____ 
-    //    / | / /  _/ __ )/ __ \
-    //   /  |/ // // __  / /_/ /
-    //  / /|  // // /_/ / ____/ 
-    // /_/ |_/___/_____/_/      
-
-    let nibpContainer = document.querySelector("#nibp")
-    let nibpDelayedOutputs = nibpContainer.querySelectorAll("[data-sim-delayed-datasource]")
-
-    function immediatelyUpdateNibpReadout() {
-        for (let d of nibpDelayedOutputs) {
-            let dataSource = nibpContainer.querySelector(`[sim-parameter="${d.dataset.simDelayedDatasource}"]`)
-            let dataValue = dataSource.getAttribute("sim-value")
-            d.removeAttribute("hidden")
-            d.setAttribute("sim-value", dataValue)
-        }
-    }
-
-    let activeAnimationFrameId = null
-    function nibpAnimation(
-        el,
-        onEnd = null,
-        peak = 223,
-        tUp = 16000,
-        tHold = 1000,
-        tDown = 13000,
-        tStep = 900,
-    ) {
-        // cancel existing animations
-        if (activeAnimationFrameId != null) {
-            cancelAnimationFrame(activeAnimationFrameId);
-            activeAnimationFrameId = null
-        }
-
-        // pre-calculate key times
-        // t0 = start
-        // t1 = start of pressure peak
-        // t2 = end of pressure peak
-        // t3 = end of cycle
-        let t0 = performance.now();
-        let t1 = tUp;
-        let t2 = tUp + tHold;
-        let t3 = tUp + tHold + tDown;
-
-        // set lastUpdateTime to -infinity so first frame() call renders something out
-        let lastUpdateTime = -Infinity;
-
-        // make sure it's visible
-        el.removeAttribute("hidden")
-
-        // start Sound
-        if (audioIsRunning() == true) {
-            startNibpSound()
-        }
-
-        function frame(now) {
-            // clock math
-            let elapsedTime = now - t0;
-
-            // only render every few seconds (set by tStep)
-            if (now - lastUpdateTime >= tStep) {
-                lastUpdateTime = now;
-
-                let value;
-                if (elapsedTime <= t1) {
-                    value = peak * (elapsedTime / tUp);
-                } else if (elapsedTime <= t2) {
-                    value = peak;
-                } else if (elapsedTime <= t3) {
-                    value = peak * (1 - 0.8 * (elapsedTime - t2) / tDown);
-                } else {
-                    value = 0;
-                }
-
-                value = Math.max(0, Math.round(value));
-                el.setAttribute("sim-value", value);
-            }
-
-            if (elapsedTime < t3) {
-                activeAnimationFrameId = requestAnimationFrame(frame);
-            } else {
-                activeAnimationFrameId = null;
-                if (typeof onEnd === "function") {
-                    onEnd();
                 }
             }
         }
+    </style>
 
-        // init
-        activeAnimationFrameId = requestAnimationFrame(frame);
-    }
+    {% with enablers = data.last_known_state.enablers or {}, updates = data.last_known_state.updates or {} %}
+        <div id="sim-monitor">
+            <div>
+                <sim-trace
+                    height="200"
+                    id="ecg"
+                    sim-parameter="ecg-rhythm"
+                    sim-value="{{ updates['ecg-rhythm'] | default('sinus') }}"
+                    rate="{{ updates['heart-rate'] | default('67') }}"
+                    stroke-colour="rgb(76, 209, 55)"
+                    {{ enabled(enablers, "ecg", True) }}
+                ></sim-trace>
+            </div>
+            <div>
+                <p class="readout-label">HR (/min)</p>
+                <sim-readout
+                    prefix=""
+                    suffix=""
+                    sim-parameter="heart-rate"
+                    class="green"
+                    sim-value="{{ updates['heart-rate'] | default('67') }}"
+                    sim-transitionable="true"
+                    wobble-min="0"
+                    wobble="3"
+                    sim-limit-low="50"
+                    sim-limit-high="100"
+                    {{ enabled(enablers, "ecg", True) }}
+                ></sim-readout>
+            </div>
+            <div>
+                <sim-trace
+                    height="200"
+                    id="spo2"
+                    sim-parameter="spo2-trace"
+                    mode="copycat"
+                    pacemaker="ecg"
+                    sim-value="{{ updates['spo2-trace'] | default('spo2') }}"
+                    stroke-colour="rgb(0, 168, 255)"
+                    {{ enabled(enablers, "spo2", True) }}
+                ></sim-trace>
+            </div>
+            <div>
+                <p class="readout-label">SpO<sub>2</sub> (%)</p>
+                <sim-readout
+                    prefix=""
+                    suffix=""
+                    sim-parameter="spo2"
+                    class="blue"
+                    sim-value="{{ updates['spo2'] | default('99') }}"
+                    sim-transitionable="true"
+                    wobble="2"
+                    wobble-max="100"
+                    wobble-min="0"
+                    sim-limit-low="93"
+                    sim-limit-high="200"
+                    {{ enabled(enablers, "spo2", True) }}
+                ></sim-readout>
+            </div>
+            <div>
+                <sim-trace
+                    height="200"
+                    mode="copycat"
+                    pacemaker="ecg"
+                    sim-parameter="artline-trace"
+                    sim-value="{{ updates['artline-trace'] | default('artline') }}"
+                    stroke-colour="rgb(232, 65, 24)"
+                    {{ enabled(enablers, "art", False) }}
+                ></sim-trace>
+            </div>
+            <div id="bp-readout">
+                <p class="readout-label">ART (mmHg)</p>
+                <div class="flex wrap">
+                    <sim-readout
+                        prefix=""
+                        suffix=" / "
+                        class="red"
+                        sim-parameter="systolic-blood-pressure"
+                        sim-value="{{ updates['systolic-blood-pressure'] | default('119') }}"
+                        sim-transitionable="true"
+                        {{ enabled(enablers, "art", False) }}
+                    ></sim-readout>
+                    <sim-readout
+                        prefix=""
+                        suffix=""
+                        class="red"
+                        sim-parameter="diastolic-blood-pressure"
+                        sim-value="{{ updates['diastolic-blood-pressure'] | default('57') }}"
+                        sim-transitionable="true"
+                        {{ enabled(enablers, "art", False) }}
+                    ></sim-readout>
+                </div>
+                <sim-readout
+                    prefix="("
+                    suffix=")"
+                    sim-parameter="mean-arterial-pressure"
+                    class="red"
+                    sim-value="{{ updates['mean-arterial-pressure'] | default('78') }}"
+                    sim-transitionable="true"
+                    sim-limit-low="60"
+                    sim-limit-high="120"
+                    {{ enabled(enablers, "art", False) }}
+                ></sim-readout>
+            </div>
+            <div>
+                <sim-trace
+                    height="200"
+                    id="capno"
+                    sim-parameter="capno-trace"
+                    sim-value="{{ updates['capno-trace'] | default('capno-normal') }}"
+                    rate="{{ updates['respiratory-rate'] | default('18') }}"
+                    stroke-colour="rgb(251, 197, 49)"
+                    fill-colour="rgb(251, 197, 49)"
+                    fill-opacity="0.15"
+                    x-rate="60"
+                    y-scale="1"
+                    {{ enabled(enablers, "capno", False) }}
+                ></sim-trace>
+            </div>
+            <div id="etco2">
+                <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
+                <sim-readout
+                    prefix=""
+                    suffix=""
+                    sim-parameter="etco2"
+                    sim-value="{{ updates['etco2'] | default('36') }}"
+                    class="yellow"
+                    sim-transitionable="true"
+                    wobble="2"
+                    wobble-min="0"
+                    sim-limit-low="34"
+                    sim-limit-high="46"
+                    {{ enabled(enablers, "capno", False) }}
+                ></sim-readout>
+            </div>
+            <audio
+                id="nibp-audio"
+                src="{{ url_for('static', filename='audio/nibp.mp3') }}"
+                preload="auto"
+            ></audio>
+            <div id="nibp">
+                <p class="readout-label">
+                    NIBP (mmHg)
+                    <span id="nibp-timer-widget" sim-disabled="true"
+                        >Auto 02:00</span
+                    >
+                </p>
+                <!-- slow-updating -->
+                <div class="flex wrap">
+                    <sim-readout
+                        prefix=""
+                        suffix=""
+                        data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
+                        class="purple"
+                        sim-value="{{ updates['systolic-blood-pressure-noninvasive'] | default('104') }}"
+                        {{ enabled(enablers, "nibp", True) }}
+                    ></sim-readout>
+                    <sim-readout
+                        prefix=" / "
+                        suffix=""
+                        data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
+                        class="purple"
+                        sim-value="{{ updates['diastolic-blood-pressure-noninvasive'] | default('66') }}"
+                        {{ enabled(enablers, "nibp", True) }}
+                    ></sim-readout>
+                    <sim-readout
+                        prefix="("
+                        suffix=")"
+                        data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
+                        class="purple"
+                        sim-value="{{ updates['mean-arterial-pressure-noninvasive'] | default('78') }}"
+                        sim-limit-low="60"
+                        sim-limit-high="120"
+                        {{ enabled(enablers, "nibp", True) }}
+                    ></sim-readout>
+                </div>
+                <!-- live-updating -->
+                <sim-readout
+                    prefix=""
+                    suffix=""
+                    sim-parameter="systolic-blood-pressure-noninvasive"
+                    class="purple"
+                    sim-value="{{ updates['systolic-blood-pressure-noninvasive'] | default('104') }}"
+                    {{ enabled(enablers, "nibp", True) }}
+                    hidden
+                ></sim-readout>
+                <sim-readout
+                    prefix=" / "
+                    suffix=""
+                    sim-parameter="diastolic-blood-pressure-noninvasive"
+                    class="purple"
+                    sim-value="{{ updates['diastolic-blood-pressure-noninvasive'] | default('66') }}"
+                    {{ enabled(enablers, "nibp", True) }}
+                    hidden
+                ></sim-readout>
+                <sim-readout
+                    prefix="("
+                    suffix=")"
+                    sim-parameter="mean-arterial-pressure-noninvasive"
+                    class="purple"
+                    sim-value="{{ updates['mean-arterial-pressure-noninvasive'] | default('78') }}"
+                    {{ enabled(enablers, "nibp", True) }}
+                    hidden
+                ></sim-readout>
+            </div>
+            <div id="rr">
+                <p class="readout-label">RR (/min)</p>
+                <sim-readout
+                    prefix=""
+                    suffix=""
+                    display-name="Respiratory Rate"
+                    sim-parameter="respiratory-rate"
+                    sim-value="{{ updates['respiratory-rate'] | default('18') }}"
+                    class="white"
+                    sim-transitionable="true"
+                    wobble="1"
+                    wobble-min="0"
+                    {{ enabled(enablers, "capno", False) }}
+                    sim-limit-low="8"
+                    sim-limit-high="20"
+                ></sim-readout>
+            </div>
+        </div>
+    {% endwith %}
+    {% include "components/connection_modal.html" %}
 
-    function animatedUpdateNibpReadout(max) {
-        // get peak value
-        let targetSbp = document.querySelector(`[sim-parameter="systolic-blood-pressure-noninvasive"]`).getAttribute("sim-value")
-        let peakPressure = (targetSbp * 1.25).toFixed(0)
+    <dialog class="tray" id="resources">
+        <div id="resource-header">
+            <span>Resources</span>
+            <form method="dialog">
+                <button type="submit" class="button small red">Close</button>
+            </form>
+        </div>
+        <div id="resource-list"></div>
+        <div id="resource-marquee">
+            <p>Resources sent from the Sim Controller will appear here.</p>
+        </div>
+    </dialog>
 
-        // wipe off old values
-        for (let d of nibpDelayedOutputs) {
-            d.setAttribute("hidden", true)
-        }
-
-        // animate BP
-        nibpAnimation(nibpDelayedOutputs[0], immediatelyUpdateNibpReadout, peakPressure)
-    }
-
-    let nibpAudio = document.getElementById("nibp-audio");
-
-    // enable autoplaying audio on first user interaction
-    document.addEventListener("click", (e) => {
-        if (!e.target.matches("[sim-nibp-trigger-manual], [sim-nibp-trigger-manual] *")) {
-            nibpAudio.play().then(() => nibpAudio.pause());
-            document.getElementById("sound-switch").checked = true
-        }
-    }, { once: true })
-
-    // nibp button hookup
-    document.addEventListener("click", (e) => {
-        if (e.target.matches("[sim-nibp-trigger-manual], [sim-nibp-trigger-manual] *")) {
-            animatedUpdateNibpReadout()
-            if (nibpAutoToggle.checked) {
-                resetNibpTimerWidget()
-            }
-        } else {
-            nibpAudio.play().then(() => nibpAudio.pause());
-        }
-    })
-
-    function startNibpSound() {
-        if (audioIsRunning() == false) return
-        nibpAudio.currentTime = 0;   // restart from beginning
-        nibpAudio.play();
-    }
-
-    socket.on("sim-run-nibp", (e) => {
-        animatedUpdateNibpReadout()
-        if (nibpAutoToggle.checked) {
-            resetNibpTimerWidget()
-        }
-    })
-
-
-    let nibpAutoToggle = document.querySelector(`input[sim-parameter="nibp-cycling"]`)
-    nibpAutoToggle.addEventListener("input", (e) => {
-        let autoCyclingEnabled = nibpAutoToggle.checked
-        let message = {
-            'sim_room_id': '{{ data.sim_room_id }}',
-            'nibp_auto_cycling': autoCyclingEnabled,
-        }
-        socket.emit("sim-nibp-state-update", JSON.stringify(message))
-        if (autoCyclingEnabled) {
-            startNibpTimerWidget()
-        } else {
-            stopNibpTimerWidget()
-        }
-
-    })
-    socket.on("sim-nibp-state-update", (msg) => {
-        let message = JSON.parse(msg)
-        let autoCyclingEnabled = message["nibp_auto_cycling"] == "true"
-        nibpAutoToggle.checked = autoCyclingEnabled
-        if (autoCyclingEnabled) {
-            startNibpTimerWidget()
-            animatedUpdateNibpReadout()
-        } else {
-            stopNibpTimerWidget()
-        }
-    })
-
-    let nibpTimerWidget = document.getElementById("nibp-timer-widget")
-    let nibpTimerWidgetTimeout = null
-    let nibpTimerIntervalMs = 1000 * 60 * 2
-    function startNibpTimerWidget() {
-        if (nibpTimerWidgetTimeout !== null) {
-            clearTimeout(nibpTimerWidgetTimeout)
-            nibpTimerWidgetTimeout = null
-        }
-        nibpTimerWidget.dataset.nextTrigger = Date.now() + nibpTimerIntervalMs
-        updateNibpTimerWidget()
-    }
-    function stopNibpTimerWidget() {
-        if (nibpTimerWidgetTimeout !== null) {
-            clearTimeout(nibpTimerWidgetTimeout)
-            nibpTimerWidgetTimeout = null
-        }
-        nibpTimerWidget.removeAttribute("data-next-trigger")
-        nibpTimerWidget.innerText = ""
-    }
-    function resetNibpTimerWidget() {
-        if (!nibpTimerWidget.hasAttribute("data-next-trigger")) return
-        nibpTimerWidget.dataset.nextTrigger = Date.now() + nibpTimerIntervalMs
-    }
-    function updateNibpTimerWidget() {
-        if (!nibpTimerWidget.hasAttribute("data-next-trigger")) {
-            nibpTimerWidgetTimeout = null
-            return
-        }
-        let now = Date.now()
-        let nextTriggerTimeMs = Number(nibpTimerWidget.dataset.nextTrigger)
-        if (!Number.isFinite(nextTriggerTimeMs)) {
-            nextTriggerTimeMs = now + nibpTimerIntervalMs
-            nibpTimerWidget.dataset.nextTrigger = nextTriggerTimeMs
-        }
-
-        if (now >= nextTriggerTimeMs) {
-            // run nibp
-            animatedUpdateNibpReadout()
-
-            // reset trigger
-            nextTriggerTimeMs = now + nibpTimerIntervalMs
-            nibpTimerWidget.dataset.nextTrigger = nextTriggerTimeMs
-        }
-
-        // render width
-        let secondsRemaining = Math.max(0, Math.round((nextTriggerTimeMs - now) / 1000))
-        let minutes = Math.floor(secondsRemaining / 60)
-        let seconds = secondsRemaining % 60
-        nibpTimerWidget.innerText = `Auto ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
-
-        // loop
-        nibpTimerWidgetTimeout = setTimeout(updateNibpTimerWidget, 500)
-    }
-    if (nibpAutoToggle.checked) {
-        startNibpTimerWidget()
-    }
-
-</script>
-
-
+    {% include 'components/abg_machine.html' %}
+    {%
+        assets filters="esbuild",
+        output="gen/monitor.js", depends="**/*.js", "js/monitor.js"
+    %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}

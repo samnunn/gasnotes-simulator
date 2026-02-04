@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../tertiary.js", "../secondary.js", "../primary.js"],
-  "sourcesContent": ["export function tertiaryExport() {\n    console.log(\"hello, world!\")\n}", "import { tertiaryExport } from \"./tertiary.js\";\nexport function testExport() {\n    console.log(\"hello, world!\")\n}\n\ntertiaryExport()", "import { testExport } from \"./secondary.js\";\nimport { tertiaryExport } from \"./tertiary.js\";\n\ntestExport()\ntertiaryExport()"],
-  "mappings": "MAAO,SAASA,GAAiB,CAC7B,QAAQ,IAAI,eAAe,CAC/B,CCDO,SAASC,GAAa,CACzB,QAAQ,IAAI,eAAe,CAC/B,CAEAC,EAAe,ECFfC,EAAW,EACXC,EAAe",
-  "names": ["tertiaryExport", "testExport", "tertiaryExport", "testExport", "tertiaryExport"]
-}

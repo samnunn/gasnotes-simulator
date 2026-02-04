@@ -1,14 +1,15 @@
 import json
-import logging
 import os
 import random
 import re
-import time
 
 import segno
 from flask import Flask, abort, redirect, render_template, request, url_for
-from flask_assets import Bundle, Environment
+from flask_assets import Environment
 from flask_socketio import SocketIO, emit, join_room
+from lib import custom_jinja_tools
+from lib.custom_webassets_filters import ESBuildFilter
+from webassets.filter import register_filter
 from werkzeug.exceptions import HTTPException
 
 #    _____      __
@@ -18,14 +19,24 @@ from werkzeug.exceptions import HTTPException
 # /____/\___/\__/\__,_/ .___/
 #                    /_/
 
+# constants
+SIM_ROOM_STORE = "sim_rooms"
+DEBUG = os.environ.get("DEBUG", "0") == "1"
+
+# app init
 app = Flask(__name__)
-socketio = SocketIO(app)
-assets = Environment(app)
+app.debug = DEBUG
 app.secret_key = os.environ.get("SIM_SECRETKEY")
 
-SIM_ROOM_STORE = "sim_rooms"
-DEUBG = os.environ.get("DEBUG", "0") == "1"
+# sockets
+socketio = SocketIO(app)
 
+# assets
+assets = Environment(app)
+if DEBUG:
+    assets.cache = False
+    assets.manifest = False
+register_filter(ESBuildFilter)
 
 #     __  __     __                   __  ___     __  __              __
 #    / / / /__  / /___  ___  _____   /  |/  /__  / /_/ /_  ____  ____/ /____
@@ -100,6 +111,7 @@ def index():
     data = {}
     data["demo"] = True
     data["title"] = "Gas Notes – Simulation Monitor"
+    data["last_known_state"] = {}
     data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
     data["controller_html"] = render_template(
         "sim_views/sim_controller.html", data=data
@@ -165,6 +177,14 @@ def sim_monitor(sim_room_id):
     data["sim_room_id"] = sim_room_id
     data["title"] = f"Monitor ({sim_room_id.upper()})"
 
+    # get existing data (if available)
+    data["last_known_state"] = {}
+    try:
+        existing_data = get_sim_room_data(sim_room_id)
+        data["last_known_state"] = existing_data
+    except Exception:
+        app.logger.error(f"Unable to pull last-known state for sim room {sim_room_id}")
+
     return render_template("sim_views/sim_monitor.html", data=data)
 
 
@@ -181,14 +201,25 @@ def sim_controller(sim_room_id):
     data["sim_room_id"] = sim_room_id
     data["title"] = f"Controller ({sim_room_id.upper()})"
 
-    return render_template("sim_views/sim_controller.html", data=data)
+    # get existing data (if available)
+    data["last_known_state"] = {}
+    try:
+        existing_data = get_sim_room_data(sim_room_id)
+        data["last_known_state"] = existing_data
+    except Exception:
+        app.logger.error(f"Unable to pull last-known state for sim room {sim_room_id}")
+
+    return render_template(
+        "sim_views/sim_controller.html",
+        data=data,
+    )
 
 
 @app.route("/simlayout")
 def demo_simlayout():
     data = {}
     data["sim_room_id"] = "42069"
-    data["title"] = f"Simlayout Demo"
+    data["title"] = "Simlayout Demo"
 
     return render_template("layouts/sim_layout.html", data=data)
 
@@ -225,13 +256,6 @@ def handle_error(error):
 def handle_connect(auth):
     sim_room_id = auth["sim_room_id"]
     join_room(sim_room_id)
-    try:
-        existing_data = get_sim_room_data(sim_room_id)
-        emit("sim-update", json.dumps(existing_data), to=sim_room_id)
-    except Exception as e:
-        app.logger.error(
-            f"Failed to gather/send existing data for sim room {sim_room_id}: {e}"
-        )
 
     app.logger.info(
         f"🚨 SocketIO fired the 'connect' event. Client was added to room {sim_room_id}"
@@ -297,3 +321,12 @@ def handle_sim_nibp_state_update(data):
         app.logger.info(
             "🚨 SocketIO received a `sim-nibp-state-update` for a non-exitent sim room. Passing."
         )
+
+
+@app.context_processor
+def jinja_tools_context_processor():
+    return dict(
+        enabled=custom_jinja_tools.enabled,
+        checked=custom_jinja_tools.checked,
+        value_autoselect=custom_jinja_tools.value_autoselect,
+    )

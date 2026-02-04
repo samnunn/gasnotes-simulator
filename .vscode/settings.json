@@ -1,5 +1,6 @@
 {
-  "files.associations": {
-    "*.html": "jinja-html"
-  },
+    "files.associations": {
+        "*.html": "jinja-html"
+    },
+    "python.analysis.autoImportCompletions": false
 }

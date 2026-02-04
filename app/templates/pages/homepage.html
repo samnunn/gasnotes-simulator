@@ -1,278 +1,312 @@
 {% extends "layouts/sim_layout.html" %}
 
-{% block sim_toolbar_top %}
-{% include "components/header.html" %}
-{% endblock %}
+{% block sim_toolbar_top %}{%
+    include
+    "components/header.html"
+%}{% endblock %}
 
 {% block sim_mainarea %}
-<style>
-    :root {
-        scroll-behavior: smooth;
-        --spacing-xl: calc(5vh + 5vw);
-        --spacing-l: calc(2.5vh + 2.5vw);
-        --spacing-m: calc(1vh + 1vw);
-        --spacing-s: calc(0.5vh + 0.5vw);
-    }
-
-    #top-of-page {
-        width: 80vw;
-        max-width: 700px;
-        max-width: min(calc(500px + 30vh) 100%);
-        margin-top: var(--spacing-l);
-        margin-bottom: var(--spacing-l);
-        /* margin: calc(1vw/1rem) auto; */
-    }
-
-    #mega-new {
-        --button-scale: 1.5;
-        height: calc(var(--button-height) * var(--button-scale));
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: var(--spacing-l) 0;
-
-        & a {
-            scale: var(--button-scale);
+    <style>
+        :root {
+            scroll-behavior: smooth;
+            --spacing-xl: calc(5vh + 5vw);
+            --spacing-l: calc(2.5vh + 2.5vw);
+            --spacing-m: calc(1vh + 1vw);
+            --spacing-s: calc(0.5vh + 0.5vw);
         }
-    }
 
-    main {
-        /* Prevents the ::before on #preview from creating a horizontal scrollbar */
-        overflow-x: hidden;
-    }
+        #top-of-page {
+            width: 80vw;
+            max-width: 700px;
+            max-width: min(calc(500px + 30vh) 100%);
+            margin-top: var(--spacing-l);
+            margin-bottom: var(--spacing-l);
+            /* margin: calc(1vw/1rem) auto; */
+        }
 
-    #preview {
-        --scale: 5;
-        position: relative;
-        margin: var(--spacing-l) auto;
-        padding: 0.5rem 0 6rem 0;
-        max-width: 1000px;
-        width: 80vw;
-        --glow-color: rgb(226, 50, 141);
-    }
+        #mega-new {
+            --button-scale: 1.5;
+            height: calc(var(--button-height) * var(--button-scale));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: var(--spacing-l) 0;
 
-    #preview:hover {
+            & a {
+                scale: var(--button-scale);
+            }
+        }
+
+        main {
+            /* Prevents the ::before on #preview from creating a horizontal scrollbar */
+            overflow-x: hidden;
+        }
+
+        #preview {
+            --scale: 5;
+            position: relative;
+            margin: var(--spacing-l) auto;
+            padding: 0.5rem 0 6rem 0;
+            max-width: 1000px;
+            width: 80vw;
+            --glow-color: rgb(226, 50, 141);
+        }
+
+        #preview:hover {
+            #tiny-monitor {
+                transform: rotate(-1.75deg) scale(1.025);
+            }
+
+            #tiny-phone {
+                transform: rotate(5deg) scale(1.025);
+            }
+        }
+
+        #preview::before {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(
+                ellipse at 50% 50%,
+                rgba(2, 0, 36, 1) 0%,
+                var(--glow-color) 16%,
+                transparent 60%
+            );
+            transform: scale(1.6);
+            transform-origin: 50% 60%;
+            display: block;
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -4%;
+            /* animation: pulsing 5.5s infinite; */
+            opacity: 0.2;
+            transition: all 200ms ease-in-out;
+            /* Prevents stealing pointer events from adjacent <input> */
+            pointer-events: none;
+        }
+
+        #preview:hover::before {
+            opacity: 0.4;
+        }
+
         #tiny-monitor {
-            transform: rotate(-1.75deg) scale(1.025);
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 1fr;
+            background-color: #222;
+            padding: 0 0.4rem 0.4rem 0.4rem;
+            border-radius: 0.9rem;
+            /* min-height: 700px; */
+            border: 2px solid #444;
+            width: 90%;
+            aspect-ratio: 4/3;
+
+            position: relative;
+            transform: rotate(-1.5deg);
+
+            & #tiny-monitor-browser-chrome {
+                --size: min(12px, 2vw);
+
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: calc(0.75 * var(--size));
+                margin: var(--size);
+                margin-left: calc(0.5 * var(--size));
+
+                & .window-chrome-circle {
+                    width: var(--size);
+                    height: var(--size);
+                    background-color: rgb(255 95 87);
+                    border-radius: 50%;
+                }
+
+                & .window-chrome-circle:nth-child(2) {
+                    background-color: rgb(255 188 45);
+                }
+
+                & .window-chrome-circle:nth-child(3) {
+                    background-color: rgb(40 200 65);
+                }
+            }
+
+            transition: all 200ms ease;
+            transform-origin: 75% 75%;
+        }
+
+        #monitor-box {
+            width: calc(100% * var(--scale));
+            height: calc(100% * var(--scale));
+            transform: scale(calc(100% * (1 / var(--scale))));
+            transform-origin: top left;
+            border-radius: 1rem;
+            pointer-events: none;
+            touch-action: none;
+            overflow: hidden;
         }
 
         #tiny-phone {
-            transform: rotate(5deg) scale(1.025);
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            background-color: #222;
+            border: 2px solid #444;
+            padding: 1% 0.75%;
+            border-radius: min(2vw, 0.9rem);
+            width: 25%;
+            max-width: 200px;
+            aspect-ratio: 9/18;
+            pointer-events: none;
+            touch-action: none;
+            overflow: hidden;
+
+            position: absolute;
+            top: 45%;
+            right: -10px;
+            transform: rotate(4deg);
+            transition: all 200ms ease;
+            transform-origin: 40% 90%;
         }
 
-    }
+        #phone-box {
+            --phonescale: calc(var(--scale) * 0.8);
+            width: calc(100% * (var(--phonescale) + 1));
+            height: calc(100% * (var(--phonescale) + 1));
+            transform: scale(calc(100% * (1 / (var(--phonescale) + 1))));
+            transform-origin: top left;
+            border-radius: 1rem;
+            pointer-events: none;
+            touch-action: none;
+            overflow: hidden;
+        }
 
-    #preview::before {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: radial-gradient(ellipse at 50% 50%, rgba(2, 0, 36, 1) 0%, var(--glow-color) 16%, transparent 60%);
-        transform: scale(1.6);
-        transform-origin: 50% 60%;
-        display: block;
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -4%;
-        /* animation: pulsing 5.5s infinite; */
-        opacity: 0.2;
-        transition: all 200ms ease-in-out;
-        /* Prevents stealing pointer events from adjacent <input> */
-        pointer-events: none;
-    }
-
-    #preview:hover::before {
-        opacity: 0.4;
-    }
-
-    #tiny-monitor {
-        display: grid;
-        grid-template-rows: auto 1fr;
-        grid-template-columns: 1fr;
-        background-color: #222;
-        padding: 0 0.4rem 0.4rem 0.4rem;
-        border-radius: 0.9rem;
-        /* min-height: 700px; */
-        border: 2px solid #444;
-        width: 90%;
-        aspect-ratio: 4/3;
-
-        position: relative;
-        transform: rotate(-1.5deg);
-
-        & #tiny-monitor-browser-chrome {
-            --size: min(12px, 2vw);
-
-            display: flex;
-            flex-direction: row;
+        #source {
+            display: grid;
+            grid-template-columns: 10% 1fr;
+            gap: 2rem;
             align-items: center;
-            gap: calc(0.75 * var(--size));
-            margin: var(--size);
-            margin-left: calc(0.5 * var(--size));
+            margin: var(--spacing-l) auto;
+        }
 
-            & .window-chrome-circle {
-                width: var(--size);
-                height: var(--size);
-                background-color: rgb(255 95 87);
-                border-radius: 50%;
-            }
-
-            & .window-chrome-circle:nth-child(2) {
-                background-color: rgb(255 188 45);
-            }
-
-            & .window-chrome-circle:nth-child(3) {
-                background-color: rgb(40 200 65);
+        @media (min-width: 200px) {
+            #preview {
+                --scale: 5.1;
             }
         }
 
-        transition: all 200ms ease;
-        transform-origin: 75% 75%;
-    }
-
-    #monitor-box {
-        width: calc(100% * var(--scale));
-        height: calc(100% * var(--scale));
-        transform: scale(calc(100% * (1/var(--scale))));
-        transform-origin: top left;
-        border-radius: 1rem;
-        pointer-events: none;
-        touch-action: none;
-        overflow: hidden;
-    }
-
-    #tiny-phone {
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr;
-        background-color: #222;
-        border: 2px solid #444;
-        padding: 1% 0.75%;
-        border-radius: min(2vw, 0.9rem);
-        width: 25%;
-        max-width: 200px;
-        aspect-ratio: 9/18;
-        pointer-events: none;
-        touch-action: none;
-        overflow: hidden;
-
-        position: absolute;
-        top: 45%;
-        right: -10px;
-        transform: rotate(4deg);
-        transition: all 200ms ease;
-        transform-origin: 40% 90%;
-    }
-
-    #phone-box {
-        --phonescale: calc(var(--scale) * 0.8);
-        width: calc(100% * (var(--phonescale) + 1));
-        height: calc(100% * (var(--phonescale) + 1));
-        transform: scale(calc(100% * (1/(var(--phonescale) + 1))));
-        transform-origin: top left;
-        border-radius: 1rem;
-        pointer-events: none;
-        touch-action: none;
-        overflow: hidden;
-    }
-
-    #source {
-        display: grid;
-        grid-template-columns: 10% 1fr;
-        gap: 2rem;
-        align-items: center;
-        margin: var(--spacing-l) auto;
-    }
-
-    @media (min-width: 200px) {
-        #preview {
-            --scale: 5.1;
+        @media (min-width: 300px) {
+            #preview {
+                --scale: 4.7;
+            }
         }
-    }
 
-    @media (min-width: 300px) {
-        #preview {
-            --scale: 4.7;
+        @media (min-width: 400px) {
+            #preview {
+                --scale: 3.5;
+            }
         }
-    }
 
-    @media (min-width: 400px) {
-        #preview {
-            --scale: 3.5;
+        @media (min-width: 500px) {
+            #preview {
+                --scale: 2.8;
+            }
         }
-    }
 
-    @media (min-width: 500px) {
-        #preview {
-            --scale: 2.8;
+        @media (min-width: 600px) {
+            #preview {
+                --scale: 2.3;
+            }
         }
-    }
 
-    @media (min-width: 600px) {
-        #preview {
-            --scale: 2.3;
+        @media (min-width: 700px) {
+            #preview {
+                --scale: 2.1;
+            }
         }
-    }
 
-    @media (min-width: 700px) {
-        #preview {
-            --scale: 2.1;
+        @media (min-width: 800px) {
+            #preview {
+                --scale: 1.9;
+            }
         }
-    }
 
-    @media (min-width: 800px) {
-        #preview {
-            --scale: 1.9;
+        @media (min-width: 900px) {
+            #preview {
+                --scale: 1.8;
+            }
         }
-    }
 
-    @media (min-width: 900px) {
-        #preview {
-            --scale: 1.8;
+        @media (min-width: 1000px) {
+            #preview {
+                --scale: 1.5;
+            }
         }
-    }
+    </style>
 
-    @media (min-width: 1000px) {
-        #preview {
-            --scale: 1.5;
-        }
-    }
-</style>
+    <section class="wrapped" id="top-of-page">
+        <img
+            src="{{ url_for('static', filename='img/gasnotes_sim_banner.svg' ) }}"
+            id="mega-wobble"
+            alt="Gas Notes Simulation Monitor: a free tool for medical eduators."
+        />
+    </section>
 
-<section class="wrapped" id="top-of-page">
-    <img src="{{ url_for('static', filename='img/gasnotes_sim_banner.svg' ) }}" id="mega-wobble"
-        alt="Gas Notes Simulation Monitor: a free tool for medical eduators.">
-</section>
-
-<section class="wrapped warm-glow" id="preview">
-    <a href="{{ url_for('sim_new') }}">
-        <div id="tiny-monitor" class="">
-            <div id="tiny-monitor-browser-chrome">
-                <div class="window-chrome-circle"></div>
-                <div class="window-chrome-circle"></div>
-                <div class="window-chrome-circle"></div>
+    <section class="wrapped warm-glow" id="preview">
+        <a href="{{ url_for('sim_new') }}">
+            <div id="tiny-monitor" class="">
+                <div id="tiny-monitor-browser-chrome">
+                    <div class="window-chrome-circle"></div>
+                    <div class="window-chrome-circle"></div>
+                    <div class="window-chrome-circle"></div>
+                </div>
+                <iframe
+                    id="monitor-box"
+                    srcdoc="{{ data.monitor_html|e }}"
+                    frameborder="0"
+                    scrolling="no"
+                ></iframe>
             </div>
-            <iframe id="monitor-box" srcdoc="{{ data.monitor_html|e }}" frameborder="0" scrolling="no"></iframe>
-        </div>
-        <div id="tiny-phone">
-            <iframe id="phone-box" srcdoc="{{ data.controller_html|e }}" frameborder="0" scrolling="no"></iframe>
-        </div>
-    </a>
-</section>
-<section class="wrapped" style="text-align: center; text-wrap: balance;">
-    <p><strong>Simulation Monitor is a remote-controlled vitals monitor designed to help you deliver more immersive
-            healthcare simulations.</strong></p>
-</section>
-<div id="mega-new">
-    <a href="{{ url_for('sim_new') }}" class="button pink sim-start">Start a Sim</a>
-    <div class="clearfix"></div>
-</div>
-<section class="wrapped" id="source">
-    <a href="https://github.com/samnunn/gasnotes-simulator"><img
-            src="{{ url_for('static', filename='img/github-mark-white.svg') }}" alt="GitHub"></a>
-    <p>Simulation Monitor is proudly free and open-source software. You can check out all the code <a
-            href="https://github.com/samnunn/gasnotes-simulator">on GitHub</a> anytime.</p>
-</section>
-<!-- <script src="{{ url_for('static', filename='js/starfield.js') }}"></script> -->
+            <div id="tiny-phone">
+                <iframe
+                    id="phone-box"
+                    srcdoc="{{ data.controller_html|e }}"
+                    frameborder="0"
+                    scrolling="no"
+                ></iframe>
+            </div>
+        </a>
+    </section>
+    <section class="wrapped" style="text-align: center; text-wrap: balance">
+        <p>
+            <strong
+                >Simulation Monitor is a remote-controlled vitals monitor
+                designed to help you deliver more immersive healthcare
+                simulations.</strong
+            >
+        </p>
+    </section>
+    <div id="mega-new">
+        <a href="{{ url_for('sim_new') }}" class="button pink sim-start"
+            >Start a Sim</a
+        >
+        <div class="clearfix"></div>
+    </div>
+    <section class="wrapped" id="source">
+        <a href="https://github.com/samnunn/gasnotes-simulator"
+            ><img
+                src="{{ url_for('static', filename='img/github-mark-white.svg') }}"
+                alt="GitHub"
+        /></a>
+        <p>
+            Simulation Monitor is proudly free and open-source software. You can
+            check out all the code
+            <a href="https://github.com/samnunn/gasnotes-simulator"
+                >on GitHub</a
+            >
+            anytime.
+        </p>
+    </section>
+    <script src="{{ url_for('static', filename='js/starfield.js') }}"></script>
 {% endblock %}
