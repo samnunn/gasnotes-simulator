@@ -156,67 +156,54 @@
 
         /* MONITOR */
 
-        #sim-monitor {
-            flex-grow: 1;
-            /* takes up full height, since its container is a flex column with only one member */
-            display: grid;
-            grid-template-columns: 1fr clamp(15rem, 25vh, 18rem);
-            grid-template-rows: repeat(auto-fill, 1fr);
-            gap: 1rem;
-            padding: 1rem;
-            font-family:
-                Bahnschrift, "DIN Alternate", "Franklin Gothic Medium",
-                "Nimbus Sans Narrow", sans-serif-condensed, sans-serif;
+    #sim-monitor {
+        flex-grow: 1;
+        /* takes up full height, since its container is a flex column with only one member */
+        display: grid;
+        grid-template-columns: 1fr clamp(15rem, 25vh, 18rem);
+        grid-template-rows: repeat(auto-fill, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+        font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif;
 
-            & > * {
-                position: relative;
-                /* needed to position the sim-trace elements absolutely */
-            }
-
-            & div:has(> sim-trace) {
-                max-width: 100%;
-                container-type: size;
-            }
-
-            & sim-trace {
-                width: 100%;
-                height: calc(min(300px, 150cqh));
-
-                /* left: ??px is set dynamically in wavemaker2.js */
-                position: absolute;
-
-                /* transform: scaleY varies according to height (see below media queries) */
-                transform-origin: top;
-            }
-
-            & div:has(sim-trace[sim-disabled="true"])::after {
-                content: "[ Disabled ]";
-                position: absolute;
-                inset: 0; /* stretches to full height/width */
-                display: grid;
-                place-items: center;
-                font-size: 1.5rem;
-                pointer-events: none;
-            }
-
-            {# @media only screen and (min-height: 800px) {
-                sim-trace {
-                    transform: scaleY(1) !important;
-                }
-            }
-
-            @media only screen and (min-height: 1000px) {
-                sim-trace {
-                    transform: scaleY(1.25) !important;
-                }
-            }
-
-            @media only screen and (min-height: 1200px) {
-                sim-trace {
-                    transform: scaleY(1.5) !important;
-                }
-            } #}
+        &>* {
+            position: relative;
+            /* needed to position the sim-trace elements absolutely */
         }
+
+        & div:has(>sim-trace) {
+            max-width: 100%;
+        }
+
+        & sim-trace {
+            width: 100%;
+
+            /* left: ??px is set dynamically in wavemaker2.js */
+            position: absolute;
+
+            /* transform: scaleY varies according to height (see below media queries) */
+            transform-origin: top;
+            transform: scaleY(0.75);
+        }
+
+        @media only screen and (min-height: 800px) {
+            sim-trace {
+                transform: scaleY(1) !important;
+            }
+        }
+
+        @media only screen and (min-height: 1000px) {
+            sim-trace {
+                transform: scaleY(1.25) !important;
+            }
+        }
+
+        @media only screen and (min-height: 1200px) {
+            sim-trace {
+                transform: scaleY(1.5) !important;
+            }
+        }
+    }
 
         sim-readout {
             &:not([hidden]) {

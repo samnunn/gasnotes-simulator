@@ -54,7 +54,9 @@ customElements.define(
 
             // style the waveSet
             // this.waveSet.style.height = `${this.height}px`;
-            this.waveSet.innerHTML = `<style>
+        // style the waveSet
+        this.waveSet.style.height = `${this.height}px`
+        this.waveSet.innerHTML = `<style>
 sim-wave {
     display: block;
     width: 100%;
@@ -70,7 +72,6 @@ div.waveset {
     overflow: hidden;
     margin: 0;
     padding: 0;
-    height: 100%;
 }
 div.wave {
     box-sizing: content-box;
@@ -84,15 +85,12 @@ div.wave {
     margin: 0;
     padding: 0;
 }
-svg {
-    height: 100%;
-}
 path {
     box-sizing: content-box;
     margin: 0;
     padding: 0;
 }
-</style>`;
+</style>`
 
             // add waveSet to DOM
             this.appendChild(this.waveSet);
@@ -172,7 +170,17 @@ path {
         //      - Usual case: copies the SVG from the last line into the new one and moves it leftwards
         //      - Special case for a disconnection: creates a new flat line (equal to the overshoot length) instead of copying the last SVG
         //      - Does this because discontinuous lines make the dashes appear uneven
-        beat(mandatoryWidth = 0, repeating = false, animating = true) {
+        // forceNewline=true creates a newline after painting this complex,
+        // even when there is no x overshoot.
+        beat(
+            mandatoryWidth = 0,
+            repeating = false,
+            animating = true,
+            forceNewline = false,
+        ) {
+            let shouldForceNewline = forceNewline || this.pendingForcedNewline;
+            this.pendingForcedNewline = false;
+
             // save reference to this.frontWave as targetWave
             // avoids collision in newline handler: animate() needs to apply to the last complex of the newline-triggering wave, not the first complex of the newline
             let targetWave = this.frontWave;
@@ -277,7 +285,9 @@ path {
             }
 
             // newline handler
-            if (overshoot >= 0) {
+            if (overshoot >= 0 || shouldForceNewline) {
+                let effectiveOvershoot = Math.max(0, overshoot);
+
                 //     ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
                 //     │┌──────────────────────────────────────────────────────────────────────────────────────────────┐│
                 //     ││┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼│─ ─ ─ ─ ─ ─ ─
@@ -311,36 +321,39 @@ path {
                 //     └────────────────────────────────────────────────────────────────────────────────────────────────┘
 
                 // construct new wave
-                let newWave = this.constructWave(overshoot);
+                let newWave = this.constructWave(effectiveOvershoot);
 
-                // copy-pasta current SVG to new wave
-                let frontmostPath = targetWave.svg.querySelector("path");
-                let frontmostPathWidth =
-                    frontmostPath.getBoundingClientRect().width;
-                // let left = initialWidth + newComplex.width - targetWave.x_offset - overshoot - 0.5;
-                let left = 0.5 - frontmostPathWidth + overshoot; // 0.5px extra because webkit renders a little gap between for some reason
+                // regular newline: copy hidden overshoot into the next wave.
+                // forced newline: start a fresh wave with no carry-over.
+                if (effectiveOvershoot > 0) {
+                    let frontmostPath = targetWave.svg.querySelector("path");
+                    let frontmostPathWidth =
+                        frontmostPath.getBoundingClientRect().width;
+                    // let left = initialWidth + newComplex.width - targetWave.x_offset - overshoot - 0.5;
+                    let left = 0.5 - frontmostPathWidth + effectiveOvershoot; // 0.5px extra because webkit renders a little gap between for some reason
 
-                let outgoingSVG = targetWave.svg.cloneNode(true); // clone to avoid borking the original
-                outgoingSVG.style.position = "absolute";
-                outgoingSVG.style.left = `${left}px`;
+                    let outgoingSVG = targetWave.svg.cloneNode(true); // clone to avoid borking the original
+                    outgoingSVG.style.position = "absolute";
+                    outgoingSVG.style.left = `${left}px`;
 
-                // have the copy/pasta SVG scale from its right edge, and have the fresh one scale from the left
-                // this prevents the x junction of mis-aligning when the SVG is scaled in the Y dimension (e.g. on window resizing)
-                // preserveAspectRatio="xMinYMin slice" viewBox="0 0 10000 ${this.height}"
-                outgoingSVG.setAttribute("width", frontmostPathWidth);
-                // outgoingSVG.setAttribute(
-                //     "viewBox",
-                //     `0 0 ${frontmostPathWidth} ${this.height}`,
-                // );
-                // outgoingSVG.setAttribute(
-                //     "preserveAspectRatio",
-                //     "xMaxYMin slice",
-                // );
-                outgoingSVG.setAttribute("sim-copypasta", "true");
+                    // have the copy/pasta SVG scale from its right edge, and have the fresh one scale from the left
+                    // this prevents the x junction of mis-aligning when the SVG is scaled in the Y dimension (e.g. on window resizing)
+                    // preserveAspectRatio="xMinYMin slice" viewBox="0 0 10000 ${this.height}"
+                    outgoingSVG.setAttribute("width", frontmostPathWidth);
+                    // outgoingSVG.setAttribute(
+                    //     "viewBox",
+                    //     `0 0 ${frontmostPathWidth} ${this.height}`,
+                    // );
+                    // outgoingSVG.setAttribute(
+                    //     "preserveAspectRatio",
+                    //     "xMaxYMin slice",
+                    // );
+                    outgoingSVG.setAttribute("sim-copypasta", "true");
 
-                // shortening the leftward displacement by 0.5px prevents the little black gap between waves from appearing
-                outgoingSVG.style.top = "0px";
-                newWave.appendChild(outgoingSVG);
+                    // shortening the leftward displacement by 0.5px prevents the little black gap between waves from appearing
+                    outgoingSVG.style.top = "0px";
+                    newWave.appendChild(outgoingSVG);
+                }
 
                 // insert new wave
                 this.insertWave(newWave);
@@ -354,7 +367,7 @@ path {
                         easing: "linear",
                         fill: "forwards",
                         delay: this.pixelsToMilliseconds(
-                            newComplex.width - overshoot,
+                            newComplex.width - effectiveOvershoot,
                         ),
                     },
                 );
@@ -398,7 +411,7 @@ path {
             // set a timeout (if repeating)
             if (repeating == true) {
                 animation.onfinish = (a) => {
-                    this.beat(mandatoryWidth, repeating);
+                    this.beat(mandatoryWidth, repeating, animating);
                 };
             }
 
@@ -423,6 +436,12 @@ path {
             }, beepdelay);
         }
 
+        // Call from outside as: document.querySelector("#ecg").forceNewline()
+        // The next beat will start on a fresh line.
+        forceNewline() {
+            this.pendingForcedNewline = true;
+        }
+
         //    __  ____  _ ___ __           ______                 __  _
         //   / / / / /_(_) (_) /___  __   / ____/_  ______  _____/ /_(_)___  ____  _____
         //  / / / / __/ / / / __/ / / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -445,7 +464,7 @@ path {
             newWave.x_offset = x_offset;
             newWave.x_cursor = 0;
             newWave.classList.add("wave");
-            newWave.innerHTML = `<svg width="10000" preserveAspectRatio="xMinYMin slice" viewBox="0 0 10000 ${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.y_cursor} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`;
+            newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.y_cursor} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
             newWave.svg = newWave.querySelector("svg");
             return newWave;
         }

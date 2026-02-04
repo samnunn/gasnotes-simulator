@@ -73,3 +73,14 @@ window.addEventListener("load", (e) => {
         document.querySelector("#capno").beat(0, true);
     }, 300);
 });
+
+window.addEventListener("resize", () => {
+    let oldSvgs = document.querySelectorAll("sim-trace div.wave");
+    for (let o of oldSvgs) {
+        o.style.visibility = "hidden";
+    }
+    let waves = document.querySelectorAll("sim-trace");
+    for (let w of waves) {
+        w.forceNewline();
+    }
+});
