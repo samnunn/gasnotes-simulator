@@ -577,7 +577,7 @@
                     wobble="2"
                     wobble-max="100"
                     wobble-min="0"
-                    sim-limit-low="93"
+                    sim-limit-low="94"
                     sim-limit-high="200"
                     {{ enabled(enablers, "spo2", True) }}
                 ></sim-readout>
@@ -763,6 +763,8 @@
     </dialog>
 
     {% include 'components/abg_machine.html' %}
+    script
+
     {%
         assets filters="esbuild",
         output="gen/monitor.js", depends="**/*.js", "js/monitor.js"
