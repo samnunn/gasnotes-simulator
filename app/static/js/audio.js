@@ -18,8 +18,6 @@ export function createSimAudioContext() {
     commonGainNode.connect(limiter);
     limiter.connect(audioContext.destination);
 
-    document.heartBeepFrequency = 942;
-
     return {
         audioContext: audioContext,
         commonGainNode: commonGainNode,
@@ -52,7 +50,14 @@ function playHeartBeepOnce(simAudioControlObjects) {
     // Create the first OscillatorNode
     let oscillatorNode = context.createOscillator();
     oscillatorNode.type = "triangle";
-    oscillatorNode.frequency.value = document.heartBeepFrequency;
+
+    // decide frequency
+    let spo2Element = document.querySelector('[sim-parameter="spo2"]');
+    let spo2Value = parseInt(spo2Element.getAttribute("sim-value")) || 99;
+
+    let frequency = 150 + 8 * parseInt(spo2Value);
+
+    oscillatorNode.frequency.value = frequency;
 
     // Set gain to fade out
     let gainNode = new GainNode(context);

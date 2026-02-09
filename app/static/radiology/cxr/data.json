@@ -1,0 +1,44 @@
+[
+    {
+        "filename": "cxr_normal.png",
+        "name_ugly": "cxr_normal",
+        "name_pretty": "Normal",
+        "credit": "Dr Craig Hacking via Radiopedia (RID 36894)"
+    },
+    {
+        "filename": "cxr_ptx_right.jpg",
+        "name_ugly": "cxr_ptx_right",
+        "name_pretty": "Right PTX",
+        "credit": "Dr Ana Brusic via Radiopedia (RID 60551)"
+    },
+    {
+        "filename": "cxr_ptx_left.jpeg",
+        "name_ugly": "cxr_ptx_left",
+        "name_pretty": "Left PTX",
+        "credit": "Dr Ian Bickle via Radiopedia (RID 86926)"
+    },
+    {
+        "filename": "cxr_apo.jpg",
+        "name_ugly": "cxr_apo",
+        "name_pretty": "APO",
+        "credit": "Dr Frank Gaillard via Radiopedia (RID 25616)"
+    },
+    {
+        "filename": "cxr_cardiomegaly.jpg",
+        "name_ugly": "cxr_cardiomegaly",
+        "name_pretty": "Cardiomegaly",
+        "credit": "Dr Frank Gaillard via Radiopedia (RID 12334)"
+    },
+    {
+        "filename": "cxr_emphysema.jpg",
+        "name_ugly": "cxr_emphysema",
+        "name_pretty": "Emphysema",
+        "credit": "Dr Ian Bickle via Radiopedia (RID 50326)"
+    },
+    {
+        "filename": "cxr_pneumonia_rll.jpg",
+        "name_ugly": "cxr_pneumonia_rll",
+        "name_pretty": "RLL Pneumonia",
+        "credit": "Dr Henry Knipe via Radiopedia (RID 31352)"
+    }
+]

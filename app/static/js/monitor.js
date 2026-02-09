@@ -3,10 +3,9 @@ import "./custom_elements/sim-readout.js";
 import "./custom_elements/sim-post.js";
 
 // SOCKETS
-import { connectSocket, connectMonitorSockets } from "./sockets.js";
+import { getSocket } from "./sockets.js";
 
-let socket = connectSocket();
-// connectMonitorSockets(socket);
+let socket = getSocket();
 
 // NIBP
 import {
@@ -31,8 +30,8 @@ import { registerMonitorSyncReceiver } from "./sync.js";
 registerMonitorSyncReceiver(socket);
 
 // INVESTIGATIONS
-import { registerSimInvestigationPostHandler } from "./investigations.js";
-registerSimInvestigationPostHandler(socket);
+import { registerInvestigationReceiver } from "./investigations.js";
+registerInvestigationReceiver(socket);
 
 // BEEPS AND BOOPS
 import {

@@ -1,0 +1,20 @@
+[
+    {
+        "filename": "tte-normal-a4c.gif",
+        "name_ugly": "tte-normal-a4c",
+        "name_pretty": "A4C",
+        "credit": "Show Me The POCUS"
+    },
+    {
+        "filename": "tte-normal-psx.gif",
+        "name_ugly": "tte-normal-psx",
+        "name_pretty": "PSX",
+        "credit": "Show Me The POCUS"
+    },
+    {
+        "filename": "tte-normal-plx.gif",
+        "name_ugly": "tte-normal-plx",
+        "name_pretty": "PLX",
+        "credit": "Show Me The POCUS"
+    }
+]

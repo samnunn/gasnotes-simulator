@@ -1,43 +1,46 @@
 <!doctype html>
 <html>
-  <head>
-    <title>{{ data.title }}</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-    />
-    <meta
-      name="theme-color"
-      content="#000000"
-      media="(prefers-color-scheme: dark)"
-    />
-    <meta
-      name="theme-color"
-      content="#000000"
-      media="(prefers-color-scheme: light)"
-    />
-    <link rel="stylesheet" type="text/css" href="/static/main.css" />
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
-    <script src="{{ url_for('static', filename='js/socketio.min.js') }}"></script>
-    <meta name="color-scheme" content="light only" />
-  </head>
+    <head>
+        <title>{{ data.title }}</title>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        />
+        <meta
+            name="theme-color"
+            content="#000000"
+            media="(prefers-color-scheme: dark)"
+        />
+        <meta
+            name="theme-color"
+            content="#000000"
+            media="(prefers-color-scheme: light)"
+        />
+        <link rel="stylesheet" type="text/css" href="/static/main.css" />
+        <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+        <script src="{{ url_for('static', filename='js/socketio.min.js') }}"></script>
+        <meta name="color-scheme" content="light only" />
+    </head>
 
-  <body data-sim-room-id="{{ data.sim_room_id }}">
-    {% block content %} {% endblock %}
-    <script>
-      let allSimCodes = document.querySelectorAll("span.simcode");
-      for (let c of allSimCodes) {
-        c.style = `width: ${c.clientWidth}px;`;
-        if (c.hasAttribute("sim-nocopy") != true) {
-          c.addEventListener("click", (e) => {
-            navigator.clipboard.writeText(e.target.innerText);
-            e.target.classList.add("copied");
-            setTimeout(() => {
-              e.target.classList.remove("copied");
-            }, 2000);
-          });
-        }
-      }
-    </script>
-  </body>
+    <body
+        data-sim-room-id="{{ data.sim_room_id }}"
+        data-sim-demo-mode="{{ data.demo | default('false') | lower }}"
+    >
+        {% block content %}{% endblock %}
+        <script>
+            let allSimCodes = document.querySelectorAll("span.simcode");
+            for (let c of allSimCodes) {
+                c.style = `width: ${c.clientWidth}px;`;
+                if (c.hasAttribute("sim-nocopy") != true) {
+                    c.addEventListener("click", (e) => {
+                        navigator.clipboard.writeText(e.target.innerText);
+                        e.target.classList.add("copied");
+                        setTimeout(() => {
+                            e.target.classList.remove("copied");
+                        }, 2000);
+                    });
+                }
+            }
+        </script>
+    </body>
 </html>

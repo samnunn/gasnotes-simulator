@@ -99,10 +99,19 @@ export class TransitionManager {
         if (this.targetElement.getAttribute("sim-parameter") == "spo2") {
             // console.log('hack! spo2 is being transitioned')
             // console.log(this.initialValue, this.targetValue, this.currentValue)
-            document.heartBeepFrequency = 150 + 8 * parseInt(this.currentValue);
         }
 
-        // AWFUL HACK: special case for map
+        // AWFUL HACK: special case for map (NIBP-dervived)
+        if (
+            this.targetElement.getAttribute("sim-parameter") ==
+            "mean-arterial-pressure-noninvasive"
+        ) {
+            document
+                .querySelector('[sim-parameter="spo2-trace"]')
+                .setAttribute("y-scale", y_scale * 0.4 + 0.6);
+        }
+
+        // AWFUL HACK: special case for map (artline-derived)
         if (
             this.targetElement.getAttribute("sim-parameter") ==
             "mean-arterial-pressure"
@@ -114,7 +123,7 @@ export class TransitionManager {
                 .setAttribute("y-scale", y_scale);
             document
                 .querySelector('[sim-parameter="spo2-trace"]')
-                .setAttribute("y-scale", y_scale * 0.8 + 0.2);
+                .setAttribute("y-scale", y_scale * 0.4 + 0.6);
         }
 
         if (this.running == true) {
@@ -165,11 +174,17 @@ export function transitionIfAble(func) {
 }
 
 export function registerMonitorSyncReceiver(socket) {
-    function handleSimUpdate(msg) {
-        let message = JSON.parse(msg);
+    function handleSimUpdate(message) {
         let updates = message["updates"];
+        console.debug(
+            "Sync: got updated state from server, updates were: ",
+            updates,
+        );
         let enablers = message["enablers"];
-        console.log(updates, enablers);
+        console.debug(
+            "Sync: got updated state from server, enablers were: ",
+            enablers,
+        );
 
         // special case for cardiac arrest
         let mode = updates["sim-mode"];
@@ -293,7 +308,24 @@ export function registerMonitorSyncReceiver(socket) {
         }
     }
     socket.on("sim-update", (msg) => {
-        handleSimUpdate(msg);
+        let message = JSON.parse(msg);
+        handleSimUpdate(message);
+        document.querySelector("dialog#connect-modal")?.close();
+    });
+    // hack: re-apply existing state on pageload
+    // most parameters will be set on the server side
+    // but this will run through any arrest special-casing etc
+
+    window.addEventListener("load", (e) => {
+        try {
+            let state = JSON.parse(window.last_known_state);
+            handleSimUpdate(state);
+        } catch (e) {
+            console.error(
+                "Sync: couldn't parse/apply existing state from window.last_known_state (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
+                e,
+            );
+        }
     });
 }
 

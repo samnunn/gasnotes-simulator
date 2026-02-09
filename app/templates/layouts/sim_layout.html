@@ -1,67 +1,78 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-<style>
-    :root {
-        --sim-toolbar-top-height: 5rem;
-        --sim-toolbar-bottom-height: 5rem;
-    }
-
-    .sim-toolbar {
-        position: fixed;
-        width: 100%;
-        z-index: 999;
-        background-color: black;
-    }
-
-    #sim-toolbar-top {
-        top: 0;
-        height: var(--sim-toolbar-top-height);
-        border-bottom: 2px solid var(--dark-grey);
-
-        &:has(div.toolbar-hidden) {
-            transform: translateY(calc(-1 * var(--sim-toolbar-top-height)));
+    <style>
+        :root {
+            --sim-toolbar-top-height: 5rem;
+            --sim-toolbar-bottom-height: 5rem;
         }
 
-        view-transition-name: sim-toolbar-top;
-    }
-
-    #sim-toolbar-bottom {
-        bottom: 0;
-        height: var(--sim-toolbar-bottom-height);
-        /* border-top: 2px solid var(--dark-grey); */
-
-        &:has(div.toolbar-hidden) {
-            transform: translateY(var(--sim-toolbar-bottom-height));
+        .sim-toolbar {
+            position: fixed;
+            width: 100%;
+            z-index: 999;
+            background-color: black;
         }
 
-        view-transition-name: sim-toolbar-bottom;
-    }
+        #sim-toolbar-top {
+            top: 0;
+            height: var(--sim-toolbar-top-height);
+            border-bottom: 2px solid var(--dark-grey);
 
-    #sim-mainarea {
-        padding-top: var(--sim-toolbar-top-height);
-        padding-bottom: var(--sim-toolbar-bottom-height);
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+            &:has(div.toolbar-hidden) {
+                transform: translateY(calc(-1 * var(--sim-toolbar-top-height)));
+            }
 
-    #sim-toolbar-top:has(div.toolbar-hidden)+#sim-mainarea {
-        padding-top: 0;
-    }
+            view-transition-name: sim-toolbar-top;
+        }
 
-    #sim-mainarea:has(+ #sim-toolbar-bottom > div.toolbar-hidden) {
-        padding-bottom: 0;
-    }
-</style>
-<header id="sim-toolbar-top" class="sim-toolbar">
-    {% block sim_toolbar_top %}<div class="toolbar-hidden"></div>{% endblock %}
-</header>
-<main id="sim-mainarea">
-    {% block sim_mainarea %}{% endblock %}
-</main>
-<nav id="sim-toolbar-bottom" class="sim-toolbar">
-    {% block sim_toolbar_buttom %}<div class="toolbar-hidden"></div>{% endblock %}
-</nav>
+        #sim-toolbar-bottom {
+            bottom: 0;
+            height: var(--sim-toolbar-bottom-height);
+            /* border-top: 2px solid var(--dark-grey); */
+
+            &:has(div.toolbar-hidden) {
+                transform: translateY(var(--sim-toolbar-bottom-height));
+            }
+
+            view-transition-name: sim-toolbar-bottom;
+        }
+
+        #sim-mainarea {
+            padding-top: var(--sim-toolbar-top-height);
+            padding-bottom: var(--sim-toolbar-bottom-height);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #sim-toolbar-top:has(div.toolbar-hidden) + #sim-mainarea {
+            padding-top: 0;
+        }
+
+        #sim-mainarea:has(+ #sim-toolbar-bottom > div.toolbar-hidden) {
+            padding-bottom: 0;
+        }
+
+        body[data-sim-demo-mode="true"] {
+            --sim-toolbar-top-height: 2rem;
+            --sim-toolbar-bottom-height: 0;
+
+            .sim-toolbar {
+                display: none;
+            }
+        }
+    </style>
+    <header id="sim-toolbar-top" class="sim-toolbar">
+        {% block sim_toolbar_top %}
+            <div class="toolbar-hidden"></div>
+        {% endblock %}
+    </header>
+    <main id="sim-mainarea">{% block sim_mainarea %}{% endblock %}</main>
+    <nav id="sim-toolbar-bottom" class="sim-toolbar">
+        {% block sim_toolbar_buttom %}
+            <div class="toolbar-hidden"></div>
+        {% endblock %}
+    </nav>
 {% endblock %}

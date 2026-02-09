@@ -7,7 +7,7 @@ import segno
 from flask import Flask, abort, redirect, render_template, request, url_for
 from flask_assets import Environment
 from flask_socketio import SocketIO, emit, join_room
-from lib import custom_jinja_tools
+from lib import custom_jinja_tools, radiology_tools
 from lib.custom_webassets_filters import ESBuildFilter
 from webassets.filter import register_filter
 from werkzeug.exceptions import HTTPException
@@ -281,17 +281,18 @@ def handle_sim_update(data):
 
 
 # sendable investigations (e.g. CXR)
-@socketio.on("sim-post")
-def handle_sim_post(data):
+@socketio.on("sim-ix")
+def handle_sim_ix(data):
     json_data = json.loads(data)
     sim_room_id = json_data["sim_room_id"]
 
     # Only send an update if the sim room exists
     if sim_room_exists(sim_room_id):
-        emit("sim-post", data, to=sim_room_id)
+        emit("sim-ix", data, to=sim_room_id)
+        app.logger.info(f"Relayed sim-ix to room {sim_room_id}: {repr(json_data)}")
     else:
         app.logger.info(
-            "🚨 SocketIO received a `sim-post` for a non-exitent sim room. Passing."
+            "🚨 SocketIO received a `sim-ix` for a non-exitent sim room. Passing."
         )
 
 
@@ -329,4 +330,5 @@ def jinja_tools_context_processor():
         enabled=custom_jinja_tools.enabled,
         checked=custom_jinja_tools.checked,
         value_autoselect=custom_jinja_tools.value_autoselect,
+        radiology=radiology_tools.get_radiology_images,
     )

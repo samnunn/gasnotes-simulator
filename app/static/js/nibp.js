@@ -173,7 +173,7 @@ function renderNibpTimerWidget() {
 // REMOTE EMITTERS/RECEIVERS
 export function registerNibpAutoCycleStateReceiver(socket) {
     console.debug(
-        "Registered: NIBP auto-cycle receiver (listens over the wire, updates toggle)",
+        "NIBP: registered auto-cycle receiver (listens over the wire, updates toggle)",
     );
     let nibpSwitch = document.querySelector("[sim-nibp-cycle-switch]");
     socket.on("sim-nibp-state-update", (msg) => {
@@ -182,7 +182,7 @@ export function registerNibpAutoCycleStateReceiver(socket) {
 
         setValue(nibpSwitch, state);
         console.debug(
-            `Recevied: NIBP auto-cycle state (${state}) received from server and applied locally`,
+            `NIBP: auto-cycle state (${state}) received from server and applied locally`,
         );
 
         // TODO: fix this special case
@@ -194,7 +194,7 @@ export function registerNibpAutoCycleStateReceiver(socket) {
 
 export function registerNibpAutoCycleStateEmitter(socket) {
     console.debug(
-        "Registered: NIBP auto-cycle emitter (watches for toggles, sends over the wire)",
+        "NIBP: registered auto-cycle emitter (watches for toggles, sends over the wire)",
     );
     let nibpSwitch = document.querySelector("[sim-nibp-cycle-switch]");
     nibpSwitch.addEventListener("input", (e) => {
@@ -206,7 +206,7 @@ export function registerNibpAutoCycleStateEmitter(socket) {
         };
         socket.emit("sim-nibp-state-update", JSON.stringify(message));
         console.debug(
-            `Emitted: NIBP auto-cycle state set to ${state}, sending to server`,
+            `NIBP: auto-cycle state set to ${state}, emitting to server`,
         );
 
         // TODO: fix this special case
@@ -218,17 +218,17 @@ export function registerNibpAutoCycleStateEmitter(socket) {
 
 export function registerRemoteNibpCycleReceiver(socket) {
     console.debug(
-        "Registered: NIBP manual run receiver (listens for commands over the wire)",
+        "NIBP: registered manual run receiver (listens for commands over the wire)",
     );
     socket.on("sim-run-nibp", (e) => {
         updateNibpReadoutWithAnimation();
-        console.debug(`Received: NIBP manual run`);
+        console.debug(`NIBP: received manual run command`);
     });
 }
 
 export function registerRemoteNibpCycleEmitter(socket) {
     console.debug(
-        "Registered: NIBP manual run emitter (sends commands over the wire)",
+        "NIBP: registered manual run emitter (sends commands over the wire)",
     );
     let nibpButton = document.querySelector("[sim-nibp-cycle-button]");
     nibpButton.addEventListener("click", (e) => {
@@ -237,7 +237,7 @@ export function registerRemoteNibpCycleEmitter(socket) {
             sim_room_id: document.body.dataset.simRoomId,
         };
         socket.emit("sim-run-nibp", JSON.stringify(message));
-        console.debug(`Emitted: NIBP manual run`);
+        console.debug(`NIBP: emitted manual run command`);
     });
 }
 
@@ -265,7 +265,7 @@ export function attachMonitorNibpCycleSwitchHandler() {
         } else {
             nibpTimerWidget.setAttribute("sim-disabled", "true");
         }
-        console.debug(`NIBP switch changed to: ${state ? "on" : "off"}`);
+        console.debug(`NIBP: switch changed to "${state ? "on" : "off"}"`);
     });
 }
 

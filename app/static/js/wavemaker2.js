@@ -1069,6 +1069,10 @@ path {
                         0.9 * idealDuration,
                     );
                 }
+                // let maximumComplexDuration = targetDuration
+                // let minimumComplexDuration = 400
+                // let idealComplexDuration = 
+                // let pqrstComplexDuration = 0.6 * 60000 / this.rate;
 
                 let isoelectricLine = this.rate > 120 ? this.rate * 0.0006 : 0;
 
@@ -1126,7 +1130,19 @@ path {
                     ], // qt (isoelectric)
                 ];
 
-                // ADD FILLER OR SQUEEZE TO SIZE
+                // scale keyframes to target pqrst duration
+                let generatedPQRST = this.getDurationOfKeyframes(keyframes);
+                // idea = 0.00005 * (x - 270)^2 + 250
+                // let idealPQRST = 0.00005 * (targetDuration - 270)**2 + 250
+                // let idealPQRST = 250 + 350 / (1 + Math.pow(Math.E, 7 - 0.009 * targetDuration))
+                let idealPQRST = 270 + 360 / (1 + Math.pow(Math.E, 7 - 0.0122 * targetDuration))
+
+                for (let i = 0; i < keyframes.length; i++) {
+                    keyframes[i][0] = keyframes[i][0] * (idealPQRST/generatedPQRST); // x
+                    keyframes[i][2] = keyframes[i][2] * (idealPQRST/generatedPQRST); // x spline
+                }
+
+                // add isoelectric filler
                 let keyframeDuration = this.getDurationOfKeyframes(keyframes);
                 if (keyframeDuration < targetDuration) {
                     let shortFall = targetDuration - keyframeDuration;

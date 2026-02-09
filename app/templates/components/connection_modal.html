@@ -4,7 +4,6 @@
         height: min-content;
     }
 
-
     #enter-the-simulation {
         width: 75%;
         max-width: 400px;
@@ -22,10 +21,9 @@
             grid-template-columns: var(--gutter-size) 1fr;
             grid-template-areas:
                 "number header"
-                "body body"
-            ;
+                "body body";
 
-            &>h2 {
+            & > h2 {
                 display: flex;
                 align-items: center;
                 font-size: clamp(1.75rem, calc(0.7 * var(--gutter-size)), 3rem);
@@ -33,7 +31,7 @@
                 margin-left: calc(var(--gutter-size) * 0.5);
             }
 
-            &>div.number {
+            & > div.number {
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -43,11 +41,13 @@
                 color: black;
                 background-color: white;
                 border-radius: 50% 50%;
-                font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
+                font-family:
+                    Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro,
+                    sans-serif;
                 font-weight: 600;
             }
 
-            &>div:last-of-type {
+            & > div:last-of-type {
                 grid-area: body;
                 padding: 0;
                 margin-left: calc(var(--gutter-size) * 0.5);
@@ -58,7 +58,7 @@
             }
         }
 
-        & .sequence-step:last-of-type>div:last-of-type {
+        & .sequence-step:last-of-type > div:last-of-type {
             border-color: transparent;
         }
     }
@@ -72,7 +72,6 @@
             "url url";
         column-gap: 1rem;
         row-gap: 2rem;
-
 
         & #sequence-connect-right {
             display: flex;
@@ -111,7 +110,6 @@
         & .simcode {
             font-size: 2em;
         }
-
     }
 
     #sequence-mode-picker {
@@ -133,9 +131,12 @@
             padding-right: calc(0.5 * var(--gutter-size)) !important;
         }
 
-
         .sequence-step h2 {
-            font-size: clamp(1.5rem, calc(0.7 * var(--gutter-size)), 2rem) !important;
+            font-size: clamp(
+                1.5rem,
+                calc(0.7 * var(--gutter-size)),
+                2rem
+            ) !important;
         }
 
         #sequence-connect {
@@ -158,27 +159,34 @@
             text-align: center;
             gap: 0.5rem;
         }
-        
     }
-
 </style>
 
 <dialog class="tray" id="connect-modal" closedby="any">
-
-    <img id="enter-the-simulation" src="{{ url_for('static', filename='img/enter_the_sim.svg') }}" alt="Enter the simulation">
+    <img
+        id="enter-the-simulation"
+        src="{{ url_for('static', filename='img/enter_the_sim.svg') }}"
+        alt="Enter the simulation"
+    />
     <div id="sequence-box">
         <div class="sequence-step">
             <div class="number">1</div>
             <h2>Connect Controller</h2>
             <div id="sequence-connect">
-                <img class="sim-qrcode"
-                    src="{{ qrcode(url_for('sim_index', sim_room_id=data.sim_room_id, _external=True)) }}">
+                <img
+                    class="sim-qrcode"
+                    src="{{ qrcode(url_for('sim_controller', sim_room_id=data.sim_room_id, _external=True)) }}"
+                />
                 <div id="sequence-connect-right">
                     <h2>Scan QR</h2>
                     <span>or</span>
                     <h2>Use a SimCode</h2>
-                    <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{
-                        data.sim_room_id }}</span>
+                    <span
+                        class="simcode"
+                        aria-roledescription="button"
+                        title="Click to copy SimCode"
+                        >{{ data.sim_room_id }}</span
+                    >
                     <span><a href="/connect">sim.gasnotes.net/connect</a></span>
                 </div>
             </div>
@@ -187,20 +195,30 @@
             <div class="number">2</div>
             <h2>Run a Sim</h2>
             <div id="sequence-mode-picker">
-                
-                <button form="dialog-closer" type="submit" class="button red" autofocus>Open Simulation</button>
+                <button
+                    form="dialog-closer"
+                    type="submit"
+                    class="button red"
+                    autofocus
+                >
+                    Open Simulation
+                </button>
                 <span>or</span>
                 <!-- <a class="button red" href="{{ url_for('sim_monitor', sim_room_id=data.sim_room_id) }}">Open Monitor</a> -->
-                <a class="button dark"
-                href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}">Switch to Controller</a>
+                <a
+                    class="button dark"
+                    href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}"
+                    >Switch to Controller</a
+                >
             </div>
         </div>
         <form method="dialog" id="dialog-closer"></form>
     </div>
-
 </dialog>
 
 <script>
-    let connectionDialog = document.querySelector("dialog#connect-modal")
-    connectionDialog.showModal()
+    let connectionDialog = document.querySelector("dialog#connect-modal");
+    if (document.body.dataset.simDemoMode != "true") {
+        connectionDialog.showModal();
+    }
 </script>

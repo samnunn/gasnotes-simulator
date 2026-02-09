@@ -1,19 +1,23 @@
-import { transitionIfAble } from "../sync.js"
+import { transitionIfAble } from "../sync.js";
 
-customElements.define('sim-post', class extends HTMLElement {
-    constructor() {
-        super()
-        this.contentTarget = document.querySelector(this.getAttribute('sim-post-target'))
-        this.content = this.querySelector('[sim-post-content]')
-        this.addEventListener('click', (e) => {
-            transitionIfAble(() => {
-                this.contentTarget.innerHTML = this.content.cloneNode(true).outerHTML
+customElements.define(
+    "sim-post",
+    class extends HTMLElement {
+        constructor() {
+            super();
+            this.contentTarget = document.querySelector(
+                this.getAttribute("sim-post-target"),
+            );
+            this.content = this.querySelector("[sim-post-content]");
+            this.addEventListener("click", (e) => {
+                this.contentTarget.innerHTML =
+                    this.content.cloneNode(true).outerHTML;
                 // special case for ABG, sigh
-                let abg = this.contentTarget.querySelector('sim-abg')
+                let abg = this.contentTarget.querySelector("sim-abg");
                 if (abg) {
-                    abg.digestData(this.content.abg_proxy)
+                    abg.digestData(this.content.abg_proxy);
                 }
-            })
-        })
-    }
-})
+            });
+        }
+    },
+);

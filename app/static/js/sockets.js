@@ -1,12 +1,8 @@
-import {
-    registerRemoteNibpCycleReceiver,
-    registerNibpAutoCycleStateEmitter,
-} from "./nibp";
-import { registerSimInvestigationPostHandler } from "./investigations";
-import { registerMonitorSyncReceiver } from "./sync";
+let socket = null;
+export function getSocket() {
+    if (socket) return socket;
 
-export function connectSocket() {
-    const socket = io({
+    socket = io({
         auth: {
             sim_room_id: document.body.dataset.simRoomId,
         },
@@ -17,11 +13,4 @@ export function connectSocket() {
     });
 
     return socket;
-}
-
-export function connectMonitorSockets(socket) {
-    registerMonitorSyncReceiver(socket);
-    registerSimInvestigationPostHandler(socket);
-    registerRemoteNibpCycleReceiver(socket);
-    registerNibpAutoCycleStateEmitter(socket);
 }

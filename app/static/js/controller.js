@@ -2,11 +2,10 @@
 import "./custom_elements/sim-mapgroup";
 import "./custom_elements/sim-slider";
 import "./custom_elements/sim-radiogroup";
-import "./custom_elements/sim-imagepicker";
 
 // SOCKETS
-import { connectSocket } from "./sockets";
-let socket = connectSocket();
+import { getSocket } from "./sockets";
+let socket = getSocket();
 
 // SYNC SETUP
 import { registerControllerSyncEmitter } from "./sync";
@@ -114,16 +113,16 @@ document.body.setAttribute("sim-mode", simModeSwitch.getAttribute("sim-value"));
 
 // ABG
 let sendableAbg = document.querySelector("#sendable-abg");
-let abgButton = document.querySelector("#abg-send");
-abgButton.addEventListener("click", (e) => {
-    let message = {
-        sim_room_id: document.body.dataset.simRoomId,
-        type: "ABG",
-        abg_data: sendableAbg.abg_proxy,
-    };
-    socket.emit("sim-post", JSON.stringify(message));
-    document.querySelector("#abg-picker")?.close();
-});
+// let abgButton = document.querySelector("#abg-send");
+// abgButton.addEventListener("click", (e) => {
+//     let message = {
+//         sim_room_id: document.body.dataset.simRoomId,
+//         type: "ABG",
+//         abg_data: sendableAbg.abg_proxy,
+//     };
+//     socket.emit("sim-post", JSON.stringify(message));
+//     document.querySelector("#abg-picker")?.close();
+// });
 let presetPicker = document.querySelector("#abg-presets");
 let presets = {
     "Acute Respiratory Acidosis": {
@@ -195,3 +194,7 @@ registerRemoteNibpCycleEmitter(socket);
 // on/off switch sync
 registerNibpAutoCycleStateEmitter(socket);
 registerNibpAutoCycleStateReceiver(socket);
+
+// INVESTIGATIONS
+import "./custom_elements/sim-picker-radiology";
+import "./custom_elements/sim-picker-abg";
