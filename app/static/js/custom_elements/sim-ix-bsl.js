@@ -35,12 +35,20 @@ let style =
                 text-align: right;
                 background: none;
                 border: none;
+                outline: none;
                 font-family: "7seg", monospace;
                 color: black;
                 margin: 0;
                 padding: 0;
             }
-
+            
+            /* https://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-input-s-spin-box */
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            
             input::placeholder {
                 color: black;
                 opacity: 0.2;
@@ -98,10 +106,11 @@ customElements.define(
             super();
         }
         connectedCallback() {
-            this.innerHTML = markup;
+            this.attachShadow({ mode: "open" });
+            this.shadowRoot.innerHTML = markup;
 
-            this.bsl = this.querySelector("#input-bsl");
-            this.ket = this.querySelector("#input-ket");
+            this.bsl = this.shadowRoot.querySelector("#input-bsl");
+            this.ket = this.shadowRoot.querySelector("#input-ket");
 
             if (this.matches("[readonly]")) {
                 this.bsl.disabled = true;
@@ -113,7 +122,9 @@ customElements.define(
             }
         }
         serialise() {
-            if (!this.querySelector("input:not(:placeholder-shown)")) {
+            if (
+                !this.shadowRoot.querySelector("input:not(:placeholder-shown)")
+            ) {
                 console.warn(
                     "BSL: unable to serialise because neither a BSL nor ketones were entered, skipping…",
                 );
