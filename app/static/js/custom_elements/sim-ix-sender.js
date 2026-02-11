@@ -26,6 +26,13 @@ customElements.define(
                 if (!e.target.matches("button[sim-send]")) return;
                 let data = this.querySelector("[sim-sendable]").serialise();
 
+                if (!data) {
+                    console.error(
+                        `Investigations: failed to get data from ${this.type}, skipping`,
+                    );
+                    return;
+                }
+
                 console.log(
                     `Investigations: sending data from "${type}"`,
                     data,
