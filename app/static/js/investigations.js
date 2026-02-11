@@ -16,7 +16,6 @@ export function registerInvestigationReceiver(socket) {
     socket.on("sim-ix", (msg) => {
         let message = JSON.parse(msg);
         console.log(`Investigations: received data from server:`, message);
-        document.querySelector("dialog[open]")?.close();
         receiveInvestigation(message);
     });
 }
