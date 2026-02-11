@@ -174,6 +174,8 @@ export function transitionIfAble(func) {
 }
 
 export function registerMonitorSyncReceiver(socket) {
+    if (document.body.dataset.simDemoMode == "true") return;
+
     function handleSimUpdate(message) {
         let updates = message["updates"];
         console.debug(
@@ -295,6 +297,11 @@ export function registerMonitorSyncReceiver(socket) {
             let hr = document.querySelector([`[sim-parameter="heart-rate"]`]);
             if (enablers["ecg"] == false && enablers["spo2"] == true) {
                 hr.setAttribute("sim-disabled", false);
+                hr.classList.add("blue");
+                hr.classList.remove("green");
+            } else {
+                hr.classList.add("green");
+                hr.classList.remove("blue");
             }
         }
 
@@ -310,13 +317,14 @@ export function registerMonitorSyncReceiver(socket) {
     socket.on("sim-update", (msg) => {
         let message = JSON.parse(msg);
         handleSimUpdate(message);
-        document.querySelector("dialog#connect-modal")?.close();
+        document.querySelector("dialog[open]")?.close();
     });
     // hack: re-apply existing state on pageload
     // most parameters will be set on the server side
     // but this will run through any arrest special-casing etc
 
     window.addEventListener("load", (e) => {
+        if (document.body.dataset.simDemoMode == "true") return;
         try {
             let state = JSON.parse(window.last_known_state);
             handleSimUpdate(state);
@@ -330,6 +338,8 @@ export function registerMonitorSyncReceiver(socket) {
 }
 
 export function registerControllerSyncEmitter(socket) {
+    if (document.body.dataset.simDemoMode == "true") return;
+
     let sendButton = document.querySelector("#send");
     let form = document.querySelector("form#sim-input");
     form.addEventListener("submit", (e) => {

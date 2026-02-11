@@ -1,6 +1,8 @@
 // CUSTOM ELEMENTS
 import "./custom_elements/sim-readout.js";
 import "./custom_elements/sim-post.js";
+import "./custom_elements/sim-ix-bsl.js";
+import "./custom_elements/sim-ix-radiograph.js";
 
 // SOCKETS
 import { getSocket } from "./sockets.js";
@@ -11,7 +13,6 @@ let socket = getSocket();
 import {
     registerNibpAutoCycleStateEmitter,
     registerNibpAutoCycleStateReceiver,
-    resetNibpTimer,
     attachMonitorNibpCycleSwitchHandler,
     registerRemoteNibpCycleReceiver,
     attachLocalNibpCycleButton,
@@ -83,3 +84,12 @@ window.addEventListener("resize", () => {
         w.forceNewline();
     }
 });
+
+// MODAL
+
+let connectionDialog = document.querySelector("dialog#connect-modal");
+let sp = new URLSearchParams(document.location.search);
+let autoConnect = sp?.get("autoconnect")?.toLowerCase() == "true";
+if (document.body.dataset.simDemoMode != "true" && !autoConnect) {
+    connectionDialog.showModal();
+}

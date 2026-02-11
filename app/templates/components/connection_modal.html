@@ -109,6 +109,7 @@
 
         & .simcode {
             font-size: 2em;
+            width: min-content;
         }
     }
 
@@ -215,10 +216,3 @@
         <form method="dialog" id="dialog-closer"></form>
     </div>
 </dialog>
-
-<script>
-    let connectionDialog = document.querySelector("dialog#connect-modal");
-    if (document.body.dataset.simDemoMode != "true") {
-        connectionDialog.showModal();
-    }
-</script>

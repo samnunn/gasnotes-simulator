@@ -40,7 +40,6 @@
                 <span class="icon">🩻</span>
                 <span class="label">Resources</span>
             </div>
-            <!-- <div id="resources-badge">1</div> -->
         </div>
         <label class="cell">
             <div class="cell-icon">
@@ -58,16 +57,11 @@
         <div class="cell" sim-nibp-trigger-manual>
             <div class="cell-icon">
                 <span class="icon">💨</span>
-                <span class="label">Cycle BP</span>
+                <span class="label">Run NIBP</span>
             </div>
         </div>
         <div class="spacer"></div>
-        {# <div class="cell" id="silence-button">
-                <span class="cell-icon">
-                    <span class="icon">🚨</span>
-                    <span class="label">Silence</span>
-                </span>
-            </div> #}
+
         <label class="cell">
             <div class="cell-icon">
                 <span class="icon"
@@ -264,6 +258,10 @@
                 display: none;
             }
 
+            img {
+                display: none;
+            }
+
             sim-abg {
                 display: none;
             }
@@ -279,53 +277,65 @@
 
             display: grid;
             grid-template-rows: auto 1fr;
-            grid-template-columns: 14rem 1fr;
+            grid-template-columns: calc(clamp(10rem, 15vw, 16rem)) 1fr;
             grid-template-areas:
                 "head head"
                 "scroll marquee";
-            row-gap: 1rem;
+            gap: 1rem;
 
             #resource-header {
+                grid-area: head;
+
                 font-size: 2rem;
                 font-weight: bold;
-                grid-area: head;
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
+                justify-content: space-between;
                 margin-left: 0.25rem;
             }
 
             #resource-list {
                 grid-area: scroll;
+
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
 
-                padding-right: 0.75rem;
-                margin-right: 0.25rem;
-
-                overflow: scroll;
                 max-height: 100%;
+                overflow: scroll;
 
                 container-name: resource-list;
                 container-type: size;
+
+                .tile {
+                    height: 100%;
+                    aspect-ratio: 1.5;
+                    .icon {
+                        font-size: 2rem;
+                    }
+                    .label {
+                        font-size: 1.5rem;
+                    }
+                }
+
+                /* hide investigation content, keep labels */
+                [sim-post-content] {
+                    display: none;
+                }
             }
 
             #resource-marquee {
                 grid-area: marquee;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+
                 border-left: var(--dotted-border);
-                margin-bottom: 1rem;
                 padding-left: 1rem;
-                position: relative;
 
                 container-name: resource-container;
                 container-type: size;
 
-                overflow: hidden;
-                max-height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
 
                 p {
                     text-align: center;
@@ -338,50 +348,77 @@
                 }
 
                 figure {
-                    margin: 0;
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    grid-template-rows: 1fr auto;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    position: relative;
 
-                    height: 100%;
-                    width: 80%;
+                    width: 100cqw;
+                    height: 100cqh;
+                    max-height: 100cqh;
+                    min-height: 0; /* enable grid item to be smaller than its intrinsic size */
+                    min-width: 0;
 
                     margin: 0;
                     padding: 0;
 
-                    text-align: center;
-                }
+                    sim-ix-radiograph {
+                        width: 100%;
+                        height: 100%;
+                        min-height: 0; /* enable grid item to be smaller than its intrinsic size */
+                        max-height: 100%;
 
-                img {
-                    margin: 0;
-                    object-fit: cover;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
 
-                    align-self: center;
+                        img {
+                            display: block;
+                            width: 80%;
+                            height: 80%;
 
-                    width: 100%;
-                    height: auto;
-                    aspect-ratio: 1/1;
-                }
+                            object-fit: contain;
+                        }
+                    }
 
-                img,
-                sim-abg {
-                    border-radius: 1rem;
-                    box-shadow: 0px 10px 30px black;
-                    border: 0.5rem solid white;
-                    overflow: hidden;
-                }
+                    sim-ix-bsl {
+                        width: 50%;
+                        object-fit: contain;
+                    }
 
-                sim-abg {
-                    width: 600px;
-                    min-width: 600px;
-                    height: auto;
-                    font-size: 100%;
-                    scale: 20vw;
+                    sim-abg {
+                        width: 500px;
+                        height: min-content;
+                        border-radius: 1rem;
+                    }
+
+                    figcaption {
+                        text-align: center;
+                        margin: 1rem 0;
+                        font-size: 1.5rem;
+                    }
+                    figcaption:empty {
+                        display: none;
+                    }
                 }
 
                 /* scale to avoid hitting edges */
-                --width-scaler: 1;
-                --height-scaler: 1;
+                --width-scaler: 1.5;
+                --height-scaler: 1.5;
+
+                @container resource-container (width < 800px) {
+                    sim-abg {
+                        --width-scaler: 1.2;
+                    }
+                }
+
+                @container resource-container (width < 700px) {
+                    sim-abg {
+                        --width-scaler: 1;
+                    }
+                }
 
                 @container resource-container (width < 600px) {
                     sim-abg {
@@ -415,11 +452,23 @@
 
                 @container resource-container (height < 850px) {
                     sim-abg {
-                        --height-scaler: 0.8;
+                        --height-scaler: 0.7;
                     }
                 }
 
-                @container resource-container (height < 680px) {
+                @container resource-container (height < 1200px) {
+                    sim-abg {
+                        --height-scaler: 1.2;
+                    }
+                }
+
+                @container resource-container (height < 900px) {
+                    sim-abg {
+                        --height-scaler: 0.9;
+                    }
+                }
+
+                @container resource-container (height < 700px) {
                     sim-abg {
                         --height-scaler: 0.6;
                     }
@@ -444,7 +493,10 @@
                 }
 
                 sim-abg {
-                    scale: calc(min(var(--height-scaler), var(--width-scaler)));
+                    transform: scale(
+                        calc(min(var(--height-scaler), var(--width-scaler)))
+                    );
+                    transform-origin: center;
                 }
             }
         }
@@ -475,7 +527,7 @@
                 --tray-height: 90vh;
                 --tray-height: 98dvh;
 
-                grid-template-rows: auto 1fr calc(min(20cqh, 10rem));
+                grid-template-rows: auto 1fr calc(min(20cqh, 8rem));
                 grid-template-columns: 1fr;
                 grid-template-areas:
                     "head"
@@ -501,33 +553,16 @@
                     border-left: none;
                     border-bottom: var(--dotted-border);
                 }
-
-                .tile {
-                    width: auto;
-                    height: 100%;
-                    aspect-ratio: 1/1;
-
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    grid-template-rows: 1fr auto;
-
-                    figure {
-                        display: block;
-                        width: auto;
-                        height: 100%;
-                        min-height: 0;
-                        /* this stops the images from getting huge */
-                        min-width: 0;
-                        /* this stops the images from getting huge */
-                        aspect-ratio: 1/1;
-                        margin: 0 auto;
-                    }
-                }
             }
         }
     </style>
 
     {% with enablers = data.last_known_state.enablers or {}, updates = data.last_known_state.updates or {} %}
+
+        {% if data.demo == true %}
+            {% set enablers = {"art": True, "capno": True} %}
+        {% endif %}
+
         <div id="sim-monitor">
             <div>
                 <sim-trace
@@ -751,7 +786,6 @@
         </div>
     {% endwith %}
     {% include "components/connection_modal.html" %}
-
     <dialog class="tray" id="resources">
         <div id="resource-header">
             <span>Resources</span>

@@ -1,10 +1,12 @@
 import { getSocket } from "./sockets";
-export function sendInvestigation(type, data) {
+export function sendInvestigation(type, data, name, icon) {
     let socket = getSocket();
     let message = {
         sim_room_id: document.body.dataset.simRoomId,
         type: type,
         data: data,
+        name: name,
+        icon: icon,
     };
     socket.emit("sim-ix", JSON.stringify(message));
     console.log(`Investigations: send data to server:`, message);
@@ -14,6 +16,7 @@ export function registerInvestigationReceiver(socket) {
     socket.on("sim-ix", (msg) => {
         let message = JSON.parse(msg);
         console.log(`Investigations: received data from server:`, message);
+        document.querySelector("dialog[open]")?.close();
         receiveInvestigation(message);
     });
 }
@@ -21,71 +24,48 @@ export function registerInvestigationReceiver(socket) {
 function receiveInvestigation(message) {
     let type = message.type;
     let data = message.data;
+    let icon = message.icon;
+    let name = message.name;
 
     console.log(
         `Investigations: received an investigation of type "${type}"`,
         data,
     );
 
-    switch (type) {
-        case "radiology":
-            insertRadiology(data);
-            break;
-        case "abg":
-            insertABG(data);
-            break;
-        case "temperature":
-            insertTemperature(data);
-            break;
-        case "bsl":
-            insertBSL(data);
-            break;
-        default:
-            console.error(
-                `Investigations: there is no handler for type "${type}", skipping`,
-            );
-            return;
-    }
-}
-
-function insertABG(data) {
-    insertInvestigationIntoCarousel();
-}
-
-function insertTemperature(data) {
-    insertInvestigationIntoCarousel();
-}
-
-function countOfType(t) {
-    let elements = resourcesModal.querySelectorAll(`[data-type="${t}"]`) || [];
-    return elements.length;
-}
-
-function insertRadiology(data) {
-    let type = "radiology";
-    let html = `
-            <sim-post sim-post-target="#resource-marquee" data-type="${type}">
-                <label class="tile">
-                    <figure sim-post-content>
-                        <img class="thumbnail" src="${data.url}">
-                        <figcaption>${data.credit}</figcaption>
-                    </figure>
-                    <span class="label">CXR #${countOfType("radiology", type) + 1}</span>
-                    <input type="radio" name="sim-post" style="display: none;">
-                </label>
-            </sim-post>
-            `;
-    insertInvestigationIntoCarousel(html);
-}
-
-function insertBSL(data) {
-    insertInvestigationIntoCarousel();
+    insertInvestigation(type, data, name, icon);
 }
 
 let resourcesModal = document.querySelector("#resources");
 let postListElement = document.querySelector("#resource-list");
-function insertInvestigationIntoCarousel(html) {
-    postListElement.insertAdjacentHTML("afterbegin", html);
-    postListElement.firstElementChild.click();
+function insertInvestigation(type, data, name, icon) {
+    // create sim-post
+    let post = document.createElement("sim-post");
+    post.setAttribute("sim-post-target", "#resource-marquee");
+    post.innerHTML = `
+    <label class="tile">
+        <span class="icon">${icon}</span>
+        <span class="label" data-name="${name}">${name} #${countOfType(name) + 1}</span>
+        <figure sim-post-content>
+            <figcaption>${data.credit || ""}</figcaption>
+        </figure>
+        <input type="radio" name="ix" hidden>
+    </label>`;
+
+    // insert investigation
+    let element = document.createElement(type);
+    element.setAttribute("readonly", "true");
+    element.deserialise(data);
+    post.querySelector("figure").insertAdjacentElement("afterbegin", element);
+
+    // add sim-post to list
+    postListElement.insertAdjacentElement("afterbegin", post);
+
+    // show
     resourcesModal.showModal();
+    postListElement.querySelector("label").click();
+}
+
+function countOfType(t) {
+    let elements = resourcesModal.querySelectorAll(`[data-name="${t}"]`) || [];
+    return elements.length;
 }

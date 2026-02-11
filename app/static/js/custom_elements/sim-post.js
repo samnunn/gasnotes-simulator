@@ -1,22 +1,24 @@
-import { transitionIfAble } from "../sync.js";
-
 customElements.define(
     "sim-post",
     class extends HTMLElement {
         constructor() {
             super();
+        }
+        connectedCallback() {
             this.contentTarget = document.querySelector(
                 this.getAttribute("sim-post-target"),
             );
             this.content = this.querySelector("[sim-post-content]");
             this.addEventListener("click", (e) => {
-                this.contentTarget.innerHTML =
-                    this.content.cloneNode(true).outerHTML;
-                // special case for ABG, sigh
-                let abg = this.contentTarget.querySelector("sim-abg");
-                if (abg) {
-                    abg.digestData(this.content.abg_proxy);
-                }
+                this.contentTarget.innerHTML = "";
+                let insertedNode = this.content.cloneNode(true);
+                insertedNode.firstElementChild.deserialise(
+                    this.content.firstElementChild.serialise(),
+                );
+                this.contentTarget.insertAdjacentElement(
+                    "afterbegin",
+                    insertedNode,
+                );
             });
         }
     },

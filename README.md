@@ -1,20 +1,22 @@
-# Gas Notes Simulator 😴
+# Simulation Monitor 😴
+
 <img width="200" src="app/static/img/monitorpanel.svg" alt="" align="right" />
 
-**The [Gas Notes Simulator][gasnotes-sim] is a remote-controlled bedside monitor.**
+**[Simulation Monitor][gasnotes-sim] is a remote-controlled bedside monitor.**
 
-Simulation is a great way to build strengths and find weaknesses in your self, your team, and your system without all the headaches of putting patients in harm’s way.
+Simulation is a great way to build strengths and find weaknesses in your self, your team, and your system without putting patients in harm’s way.
 
 This software was created so that simulation tools would be freely available to all.
 
 ## Usage
-The Gas Notes Simulator is designed to be *reasonably* self-explanatory to the non-technical user.
 
-<p align="center"><b><a href="https://sim.gasnotes.net">You can check out the Gas Notes Simulator online right now!</a></b></p>
+Simulation Monitor is designed to be _reasonably_ self-explanatory to the non-technical user.
 
-From the homepage, visitors are presented with two options: start a new sim or join an existing one (with a SimCode). Success in either option brings users to a sim's landing page, which prompts users to connect devices and then choose from "monitor" and "controller" modes on each.
+<p align="center"><b><a href="https://sim.gasnotes.net">You can check out Simulation Monitor online right now.</a></b></p>
 
-Facilitators have the opportunity to adjust:
+From the homepage, visitors are presented with two options: start a new sim or join an existing one (with a SimCode). Success in either option brings users to an already-running virtual bedside monitor, which prompts users to connect a controller device.
+
+Facilitators can adjust:
 
 - Heart rate
 - ECG morphology
@@ -25,11 +27,29 @@ Facilitators have the opportunity to adjust:
 - Plethysmograph morphology
 - etCO<sub>2</sub>
 - Capnograph morphology
+- NIBP (including optional auto-cycling)
 
-Pending changes are stored and sent *en bloc* at the user's request. There are options to gradually transition parameters and enable/disable traces as desired.
+Pending changes are stored and sent _en bloc_ at the facilitator's request. There are options to gradually transition parameters and enable/disable traces as desired.
+
+Participants can:
+
+- Pause alarms
+- Enable/disable sounds
+- Review [investigations](#investigations)
+- Check an NIBP (including optional auto-cycling)
+
+## Investigations
+
+Facilitators can choose from a curated list of investigations to send to the monitor:
+
+- Arterial and venous gasses (using the Gas Notes ABG Machine)
+- BSL and ketones
+- Plain chest x-rays (from various contributors on [Radiopedia][radiopedia])
+- Echocardiograms (from [Show Me The POCUS][smtp])
 
 ## Architecture
-The Gas Notes Simulator uses a client-server architecture to avoid all the headaches of P2P connection in potentially-hostile corporate networks. That means that **the [hosted version][gasnotes-sim] requires an internet connection**.
+
+Simulation Monitor uses a client-server architecture to avoid all the headaches of P2P connection in potentially-hostile corporate networks. That means that **the [hosted version][gasnotes-sim] requires an internet connection**.
 
 <p align="center">
     <img width="500" src="app/static/img/sim_server_architecture.svg" alt="" />
@@ -38,13 +58,16 @@ The Gas Notes Simulator uses a client-server architecture to avoid all the heada
 The server component is written in Python using the excellent [Flask][flask] framework. Message passing between clients and the server is done with WebSockets via [SocketIO][socketio] (made easy in Flask with [Flask-SocketIO][flask-socketio]).
 
 ### Persistence
-For the sake of simplicity, each active SimCode is stored as a text file in `./sim_rooms`. Files with an `mtime` more than 60 minutes ago are periodically pruned by `sim-cleaner.py`.
+
+For the sake of simplicity, each active SimCode is stored as a text file in `./sim_rooms`. The most recent state of each sim room is stored in that file.
 
 ## Self-Hosting
+
 The [hosted version][gasnotes-sim] runs happily on the smallest [DigitalOcean Droplet](https://m.do.co/c/5248daea7efd) (affiliate link). If you are looking to host your own, check out the [sysadmin notes](sysadmin/SYSADMIN.md).
 
 ## Open Source
-The Gas Notes Simulator is released under the [MIT License](LICENSE.txt). This software makes use of these open source projects:
+
+Simulation Monitor is released under the [MIT License](LICENSE.txt). This software makes use of these open source projects:
 
 - [Flask][flask] (BSD-3-Clause License)
 - [Flask-SocketIO][flask-socketio] (MIT License)
@@ -62,7 +85,6 @@ And these closed-source ones:
 - [Monodraw](https://monodraw.helftone.com/) for the ASCII art
 - [Flat UI Colors 2](https://flatuicolors.com/)
 
-
 [flask]: https://flask.palletsprojects.com
 [flask-socketio]: https://flask-socketio.readthedocs.io/en/latest/
 [flask-session]: https://flask.palletsprojects.com/en/3.0.x/quickstart/#sessions
@@ -70,3 +92,5 @@ And these closed-source ones:
 [gasnotes-sim]: https://sim.gasnotes.net
 [socketio]: https://socket.io
 [homebrew]: https://brew.sh/
+[smtp]: https://www.showmethepocus.com/
+[radiopedia]: https://radiopaedia.org/?lang=us

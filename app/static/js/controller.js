@@ -2,6 +2,7 @@
 import "./custom_elements/sim-mapgroup";
 import "./custom_elements/sim-slider";
 import "./custom_elements/sim-radiogroup";
+import "./custom_elements/sim-ix-sender";
 
 // SOCKETS
 import { getSocket } from "./sockets";
@@ -197,4 +198,5 @@ registerNibpAutoCycleStateReceiver(socket);
 
 // INVESTIGATIONS
 import "./custom_elements/sim-picker-radiology";
-import "./custom_elements/sim-picker-abg";
+// import "./custom_elements/sim-picker-abg";
+import "./custom_elements/sim-ix-bsl";

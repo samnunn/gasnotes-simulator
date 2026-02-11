@@ -1,198 +1,236 @@
 {% extends "layouts/sim_layout.html" %}
 
 {% block sim_toolbar_top %}
-{% include "components/header.html" %}
+    {% include "components/header.html" %}
 {% endblock %}
 
 {% block sim_mainarea %}
-<style>
-    #sim-index.wrapped {
-        max-width: 700px;
-    }
-
-    #sequence-box {
-        --gutter-size: 3rem;
-
-        & .sequence-step {
-            display: grid;
-            grid-template-rows: auto 1fr;
-            grid-template-columns: var(--gutter-size) 1fr;
-            grid-template-areas:
-                "number header"
-                "body body"
-            ;
-
-            &>h2 {
-                display: flex;
-                align-items: center;
-                font-size: clamp(1.75rem, calc(0.7 * var(--gutter-size)), 3rem);
-                margin: 0;
-                margin-left: calc(var(--gutter-size) * 0.5);
-            }
-
-            &>div.number {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-                aspect-ratio: 1/1;
-                font-size: calc(0.6 * var(--gutter-size));
-                color: black;
-                background-color: white;
-                border-radius: 50% 50%;
-                font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
-                font-weight: 600;
-            }
-
-            &>div:last-of-type {
-                grid-area: body;
-                padding: 0;
-                margin-left: calc(var(--gutter-size) * 0.5);
-                padding-left: calc(var(--gutter-size) * 1);
-                border-left: 4px dotted var(--color-yellow);
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-            }
+    <style>
+        #sim-index.wrapped {
+            max-width: 700px;
         }
 
-        & .sequence-step:last-of-type>div:last-of-type {
-            border-color: transparent;
-        }
-    }
-
-    #sequence-connect {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr auto;
-        grid-template-areas:
-            "qr buttons"
-            "url url";
-        column-gap: 1rem;
-        row-gap: 2rem;
-
-        & #sequence-connect-right {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            justify-content: center;
-            align-items: center;
-            grid-area: buttons;
-            text-align: center;
-
-            & h2 {
-                margin: 0;
-            }
-        }
-
-        & #sequence-connect-bottom {
-            display: none !important;
-            grid-area: url;
-            display: flex;
-            gap: 1rem;
-
-            & pre {
-                flex-grow: 1;
-            }
-        }
-
-        & #sim-url {
-            width: 100%;
-            background-color: black;
-            color: white;
-            border: 2px solid white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
-        }
-
-        & .simcode {
-            font-size: 2.5em;
-        }
-
-    }
-
-    #sequence-mode-picker {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    #enter-the-sim {
-        max-width: 70%;
-        margin: min(10vh, 3rem) auto;
-    }
-
-    @media (max-width: 630px) {
         #sequence-box {
-            --gutter-size: 2rem;
-            padding-right: calc(0.5 * var(--gutter-size)) !important;
+            --gutter-size: 3rem;
+
+            & .sequence-step {
+                display: grid;
+                grid-template-rows: auto 1fr;
+                grid-template-columns: var(--gutter-size) 1fr;
+                grid-template-areas:
+                    "number header"
+                    "body body";
+
+                & > h2 {
+                    display: flex;
+                    align-items: center;
+                    font-size: clamp(
+                        1.75rem,
+                        calc(0.7 * var(--gutter-size)),
+                        3rem
+                    );
+                    margin: 0;
+                    margin-left: calc(var(--gutter-size) * 0.5);
+                }
+
+                & > div.number {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                    aspect-ratio: 1/1;
+                    font-size: calc(0.6 * var(--gutter-size));
+                    color: black;
+                    background-color: white;
+                    border-radius: 50% 50%;
+                    font-family:
+                        Avenir, Montserrat, Corbel, "URW Gothic",
+                        source-sans-pro, sans-serif;
+                    font-weight: 600;
+                }
+
+                & > div:last-of-type {
+                    grid-area: body;
+                    padding: 0;
+                    margin-left: calc(var(--gutter-size) * 0.5);
+                    padding-left: calc(var(--gutter-size) * 1);
+                    border-left: 4px dotted var(--color-yellow);
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
+                }
+            }
+
+            & .sequence-step:last-of-type > div:last-of-type {
+                border-color: transparent;
+            }
         }
 
         #sequence-connect {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr auto;
             grid-template-areas:
-                "qr"
-                "buttons"
-                "url";
-            overflow: hidden;
-            justify-items: center;
+                "qr buttons"
+                "url url";
+            column-gap: 1rem;
+            row-gap: 2rem;
 
-            img {
-                margin-top: 1rem;
+            & #sequence-connect-right {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                justify-content: center;
+                align-items: center;
+                grid-area: buttons;
+                text-align: center;
+
+                & h2 {
+                    margin: 0;
+                }
+            }
+
+            & #sequence-connect-bottom {
+                display: none !important;
+                grid-area: url;
+                display: flex;
+                gap: 1rem;
+
+                & pre {
+                    flex-grow: 1;
+                }
+            }
+
+            & #sim-url {
+                width: 100%;
+                background-color: black;
+                color: white;
+                border: 2px solid white;
+                padding: 0.5rem 1rem;
+                border-radius: var(--border-radius);
+            }
+
+            & .simcode {
+                font-size: 2.5em;
             }
         }
 
-        #enter-the-sim {
-            max-width: 85%;
+        #sequence-mode-picker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
-    }
 
-    div#assumption>p {
-        margin-top: 0;
-    }
-</style>
-<div id="sim-index" class="wrapped ht-100 flex column justify-center">
-    <img id="enter-the-sim" src="{{ url_for('static', filename='img/enter_the_sim.svg') }}" alt="Enter the simulation">
-    <div id="sequence-box">
-        <div class="sequence-step">
-            <div class="number">1</div>
-            <h2>Connect Devices</h2>
-            <div id="sequence-connect">
-                <img class="sim-qrcode"
-                    src="{{ qrcode(url_for('sim_index', sim_room_id=data.sim_room_id, _external=True)) }}">
-                <div id="sequence-connect-right">
-                    <h2>Scan QR</h2>
-                    <span>or</span>
-                    <h2>Use a SimCode</h2>
-                    <span class="simcode" aria-roledescription="button" title="Click to copy SimCode">{{
-                        data.sim_room_id }}</span>
-                    <span><a href="/connect">sim.gasnotes.net/connect</a></span>
+        #enter-the-sim {
+            max-width: 70%;
+            margin: min(10vh, 3rem) auto;
+        }
+
+        @media (max-width: 630px) {
+            #sequence-box {
+                --gutter-size: 2rem;
+                padding-right: calc(0.5 * var(--gutter-size)) !important;
+            }
+
+            #sequence-connect {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "qr"
+                    "buttons"
+                    "url";
+                overflow: hidden;
+                justify-items: center;
+
+                img {
+                    margin-top: 1rem;
+                }
+            }
+
+            #enter-the-sim {
+                max-width: 85%;
+            }
+        }
+
+        div#assumption > p {
+            margin-top: 0;
+        }
+    </style>
+    <div id="sim-index" class="wrapped ht-100 flex column justify-center">
+        <img
+            id="enter-the-sim"
+            src="{{ url_for('static', filename='img/enter_the_sim.svg') }}"
+            alt="Enter the simulation"
+        />
+        <div id="sequence-box">
+            <div class="sequence-step">
+                <div class="number">1</div>
+                <h2>Connect Devices</h2>
+                <div id="sequence-connect">
+                    <img
+                        class="sim-qrcode"
+                        src="{{ qrcode(url_for('sim_index', sim_room_id=data.sim_room_id, _external=True)) }}"
+                    />
+                    <div id="sequence-connect-right">
+                        <h2>Scan QR</h2>
+                        <span>or</span>
+                        <h2>Use a SimCode</h2>
+                        <span
+                            class="simcode"
+                            aria-roledescription="button"
+                            title="Click to copy SimCode"
+                            >{{ data.sim_room_id }}</span
+                        >
+                        <span
+                            ><a href="/connect"
+                                >sim.gasnotes.net/connect</a
+                            ></span
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="sequence-step">
+                <div class="number">2</div>
+                <h2>Choose a Mode</h2>
+                <div id="sequence-mode-picker">
+                    <a
+                        class="button red"
+                        href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}"
+                        >Controller</a
+                    >
+                    <a
+                        class="button red"
+                        href="{{ url_for('sim_monitor', sim_room_id=data.sim_room_id, autoconnect=True) }}"
+                        >Monitor</a
+                    >
+                </div>
+            </div>
+            <div class="sequence-step">
+                <div class="number">3</div>
+                <h2>Run a Sim</h2>
+                <div id="assumption">
+                    <p>
+                        Remember the
+                        <a
+                            href="https://harvardmedsim.org/resources/the-basic-assumption/"
+                            class="invisible-link"
+                            ><strong class="yellow">Basic Assumption</strong></a
+                        >:
+                    </p>
+                    <blockquote>
+                        <p>
+                            We believe that everyone participating in activities
+                            using Gas Notes is intelligent, capable, cares about
+                            doing their best, and wants to improve.
+                        </p>
+                        <cite
+                            >Adapted from
+                            <a
+                                href="https://harvardmedsim.org/resources/the-basic-assumption/"
+                                >Center for Medical Simulation</a
+                            >, Boston, Massachusetts, USA.</cite
+                        >
+                    </blockquote>
                 </div>
             </div>
         </div>
-        <div class="sequence-step">
-            <div class="number">2</div>
-            <h2>Choose a Mode</h2>
-            <div id="sequence-mode-picker">
-                <a class="button red"
-                    href="{{ url_for('sim_controller', sim_room_id=data.sim_room_id) }}">Controller</a>
-                <a class="button red" href="{{ url_for('sim_monitor', sim_room_id=data.sim_room_id) }}">Monitor</a>
-            </div>
-        </div>
-        <div class="sequence-step">
-            <div class="number">3</div>
-            <h2>Run a Sim</h2>
-            <div id="assumption">
-                <p>Remember the <a href="https://harvardmedsim.org/resources/the-basic-assumption/"
-                        class="invisible-link"><strong class="yellow">Basic Assumption</strong></a>:</p>
-                <blockquote>
-                    <p>We believe that everyone participating in activities using Gas Notes is intelligent, capable,
-                        cares about doing their best, and wants to improve.</p>
-                    <cite>Adapted from <a href="https://harvardmedsim.org/resources/the-basic-assumption/">Center for
-                            Medical Simulation</a>, Boston, Massachusetts, USA.</cite>
-                </blockquote>
-            </div>
-        </div>
     </div>
-</div>
-
 {% endblock %}

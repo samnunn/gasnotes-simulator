@@ -1,46 +1,46 @@
 <template id="abg-template">
     <style>
-        
         * {
             font-family: system-ui, sans-serif;
             font-weight: normal;
             box-sizing: border-box;
             color: black;
         }
-        
+
         hr {
             border: none;
             border-top: 1px solid black;
             margin: 1rem 0;
         }
-        
+
         div.wrapped {
             margin: 0 auto;
             width: 100%;
         }
-        
+
         div#abg {
             border: 1px solid transparent;
             padding: 0 1rem 1rem 1rem;
             background-color: white;
             color: black;
-            
+
             & table {
                 width: 100%;
                 table-layout: fixed;
-                
+
                 & td.input {
                     display: flex;
                     flex-direction: row-reverse;
                 }
-                
-                & td.input > input, select {
+
+                & td.input > input,
+                select {
                     width: 4rem;
                     margin-right: clamp(0.25rem, 1vw, 1rem);
                     flex-grow: 1;
                     color: black !important;
                 }
-                
+
                 & td.reference-range {
                     display: flex;
                     flex-direction: row-reverse;
@@ -49,9 +49,8 @@
                     width: 5rem;
                 }
             }
-            
         }
-        
+
         abg-range {
             display: flex;
             flex-direction: row;
@@ -78,16 +77,17 @@
                 text-align: left;
             }
         }
-        
+
         #patient-details .input {
             text-align: left !important;
         }
-        
-        #patient-details input, select {
+
+        #patient-details input,
+        select {
             display: block;
             width: 100% !important;
         }
-        
+
         #abg-bigname {
             text-align: center;
             font-family: serif;
@@ -99,9 +99,11 @@
             padding-left: 0.25rem;
         }
 
+        :host[readonly],
         #abg.readonly {
             /* Get rid of input styles when printing */
-            .input input, select {
+            .input input,
+            select {
                 border: none;
                 appearance: none;
                 color: black;
@@ -113,10 +115,9 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
-            input[type=number] {
+            input[type="number"] {
                 -moz-appearance: textfield;
             }
-
         }
 
         @media print {
@@ -124,59 +125,132 @@
                 display: none !important;
             }
         }
-    
+
         input:disabled {
             background-color: white;
         }
     </style>
-    
+
     <div id="abg" class="wrapped">
         <p id="abg-bigname">GASNOTES ABG MACHINE</p>
-        <hr>
+        <hr />
         <p>Blood Gas Values</p>
         <table>
             <tbody>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name">pH</td>
-                    <td class="input"><input abg-parameter="ph" type="number" min="6.60" max="7.75" step="0.01" value="7.41"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="ph"
+                            type="number"
+                            min="6.60"
+                            max="7.75"
+                            step="0.01"
+                            value="7.41"
+                        />
+                    </td>
                     <td class="units"></td>
-                    <td class="reference-range"><abg-range lower="7.35" upper="7.45"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="7.35" upper="7.45"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name">pCO<sub>2</sub></td>
-                    <td class="input"><input abg-parameter="pco2" type="number" inputmode="decimal" min="15" max="120" step="1" value="38"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="pco2"
+                            type="number"
+                            inputmode="decimal"
+                            min="15"
+                            max="120"
+                            step="1"
+                            value="38"
+                        />
+                    </td>
                     <td class="units">mmHg</td>
-                    <td class="reference-range"><abg-range lower="35" upper="45"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="35" upper="45"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name">pO<sub>2</sub></td>
-                    <td class="input"><input abg-parameter="po2" type="number" inputmode="decimal" min="20" max="500" step="0.1" value="93"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="po2"
+                            type="number"
+                            inputmode="decimal"
+                            min="20"
+                            max="500"
+                            step="0.1"
+                            value="93"
+                        />
+                    </td>
                     <td class="units">mmHg</td>
-                    <td class="reference-range"><abg-range lower="80" upper="100"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="80" upper="100"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
-                    <td class="name">HCO<sub>3</sub><sup>-</sup>(P)<sub>c</sub></td>
-                    <td class="input"><input abg-parameter="hco3" type="number" inputmode="decimal" min="0" max="1000" step="0.1" disabled></td>
+                    <td class="name">
+                        HCO<sub>3</sub><sup>-</sup>(P)<sub>c</sub>
+                    </td>
+                    <td class="input">
+                        <input
+                            abg-parameter="hco3"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="1000"
+                            step="0.1"
+                            disabled
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="22" upper="26"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="22" upper="26"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Base(Ecf)<sub>c</sub></td>
-                    <td class="input"><input abg-parameter="be" type="number" inputmode="decimal" min="20" max="500" step="0.1" disabled></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="be"
+                            type="number"
+                            inputmode="decimal"
+                            min="20"
+                            max="500"
+                            step="0.1"
+                            disabled
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="-3" upper="3"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="-3" upper="3"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>s</i>O<sub>2</sub></td>
-                    <td class="input"><input abg-parameter="so2" type="number" inputmode="decimal" min="0" max="100" step="0.1" disabled></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="so2"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            disabled
+                        />
+                    </td>
                     <td class="units">%</td>
-                    <td class="reference-range"><abg-range lower="94" upper="100"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="94" upper="100"></abg-range>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -186,37 +260,97 @@
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Na<sup>+</sup></td>
-                    <td class="input"><input abg-parameter="na" type="number" inputmode="decimal" min="90" max="170" step="1" value="141"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="na"
+                            type="number"
+                            inputmode="decimal"
+                            min="90"
+                            max="170"
+                            step="1"
+                            value="141"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="135" upper="145"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="135" upper="145"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>K<sup>+</sup></td>
-                    <td class="input"><input abg-parameter="k" type="number" inputmode="decimal" min="0.5" max="15" step="0.1" value="3.9"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="k"
+                            type="number"
+                            inputmode="decimal"
+                            min="0.5"
+                            max="15"
+                            step="0.1"
+                            value="3.9"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="3.5" upper="5.5"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="3.5" upper="5.5"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Cl<sup>-</sup></td>
-                    <td class="input"><input abg-parameter="cl" type="number" inputmode="decimal" min="80" max="160" step="1" value="101"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="cl"
+                            type="number"
+                            inputmode="decimal"
+                            min="80"
+                            max="160"
+                            step="1"
+                            value="101"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="95" upper="110"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="95" upper="110"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>AnionCap</td>
-                    <td class="input"><input abg-parameter="ag" type="number" inputmode="decimal" min="0" max="1000" step="0.1" disabled></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="ag"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="1000"
+                            step="0.1"
+                            disabled
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="4" upper="12"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="4" upper="12"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Ca<sup>2+</sup></td>
-                    <td class="input"><input abg-parameter="ca" type="number" inputmode="decimal" min="0.50" max="4" step="0.01" value="1.19"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="ca"
+                            type="number"
+                            inputmode="decimal"
+                            min="0.50"
+                            max="4"
+                            step="0.01"
+                            value="1.19"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="1.12" upper="1.32"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="1.12" upper="1.32"></abg-range>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -226,21 +360,55 @@
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Glu</td>
-                    <td class="input"><input abg-parameter="bsl" type="number" inputmode="decimal" min="0.1" max="60" step="0.1" value="6.1"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="bsl"
+                            type="number"
+                            inputmode="decimal"
+                            min="0.1"
+                            max="60"
+                            step="0.1"
+                            value="6.1"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="3.0" upper="5.4"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="3.0" upper="5.4"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Lac</td>
-                    <td class="input"><input abg-parameter="lactate" type="number" inputmode="decimal" min="0" max="20" step="0.1" value="0.8"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="lactate"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                            value="0.8"
+                        />
+                    </td>
                     <td class="units">mmol/L</td>
-                    <td class="reference-range"><abg-range lower="0.0" upper="2.0"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="0.0" upper="2.0"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>Crea</td>
-                    <td class="input"><input abg-parameter="cr" type="number" inputmode="decimal" min="10" max="1000" step="1" value="61"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="cr"
+                            type="number"
+                            inputmode="decimal"
+                            min="10"
+                            max="1000"
+                            step="1"
+                            value="61"
+                        />
+                    </td>
                     <td class="units">μmol/L</td>
                     <td></td>
                 </tr>
@@ -252,23 +420,59 @@
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>c</i>tHb</td>
-                    <td class="input"><input abg-parameter="hb" type="number" inputmode="decimal" min="20" max="250" step="1" value="139"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="hb"
+                            type="number"
+                            inputmode="decimal"
+                            min="20"
+                            max="250"
+                            step="1"
+                            value="139"
+                        />
+                    </td>
                     <td class="units">g/L</td>
-                    <td class="reference-range"><abg-range lower="120" upper="150"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="120" upper="150"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>F</i>COHb</td>
-                    <td class="input"><input abg-parameter="fcohb" type="number" inputmode="decimal" min="0" max="20" step="0.1" value="0.4"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="fcohb"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                            value="0.4"
+                        />
+                    </td>
                     <td class="units">%</td>
-                    <td class="reference-range"><abg-range lower="0.3" upper="1.8"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="0.3" upper="1.8"></abg-range>
+                    </td>
                 </tr>
                 <tr>
                     <td class="highlow"></td>
                     <td class="name"><i>F</i>MetHb</td>
-                    <td class="input"><input abg-parameter="fmethb" type="number" inputmode="decimal" min="0" max="20" step="0.1" value="0.6"></td>
+                    <td class="input">
+                        <input
+                            abg-parameter="fmethb"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                            value="0.6"
+                        />
+                    </td>
                     <td class="units">%</td>
-                    <td class="reference-range"><abg-range lower="0.4" upper="1.2"></abg-range></td>
+                    <td class="reference-range">
+                        <abg-range lower="0.4" upper="1.2"></abg-range>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -281,179 +485,228 @@
     function calculateBicarb(ph, pco2) {
         // Henderson-Hasselalch equation with a known pKa of 6.1
         // Seems to be accurate to within 3% of true bicarbonate (at worst)
-        let hco3 = (0.03 * pco2) * Math.pow(10, (ph - 6.1))
-        return hco3.toFixed(1)
+        let hco3 = 0.03 * pco2 * Math.pow(10, ph - 6.1);
+        return hco3.toFixed(1);
     }
     function calculateBaseExcess(ph, hco3) {
         // Originally defined by Siggaard-Andersen in 1971 (PDF attached)
         // Via http://www-users.med.cornell.edu/~spon/picu/calc/basecalc.htm
-        let be = 0.93 * hco3 + 13.77*ph - 124.58
-        return be.toFixed(1)
+        let be = 0.93 * hco3 + 13.77 * ph - 124.58;
+        return be.toFixed(1);
     }
-    function calculateSaO2SigaardAndersenMethod1984(po2 = 100, ph = 7.40, baseExcess = 0, Cdpg = 5, temp = 37.0) {    
+    function calculateSaO2SigaardAndersenMethod1984(
+        po2 = 100,
+        ph = 7.4,
+        baseExcess = 0,
+        Cdpg = 5,
+        temp = 37.0,
+    ) {
         // Siggard Andersen (1984) https://pubmed.ncbi.nlm.nih.gov/6478594/
         // Constants
-        const kpa = 7.5 // "If p is measured in mmHg, substitute "7.5 mmHg" for "kPa" throughout, e.g., x = ln(p/7.5)" from page 1 of Siggaard-Andersen (1979)
-        const Cdpg0 = 5 // mmol/L
-        const ph0 = 7.40
-        const k = 0.5343 // Equation 8
-        const y0 = 1.875 // Equation 4
+        const kpa = 7.5; // "If p is measured in mmHg, substitute "7.5 mmHg" for "kPa" throughout, e.g., x = ln(p/7.5)" from page 1 of Siggaard-Andersen (1979)
+        const Cdpg0 = 5; // mmol/L
+        const ph0 = 7.4;
+        const k = 0.5343; // Equation 8
+        const y0 = 1.875; // Equation 4
         // Equation 9
-        const a = 1.04 * (ph0 - ph) + 0.005 * baseExcess + 0.07 * (Cdpg - Cdpg0)
+        const a =
+            1.04 * (ph0 - ph) + 0.005 * baseExcess + 0.07 * (Cdpg - Cdpg0);
         // Equation 10 (modified to work with degrees celcius)
-        const b = 0.055 * (temp-37)
+        const b = 0.055 * (temp - 37);
         // Equation 5
-        const x0 = 1.946 + a + b
+        const x0 = 1.946 + a + b;
         // Equation 6
-        const n0 = 2.87 + a * k
+        const n0 = 2.87 + a * k;
         // Equation 7
-        const h = 3.5 + a
+        const h = 3.5 + a;
         // Equation 1
-        const x = Math.log(po2 / kpa)
+        const x = Math.log(po2 / kpa);
         // Equation 2
-        const y = y0 + (x - x0) + h*Math.tanh(k*(x-x0))
+        const y = y0 + (x - x0) + h * Math.tanh(k * (x - x0));
         // Equation 1 (second half)
-        const s = (Math.exp(-y)+1)**(-1)
-        return (s * 100).toFixed(1)
+        const s = (Math.exp(-y) + 1) ** -1;
+        return (s * 100).toFixed(1);
     }
     function calculateAnionGap(na, k, cl, hco3) {
         // let ag = (parseFloat(na) + parseFloat(k)) - (parseFloat(cl) + parseFloat(hco3))
-        let ag = parseFloat(na) - parseFloat(cl) - parseFloat(hco3)
-        return ag.toFixed(1)
+        let ag = parseFloat(na) - parseFloat(cl) - parseFloat(hco3);
+        return ag.toFixed(1);
     }
 
-    customElements.define('abg-range', class extends HTMLElement {
-        constructor () {
-            super()
-            let lower = this.getAttribute('lower') ? this.getAttribute('lower') : ' '
-            let upper = this.getAttribute('upper') ? this.getAttribute('upper') : ' '
-            
-            this.innerHTML =
-            `
+    customElements.define(
+        "abg-range",
+        class extends HTMLElement {
+            constructor() {
+                super();
+                let lower = this.getAttribute("lower")
+                    ? this.getAttribute("lower")
+                    : " ";
+                let upper = this.getAttribute("upper")
+                    ? this.getAttribute("upper")
+                    : " ";
+
+                this.innerHTML = `
                 <span class="range-open">[</span>
                 <span class="range-lower">${lower}</span>
                 <span class="range-middle">-</span>
                 <span class="range-upper">${upper}</span>
-                <span class="range-close">]</span>` 
-        }
-    })
+                <span class="range-close">]</span>`;
+            }
+        },
+    );
 
-    customElements.define('sim-abg', class extends HTMLElement {
-        constructor() {
-            super()
-            this.attachShadow({ mode: 'open' })
-            this.shadowRoot.appendChild(document.getElementById('abg-template').content.cloneNode(true))
+    customElements.define(
+        "sim-abg",
+        class extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: "open" });
+                this.shadowRoot.appendChild(
+                    document
+                        .getElementById("abg-template")
+                        .content.cloneNode(true),
+                );
 
-            this.root              = this.shadowRoot
-            this.abg_container     = this.shadowRoot.querySelector('div#abg')
-            let abg_container = this.abg_container
-            this.parameter_inputs  = this.shadowRoot.querySelectorAll('[abg-parameter]')
+                this.root = this.shadowRoot;
+                this.abg_container = this.shadowRoot.querySelector("div#abg");
+                let abg_container = this.abg_container;
+                this.parameter_inputs =
+                    this.shadowRoot.querySelectorAll("[abg-parameter]");
 
-            // Establish proxy ground abg data
-            let abg_output = {}
-            this.abg_proxy = new Proxy(abg_output, {
-                get(object, key, receiver) {
-                    return object[key]
-                },
-                set(object, key, value) {
-                    // Update UI
-                    // This is needed to prevent a bug when inputting decimals
-                    // Pressing the . key would cause the cursor to return to the start of the line (no decimal would be inserted, numerical input would be preserved)
-                    // JS registers `5` and `5.` as the same thing, so when it would rationalise its representation of `5.` to `5`
-                    // When target.value was set (by this code block) it would change the user-facing `5.` back to `5` -- infuriating!
-                    // This workaround checks if they are numerically equivalent (5 == 5.) and skips the UI update if they are the same
-                    if (object[key] != value) {
-                        let target = abg_container.querySelector(`[abg-parameter="${key}"]`)
-                        target.value = value
+                // Establish proxy ground abg data
+                let abg_output = {};
+                this.abg_proxy = new Proxy(abg_output, {
+                    get(object, key, receiver) {
+                        return object[key];
+                    },
+                    set(object, key, value) {
+                        // Update UI
+                        // This is needed to prevent a bug when inputting decimals
+                        // Pressing the . key would cause the cursor to return to the start of the line (no decimal would be inserted, numerical input would be preserved)
+                        // JS registers `5` and `5.` as the same thing, so when it would rationalise its representation of `5.` to `5`
+                        // When target.value was set (by this code block) it would change the user-facing `5.` back to `5` -- infuriating!
+                        // This workaround checks if they are numerically equivalent (5 == 5.) and skips the UI update if they are the same
+                        if (object[key] != value) {
+                            let target = abg_container.querySelector(
+                                `[abg-parameter="${key}"]`,
+                            );
+                            target.value = value;
+                        }
+
+                        // Update data model
+                        object[key] = value;
+
+                        // Emit event
+                        let event = new CustomEvent("abgupdated", {
+                            bubbles: true,
+                        });
+                        event.key = key;
+                        event.value = value;
+                        event.object = object;
+
+                        abg_container.dispatchEvent(event);
+                        return true;
+                    },
+                });
+
+                // Update derived ABG parameters when input is available
+                this.abg_container.addEventListener("abgupdated", (e) => {
+                    // Apply ABG logic
+                    if (["pco2", "ph"].includes(e.key)) {
+                        this.abg_proxy["hco3"] = calculateBicarb(
+                            e.object["ph"],
+                            e.object["pco2"],
+                        );
                     }
-                    
-                    // Update data model
-                    object[key] = value
-                    
-                    // Emit event
-                    let event = new CustomEvent('abgupdated', {bubbles: true})
-                    event.key = key
-                    event.value = value
-                    event.object = object
+                    if (["hco3", "ph"].includes(e.key)) {
+                        this.abg_proxy["be"] = calculateBaseExcess(
+                            e.object["ph"],
+                            e.object["hco3"],
+                        );
+                    }
+                    if (["po2", "be", "ph"].includes(e.key)) {
+                        this.abg_proxy["so2"] =
+                            calculateSaO2SigaardAndersenMethod1984(
+                                e.object["po2"],
+                            );
+                    }
+                    if (["na", "k", "cl", "hco3"].includes(e.key)) {
+                        this.abg_proxy["ag"] = calculateAnionGap(
+                            e.object["na"],
+                            e.object["k"],
+                            e.object["cl"],
+                            e.object["hco3"],
+                        );
+                    }
+                });
 
-                    abg_container.dispatchEvent(event)
-                    return true
-                }
-            })
-        
-            // Update derived ABG parameters when input is available
-            this.abg_container.addEventListener('abgupdated', (e) => {
-                // Apply ABG logic
-                if (['pco2', 'ph'].includes(e.key)) {
-                    this.abg_proxy['hco3'] = calculateBicarb(e.object['ph'], e.object['pco2'])
-                }
-                if (['hco3', 'ph'].includes(e.key)) {
-                    this.abg_proxy['be'] = calculateBaseExcess(e.object['ph'], e.object['hco3'])
-                }
-                if (['po2', 'be', 'ph'].includes(e.key)) {
-                    this.abg_proxy['so2'] = calculateSaO2SigaardAndersenMethod1984(e.object['po2'])
-                }
-                if (['na', 'k', 'cl', 'hco3'].includes(e.key)) {
-                    this.abg_proxy['ag'] = calculateAnionGap(e.object['na'], e.object['k'], e.object['cl'], e.object['hco3'])
-                }
-            })
+                // Update high/low indicators
+                this.abg_container.addEventListener("abgupdated", (e) => {
+                    // Gets every tr where there is a reference range
+                    let row = this.abg_container.querySelector(
+                        `tr:has(abg-range):has([abg-parameter="${e.key}"])`,
+                    );
+                    if (!row) return;
 
-            // Update high/low indicators
-            this.abg_container.addEventListener('abgupdated', (e) => {
-                // Gets every tr where there is a reference range
-                let row = this.abg_container.querySelector(`tr:has(abg-range):has([abg-parameter="${e.key}"])`)
-                if (!row) return
+                    let range = row.querySelector("abg-range");
+                    let indicator = row.querySelector(".highlow");
 
-                let range = row.querySelector('abg-range')
-                let indicator = row.querySelector('.highlow')
-                
-                let upperLimit = range.getAttribute('upper')
-                upperLimit = parseFloat(upperLimit)
-                let lowerLimit = range.getAttribute('lower')
-                lowerLimit = parseFloat(lowerLimit)
-                
-                let displayText = ""
-                if (e.value > upperLimit) {
-                    displayText = "↑"
-                } else if (e.value < lowerLimit) {
-                    displayText = "↓"
-                }
-                indicator.innerText = displayText
-            })
+                    let upperLimit = range.getAttribute("upper");
+                    upperLimit = parseFloat(upperLimit);
+                    let lowerLimit = range.getAttribute("lower");
+                    lowerLimit = parseFloat(lowerLimit);
 
-            for (let p of this.parameter_inputs) {
-                // According to <input> value attribute
-                let parameter = p.getAttribute('abg-parameter')
-                this.abg_proxy[parameter] = p.value
+                    let displayText = "";
+                    if (e.value > upperLimit) {
+                        displayText = "↑";
+                    } else if (e.value < lowerLimit) {
+                        displayText = "↓";
+                    }
+                    indicator.innerText = displayText;
+                });
 
-                p.addEventListener('input', (e) => {
-                    this.abg_proxy[parameter] = e.target.value
-                })
-            }
-        }
+                for (let p of this.parameter_inputs) {
+                    // According to <input> value attribute
+                    let parameter = p.getAttribute("abg-parameter");
+                    this.abg_proxy[parameter] = p.value;
 
-        digestData(data) {
-            for (let key in data) {
-                this.abg_proxy[key] = data[key]
-            }
-        }
-
-        attributeChangedCallback (name, oldValue, newValue) {
-            if (name == 'readonly' && newValue == 'true') {
-                this.abg_container.classList.add('readonly')
-                for (let i of this.parameter_inputs) {
-                    i.setAttribute('disabled', true)
-                }
-            } else {
-                this.abg_container.classList.remove('readonly')
-                for (let i of this.parameter_inputs) {
-                    i.removeAttribute('disabled')
+                    p.addEventListener("input", (e) => {
+                        this.abg_proxy[parameter] = e.target.value;
+                    });
                 }
             }
-        }
 
-        static get observedAttributes () {
-            return ['readonly']
-        }
-    })
+            digestData(data) {
+                for (let key in data) {
+                    this.abg_proxy[key] = data[key];
+                }
+            }
+
+            deserialise(data) {
+                this.digestData(data);
+            }
+
+            serialise() {
+                return this.abg_proxy;
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "readonly" && newValue == "true") {
+                    this.abg_container.classList.add("readonly");
+                    for (let i of this.parameter_inputs) {
+                        i.setAttribute("disabled", true);
+                    }
+                } else {
+                    this.abg_container.classList.remove("readonly");
+                    for (let i of this.parameter_inputs) {
+                        i.removeAttribute("disabled");
+                    }
+                }
+            }
+
+            static get observedAttributes() {
+                return ["readonly"];
+            }
+        },
+    );
 </script>

@@ -150,7 +150,7 @@ page]) #}
 
                     img {
                         fit-content: cover;
-                        aspect-ratio: 1;
+                        aspect-ratio: 1.1;
                     }
                 }
             }
@@ -178,102 +178,8 @@ page]) #}
             gap: 1rem;
             align-items: start;
         }
-
-        .tile {
-            transition: all 100ms ease;
-            border-radius: var(--border-radius);
-            border: 2px solid #222;
-            background-color: var(--dark-grey);
-            color: white;
-            font-weight: bold;
-            min-height: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0.65rem;
-            align-items: center;
-
-            &:hover {
-                background-color: #444;
-            }
-
-            .thumbnail {
-                font-size: 2rem;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                border-radius: 0.35rem;
-                display: inline-block;
-                text-align: center;
-            }
-
-            img.thumbnail {
-                aspect-ratio: 1/1;
-            }
-
-            .label {
-                font-size: 1rem;
-                line-height: 1;
-                text-align: center;
-            }
-
-            &:has(input:checked) {
-                background-color: #444;
-            }
-        }
-        @font-face {
-            font-family: "7seg";
-            src: url('{{ url_for("static", filename="fonts/7seg.woff2") }}');
-        }
-        dialog:has(#bsl-machine) {
+        dialog:has(sim-ix-bsl) {
             width: calc(min(400px, 95vw));
-        }
-        #bsl-machine {
-            background-image: url('{{ url_for("static", filename="img/bsl.svg") }}');
-            background-size: 100%;
-            background-repeat: no-repeat;
-
-            width: 80%;
-            aspect-ratio: 3/4;
-            padding: 12.5%;
-            margin-inline: 2rem;
-
-            #bsl-machine__screen {
-                container-name: bslscreen;
-                container-type: size;
-
-                width: 100%;
-                aspect-ratio: 1;
-
-                display: grid;
-                grid-template-columns: 35% 65%;
-                grid-template-rows: 50% 50%;
-
-                align-items: start;
-
-                input {
-                    font-size: 25cqh;
-                    text-align: right;
-                    background: none;
-                    border: none;
-                    font-family: "7seg", monospace;
-                    color: black;
-                    margin: 0;
-                    padding: 0;
-                }
-
-                input::placeholder {
-                    color: black;
-                    opacity: 0.2;
-                }
-
-                label {
-                    font-size: 1rem;
-                    font-family: monospace;
-                    color: black;
-                    font-weight: bold;
-                }
-            }
         }
     </style>
 
@@ -761,6 +667,8 @@ page]) #}
                     </header>
                     <div id="tiles">
                         <button
+                            {# type="button" suppresses form submission #}
+                            type="button"
                             onclick="document.querySelector('#radiology-cxr').showModal()"
                             class="tile"
                         >
@@ -768,6 +676,7 @@ page]) #}
                             <span class="label">CXR</span>
                         </button>
                         <button
+                            type="button"
                             onclick="document.querySelector('#radiology-echo').showModal()"
                             class="tile"
                         >
@@ -775,6 +684,7 @@ page]) #}
                             <span class="label">Echo</span>
                         </button>
                         <button
+                            type="button"
                             onclick="document.querySelector('#abg-picker').showModal()"
                             class="tile"
                         >
@@ -782,6 +692,7 @@ page]) #}
                             <span class="label">ABG</span>
                         </button>
                         <button
+                            type="button"
                             onclick="document.querySelector('#bsl-picker').showModal()"
                             class="tile"
                         >
@@ -894,192 +805,201 @@ page]) #}
             </form>
         </div>
 
-        {# INVESTIGATIONS #}
-        {% macro rad(name, r) -%}
-            <li>
-                <label class="tile">
-                    <img
-                        src="{{ r.url }}"
-                        alt="{{ r.name_pretty }}"
-                        title="{{ r.credit }}"
-                        loading="eager"
-                    />
-                    <span class="label">{{ r.name_pretty }}</span>
-                    <input
-                        type="radio"
-                        name="{{ name }}"
-                        value="{{ r.name_ugly }}"
-                        style="display: none;"
-                        data-name-pretty="{{ r.name_pretty }}"
-                        data-name-ugly="{{ r.name_ugly }}"
-                        data-url="{{ r.url }}"
-                        data-credit="{{ r.credit }}"
-                    />
-                </label>
-            </li>
-        {%- endmacro %}
+        {% if data.demo != true %}
 
-        {# CXR #}
-        <dialog class="tray" id="radiology-cxr" closedby="any">
-            <sim-picker-radiology class="investigation-picker">
-                <header>
-                    <h2 class="mt-0">CXR Picker 🩻</h2>
-                </header>
-                <div class="picker-scroll">
-                    <menu>
-                        {% for r in radiology("cxr") %}
-                            {{ rad("cxr", r) }}
-                        {% endfor %}
-                    </menu>
-                </div>
-                <footer>
-                    <form method="dialog">
-                        <button type="submit" class="button dark small">
-                            Cancel
-                        </button>
-                    </form>
-                    <button class="button red small" sim-send>
-                        Send to Sim
-                    </button>
-                </footer>
-            </sim-picker-radiology>
-        </dialog>
+            {# INVESTIGATIONS #}
+            {% macro rad(name, r) -%}
+                <li>
+                    <label class="tile">
+                        <img
+                            src="{{ r.url }}"
+                            alt="{{ r.name_pretty }}"
+                            title="{{ r.credit }}"
+                            loading="eager"
+                        />
+                        <span class="label">{{ r.name_pretty }}</span>
+                        <input
+                            type="radio"
+                            name="{{ name }}"
+                            value="{{ r.name_ugly }}"
+                            style="display: none;"
+                            data-name-pretty="{{ r.name_pretty }}"
+                            data-name-ugly="{{ r.name_ugly }}"
+                            data-url="{{ r.url }}"
+                            data-credit="{{ r.credit }}"
+                        />
+                    </label>
+                </li>
+            {%- endmacro %}
 
-        {# ECHO #}
-        <dialog class="tray" id="radiology-echo" closedby="any">
-            <sim-picker-radiology class="investigation-picker">
-                <header>
-                    <h2 class="mt-0">Echo Picker 📺</h2>
-                </header>
-                <div class="picker-scroll">
-                    <h3 class="mt-0">Normal</h3>
-                    <menu>
-                        {% for r in radiology("echo/normal") %}
-                            {{ rad("echo", r) }}
-                        {% endfor %}
-                    </menu>
-                    <h3 class="">LV Failure</h3>
-                    <menu>
-                        {% for r in radiology("echo/lv-failure") %}
-                            {{ rad("echo", r) }}
-                        {% endfor %}
-                    </menu>
-                    <h3 class="">RV Failure</h3>
-                    <menu>
-                        {% for r in radiology("echo/rv-failure") %}
-                            {{ rad("echo", r) }}
-                        {% endfor %}
-                    </menu>
-                    <h3 class="">Tamponade</h3>
-                    <menu>
-                        {% for r in radiology("echo/tamponade") %}
-                            {{ rad("echo", r) }}
-                        {% endfor %}
-                    </menu>
-                    <h3 class="">IVC</h3>
-                    <menu>
-                        {% for r in radiology("echo/ivc") %}
-                            {{ rad("echo", r) }}
-                        {% endfor %}
-                    </menu>
-                </div>
-                <footer>
-                    <form method="dialog">
-                        <button type="submit" class="button dark small">
-                            Cancel
-                        </button>
-                    </form>
-                    <button class="button red small" sim-send>
-                        Send to Sim
-                    </button>
-                </footer>
-            </sim-picker-radiology>
-        </dialog>
-
-        {# ABG #}
-        <dialog id="abg-picker" class="tray" closedby="any">
-            <sim-picker-abg class="investigation-picker">
-                <header>
-                    <h2 class="mt-0">ABG Picker 🩸</h2>
-                </header>
-                <div class="picker-scroll">
-                    <div class="sim-select light" style="z-index: 999;">
-                        <!-- this is needed to get rid of a putrid mobileSafari bug where a <select> element in a <dialog> doesn't work unless there's another <select> element around -->
-                        <div
-                            style="opacity: 0; height: 0px; width: 0; position: absolute; pointer-events: none; margin: 0; padding: 0;"
-                        >
-                            <select></select>
+            {# CXR #}
+            <sim-ix-sender
+                data-type="sim-ix-radiograph"
+                data-name="CXR"
+                data-icon="🩻"
+                class="investigation-picker"
+            >
+                <dialog class="tray" id="radiology-cxr" closedby="any">
+                    <sim-picker-radiology
+                        sim-sendable
+                        class="investigation-picker"
+                    >
+                        <header>
+                            <h2 class="mt-0">CXR Picker 🩻</h2>
+                        </header>
+                        <div class="picker-scroll">
+                            <menu>
+                                {% for r in radiology("cxr") %}
+                                    {{ rad("cxr", r) }}
+                                {% endfor %}
+                            </menu>
                         </div>
-                        <!-- would love to see it gone someday -->
-                        <select id="abg-presets" class="mb-1">
-                            <option selected disabled value="default">
-                                Presets…
-                            </option>
-                            <hr />
-                        </select>
-                    </div>
-                    <sim-abg id="sendable-abg"></sim-abg>
-                </div>
-                <footer>
-                    <form method="dialog">
-                        <button type="submit" class="button dark small">
-                            Cancel
-                        </button>
-                    </form>
-                    <button class="button red small" sim-send>
-                        Send to Sim
-                    </button>
-                </footer>
-            </sim-picker-abg>
-        </dialog>
+                        <footer>
+                            <form method="dialog">
+                                <button type="submit" class="button dark small">
+                                    Cancel
+                                </button>
+                            </form>
+                            <button class="button red small" sim-send>
+                                Send to Sim
+                            </button>
+                        </footer>
+                    </sim-picker-radiology>
+                </dialog>
+            </sim-ix-sender>
 
-        {# BSL/ketones #}
-        <dialog id="bsl-picker" class="tray" closedby="any">
-            <sim-picker-bsl class="investigation-picker">
-                <header>
-                    <h2 class="mt-0">BSL Machine 🍭</h2>
-                </header>
-                <div class="picker-scroll">
-                    <div id="bsl-machine">
-                        <div id="bsl-machine__screen">
-                            <label for="input-bsl">BSL</label>
-                            <input
-                                autofocus
-                                inputmode="decimal"
-                                type="number"
-                                id="input-bsl"
-                                step="0.1"
-                                min="0.0"
-                                max="40.0"
-                                placeholder="9.0"
-                            />
-                            <label for="input-ket">KET</label>
-                            <input
-                                inputmode="decimal"
-                                type="number"
-                                id="input-ket"
-                                step="0.1"
-                                min="0.0"
-                                max="10.0"
-                                placeholder="0.1"
-                            />
+            {# ECHO #}
+            <sim-ix-sender
+                data-type="sim-ix-radiograph"
+                data-name="Echo"
+                data-icon="📺"
+                class="investigation-picker"
+            >
+                <dialog class="tray" id="radiology-echo" closedby="any">
+                    <sim-picker-radiology
+                        sim-sendable
+                        class="investigation-picker"
+                    >
+                        <header>
+                            <h2 class="mt-0">Echo Picker 📺</h2>
+                        </header>
+                        <div class="picker-scroll">
+                            <h3 class="mt-0">Normal</h3>
+                            <menu>
+                                {% for r in radiology("echo/normal") %}
+                                    {{ rad("echo", r) }}
+                                {% endfor %}
+                            </menu>
+                            <h3 class="">LV Failure</h3>
+                            <menu>
+                                {% for r in radiology("echo/lv-failure") %}
+                                    {{ rad("echo", r) }}
+                                {% endfor %}
+                            </menu>
+                            <h3 class="">RV Failure</h3>
+                            <menu>
+                                {% for r in radiology("echo/rv-failure") %}
+                                    {{ rad("echo", r) }}
+                                {% endfor %}
+                            </menu>
+                            <h3 class="">Tamponade</h3>
+                            <menu>
+                                {% for r in radiology("echo/tamponade") %}
+                                    {{ rad("echo", r) }}
+                                {% endfor %}
+                            </menu>
+                            <h3 class="">IVC</h3>
+                            <menu>
+                                {% for r in radiology("echo/ivc") %}
+                                    {{ rad("echo", r) }}
+                                {% endfor %}
+                            </menu>
                         </div>
+                        <footer>
+                            <form method="dialog">
+                                <button type="submit" class="button dark small">
+                                    Cancel
+                                </button>
+                            </form>
+                            <button class="button red small" sim-send>
+                                Send to Sim
+                            </button>
+                        </footer>
+                    </sim-picker-radiology>
+                </dialog>
+            </sim-ix-sender>
+
+            {# ABG #}
+            <sim-ix-sender
+                data-type="sim-abg"
+                data-name="ABG"
+                data-icon="🩸"
+                class="investigation-picker"
+            >
+                <dialog id="abg-picker" class="tray" closedby="any">
+                    <header>
+                        <h2 class="mt-0">ABG Picker 🩸</h2>
+                    </header>
+                    <div class="picker-scroll">
+                        <div class="sim-select light" style="z-index: 999;">
+                            <!-- this is needed to get rid of a putrid mobileSafari bug where a <select> element in a <dialog> doesn't work unless there's another <select> element around -->
+                            <div
+                                style="opacity: 0; height: 0px; width: 0; position: absolute; pointer-events: none; margin: 0; padding: 0;"
+                            >
+                                <select></select>
+                            </div>
+                            <!-- would love to see it gone someday -->
+                            <select id="abg-presets" class="mb-1">
+                                <option selected disabled value="default">
+                                    Presets…
+                                </option>
+                                <hr />
+                            </select>
+                        </div>
+                        <sim-abg sim-sendable id="sendable-abg"></sim-abg>
                     </div>
-                </div>
-                <footer>
-                    <form method="dialog">
-                        <button type="submit" class="button dark small">
-                            Cancel
+                    <footer>
+                        <form method="dialog">
+                            <button type="submit" class="button dark small">
+                                Cancel
+                            </button>
+                        </form>
+                        <button class="button red small" sim-send autofocus>
+                            Send to Sim
                         </button>
-                    </form>
-                    <button class="button red small" sim-send>
-                        Send to Sim
-                    </button>
-                </footer>
-            </sim-picker-bsl>
-        </dialog>
+                    </footer>
+                </dialog>
+            </sim-ix-sender>
+
+            {# BSL/ketones #}
+            <sim-ix-sender
+                data-type="sim-ix-bsl"
+                data-name="BSL"
+                data-icon="🍭"
+                class="investigation-picker"
+            >
+                <dialog id="bsl-picker" class="tray" closedby="any">
+                    <header>
+                        <h2 class="mt-0">BSL Machine 🍭</h2>
+                    </header>
+                    <div class="picker-scroll">
+                        <sim-ix-bsl sim-sendable></sim-ix-bsl>
+                    </div>
+                    <footer>
+                        <form method="dialog">
+                            <button type="submit" class="button dark small">
+                                Cancel
+                            </button>
+                        </form>
+                        <button class="button red small" sim-send>
+                            Send to Sim
+                        </button>
+                    </footer>
+                </dialog>
+            </sim-ix-sender>
+            {% include 'components/abg_machine.html' %}
+        {% endif %}
     {% endwith %}
-    {% include 'components/abg_machine.html' %}
 
     {% assets filters="esbuild", output="gen/controller.js", depends="**/**/*.js", "js/controller.js" %}
         <script type="module" src="{{ ASSET_URL }}"></script>

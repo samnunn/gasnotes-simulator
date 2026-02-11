@@ -183,11 +183,9 @@
         }
 
         #source {
-            display: grid;
-            grid-template-columns: 10% 1fr;
-            gap: 2rem;
-            align-items: center;
-            margin: var(--spacing-l) auto;
+            text-align: center;
+            text-wrap: balance;
+            margin-bottom: var(--spacing-l);
         }
 
         @media (min-width: 200px) {
@@ -294,11 +292,6 @@
         <div class="clearfix"></div>
     </div>
     <section class="wrapped" id="source">
-        <a href="https://github.com/samnunn/gasnotes-simulator"
-            ><img
-                src="{{ url_for('static', filename='img/github-mark-white.svg') }}"
-                alt="GitHub"
-        /></a>
         <p>
             Simulation Monitor is proudly free and open-source software. You can
             check out all the code
