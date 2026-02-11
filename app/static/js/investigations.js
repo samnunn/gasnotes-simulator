@@ -53,7 +53,7 @@ function insertInvestigation(type, data, name, icon) {
 
     // insert investigation
     let element = document.createElement(type);
-    element.setAttribute("readonly", "true");
+    element.setAttribute("readonly", "");
     element.deserialise(data);
     post.querySelector("figure").insertAdjacentElement("afterbegin", element);
 
