@@ -459,6 +459,7 @@ a.no-underline {
     outline: none;
     border: none;
     text-decoration: none !important;
+    text-align: center;
     /* box */
     padding: 0 1rem;
     margin: 0 var(--button-shadow-offset) var(--button-shadow-offset) 0;

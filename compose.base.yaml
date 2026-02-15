@@ -1,21 +1,23 @@
 services:
-  simulator:
-    restart: unless-stopped
-    build:
-      context: app
-      dockerfile: Dockerfile
-    ports:
-      - "8069:8069"
-    volumes:
-      - ./sim_rooms:/app/sim_rooms
-    environment:
-      - CMD=uv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
-      - DEBUG=0
-    labels:
-      - dev.orbstack.domains=sim.local
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    env_file:
-      - .env
+    simulator:
+        restart: unless-stopped
+        build:
+            context: app
+            dockerfile: Dockerfile
+        ports:
+            - "8069:8069"
+        volumes:
+            - ./sim_rooms:/app/sim_rooms
+        environment:
+            - CMD=uv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 sim:app
+            - DEBUG=0
+        env_file:
+            - .env
+        labels:
+            - dev.orbstack.domains=sim.local
+    tunnel:
+        image: cloudflare/cloudflared:latest
+        restart: unless-stopped
+        command: tunnel --no-autoupdate run
+        env_file:
+            - .env
