@@ -167,8 +167,6 @@ export function transitionIfAble(func) {
     }
 }
 
-import { updateNibpReadoutImmediately } from "./nibp";
-
 export function registerMonitorSyncReceiver(socket) {
     if (document.body.dataset.simDemoMode == "true") return;
 
@@ -265,7 +263,6 @@ export function registerMonitorSyncReceiver(socket) {
                     `[sim-parameter="mean-arterial-pressure-noninvasive"]`,
                 )
                 ?.setAttribute("sim-value", imaginaryMap);
-            updateNibpReadoutImmediately();
 
             // set arrest-style morphologies for remaining traces
             document
