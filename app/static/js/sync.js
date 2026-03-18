@@ -167,6 +167,8 @@ export function transitionIfAble(func) {
     }
 }
 
+import { updateNibpReadoutImmediately } from "./nibp";
+
 export function registerMonitorSyncReceiver(socket) {
     if (document.body.dataset.simDemoMode == "true") return;
 
@@ -232,6 +234,7 @@ export function registerMonitorSyncReceiver(socket) {
                 '[sim-parameter="etco2"]',
             );
             etco2Readout.setAttribute("sim-value", etco2);
+            etco2Readout.setAttribute("sim-disabled", false);
 
             // user user-defined capno
             let capnoMorphology = updates["arrest-capno"];
@@ -243,6 +246,26 @@ export function registerMonitorSyncReceiver(socket) {
             spo2Readout.setAttribute("sim-value", 64);
             spo2Readout.removeAttribute("sim-disabled");
             spo2Readout.setAttribute("wobble", 15);
+
+            // make nibp uninterpretable
+            let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
+            let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
+            document
+                .querySelector(
+                    `[sim-parameter="systolic-blood-pressure-noninvasive"]`,
+                )
+                ?.setAttribute("sim-value", imaginarySbp);
+            document
+                .querySelector(
+                    `[sim-parameter="diastolic-blood-pressure-noninvasive"]`,
+                )
+                ?.setAttribute("sim-value", "??");
+            document
+                .querySelector(
+                    `[sim-parameter="mean-arterial-pressure-noninvasive"]`,
+                )
+                ?.setAttribute("sim-value", imaginaryMap);
+            updateNibpReadoutImmediately();
 
             // set arrest-style morphologies for remaining traces
             document
