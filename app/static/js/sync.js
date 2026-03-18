@@ -95,12 +95,6 @@ export class TransitionManager {
                 .setAttribute("rate", this.currentValue);
         }
 
-        // AWFUL HACK: a special case for spo2
-        if (this.targetElement.getAttribute("sim-parameter") == "spo2") {
-            // console.log('hack! spo2 is being transitioned')
-            // console.log(this.initialValue, this.targetValue, this.currentValue)
-        }
-
         // AWFUL HACK: special case for map (NIBP-dervived)
         if (
             this.targetElement.getAttribute("sim-parameter") ==
@@ -329,7 +323,7 @@ export function registerMonitorSyncReceiver(socket) {
             let state = JSON.parse(window.last_known_state);
             handleSimUpdate(state);
         } catch (e) {
-            console.error(
+            console.warn(
                 "Sync: couldn't parse/apply existing state from window.last_known_state (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
                 e,
             );
@@ -369,17 +363,7 @@ function dumpAllInputState() {
     // sim values
     let inputs = document.querySelectorAll("[data-sim-parameter]");
     for (let i of inputs) {
-        let simValue = null;
-        if (i.hasAttribute("checked")) {
-            // handles checkboxes
-            simValue = i.checked;
-        } else if (i.hasAttribute("sim-value")) {
-            // handles custom inputs
-            simValue = i.getAttribute("sim-value");
-        } else {
-            // handles all other inputs
-            simValue = i.value;
-        }
+        let simValue = getValue(i);
 
         message["updates"][i.dataset.simParameter] = simValue;
     }
