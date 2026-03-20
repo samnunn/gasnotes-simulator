@@ -12,6 +12,8 @@ let socket = getSocket();
 import { registerControllerSyncEmitter } from "./sync";
 registerControllerSyncEmitter(socket);
 
+import { setValue, getValue } from "./sync";
+
 // SYNC VALUES (within page)
 document.addEventListener("input", (e) => {
     if (!e.target.matches("[sim-sync]")) return;
@@ -23,7 +25,7 @@ document.addEventListener("input", (e) => {
             `[data-sim-parameter="${parameter}"]`,
         );
         for (let ie of interestedElements) {
-            ie.value = e.target.value;
+            setValue(ie, getValue(e.target));
             ie.dispatchEvent(
                 new CustomEvent("input", {
                     bubbles: true,
