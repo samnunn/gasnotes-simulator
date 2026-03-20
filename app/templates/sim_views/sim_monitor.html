@@ -599,6 +599,10 @@
                     mode="copycat"
                     pacemaker="ecg"
                     sim-value="{{ updates['spo2-trace'] | default('spo2') }}"
+                    data-scale-min="0.4"
+                    data-scale-max="1"
+                    data-scale-m="0.01"
+                    data-scale-c="0"
                     stroke-colour="rgb(0, 168, 255)"
                     {{ enabled(enablers, "spo2", True) }}
                 ></sim-trace>
@@ -677,6 +681,10 @@
                     fill-opacity="0.15"
                     x-rate="60"
                     y-scale="1"
+                    data-scale-min="0.05"
+                    data-scale-max="1.5"
+                    data-scale-m="0.025"
+                    data-scale-c="0"
                     {{ enabled(enablers, "capno", False) }}
                 ></sim-trace>
             </div>
