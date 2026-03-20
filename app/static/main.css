@@ -981,7 +981,7 @@ span.simcode:hover:active {
     align-items: center;
     justify-content: center;
 
-    &:has(input:checked) {
+    &:has(input[type="radio"]:checked) {
         background-color: oklch(from var(--tile-colour) 0.3 c h);
     }
     &:hover {
