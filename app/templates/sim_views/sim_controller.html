@@ -87,23 +87,13 @@ page]) #}
             }
         }
 
-        #arrest-controls {
+        body[sim-mode="arrested"]
+            section.sim-input-group[sim-hide-if~="arrested"] {
             display: none;
-            gap: 2rem;
         }
-
-        body[sim-mode="arrested"] {
-            .sim-input-group:not(#arrest-controls) {
-                display: none;
-            }
-
-            #arrest-controls {
-                display: grid;
-            }
-
-            #mode-picker {
-                display: grid !important;
-            }
+        body:not([sim-mode="arrested"])
+            section.sim-input-group[sim-hide-if~="alive"] {
+            display: none;
         }
 
         #cpr-button {
@@ -171,10 +161,13 @@ page]) #}
             }
         }
 
-        #tiles {
+        .tile-grid {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(
+                auto-fill,
+                minmax(min(150px, 100%), 1fr)
+            );
             gap: 1rem;
             align-items: start;
         }
@@ -186,7 +179,7 @@ page]) #}
     {% with enablers = data.last_known_state.enablers or {}, updates = data.last_known_state.updates or {} %}
         <div id="controller" class="wrapped">
             <form action="#" id="sim-input">
-                <div
+                <section
                     class="sim-input-group"
                     id="mode-picker"
                     {% if data.demo==true %}style="display: none;"{% endif %}
@@ -219,16 +212,21 @@ page]) #}
                             </label>
                         </div>
                     </sim-radiogroup>
-                </div>
-
-                <section class="sim-input-group" id="cardiac">
+                </section>
+                <section
+                    class="sim-input-group"
+                    sim-hide-if="arrested"
+                    id="cardiac"
+                >
                     <header>
                         <p>ECG 💛</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['ecg']) }}
+                            {{ checked(enablers['ecg'], False) }}
                             role="switch"
                             data-sim-enabler-for="ecg"
+                            data-sim-parameter="controller-switch-ecg"
+                            sim-sync
                             class="sim-input-group-switch green"
                         />
                     </header>
@@ -307,14 +305,20 @@ page]) #}
                         </div>
                     </div>
                 </section>
-                <div class="sim-input-group" id="respiration">
+                <section
+                    class="sim-input-group"
+                    sim-hide-if="arrested"
+                    id="respiration"
+                >
                     <header>
                         <p>Pulse Oximeter 😮‍💨</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['spo2']) }}
+                            {{ checked(enablers['spo2'], False) }}
                             role="switch"
                             data-sim-enabler-for="spo2"
+                            data-sim-parameter="controller-switch-spo2"
+                            sim-sync
                             class="sim-input-group-switch blue"
                         />
                     </header>
@@ -366,15 +370,17 @@ page]) #}
                             {% endwith %}
                         </div>
                     </div>
-                </div>
-                <div class="sim-input-group" id="">
+                </section>
+                <section class="sim-input-group" sim-hide-if="arrested" id="">
                     <header>
                         <p>Non-Invasive BP 💨</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['nibp']) }}
+                            {{ checked(enablers['nibp'], False) }}
                             role="switch"
                             data-sim-enabler-for="nibp"
+                            data-sim-parameter="controller-switch-nibp"
+                            sim-sync
                             class="sim-input-group-switch purple"
                         />
                     </header>
@@ -446,8 +452,12 @@ page]) #}
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="sim-input-group" id="haemodynamics">
+                </section>
+                <section
+                    class="sim-input-group"
+                    sim-hide-if="arrested"
+                    id="haemodynamics"
+                >
                     <header>
                         <p>Arterial Line 🩸</p>
                         <input
@@ -455,6 +465,8 @@ page]) #}
                             {{ checked(enablers['art'], False) }}
                             role="switch"
                             data-sim-enabler-for="art"
+                            data-sim-parameter="controller-switch-art"
+                            sim-sync
                             class="sim-input-group-switch red"
                         />
                     </header>
@@ -536,8 +548,8 @@ page]) #}
                             />
                         </sim-slider>
                     </div>
-                </div>
-                <div class="sim-input-group">
+                </section>
+                <section class="sim-input-group" sim-hide-if="arrested">
                     <header>
                         <p>Capnography 🫁</p>
                         <input
@@ -545,6 +557,8 @@ page]) #}
                             {{ checked(enablers['capno'], False) }}
                             role="switch"
                             data-sim-enabler-for="capno"
+                            data-sim-parameter="controller-switch-capno"
+                            sim-sync
                             class="sim-input-group-switch yellow"
                         />
                     </header>
@@ -605,113 +619,14 @@ page]) #}
                             {% endwith %}
                         </div>
                     </div>
-                </div>
-
-                <div
+                </section>
+                <section
                     class="sim-input-group"
-                    id="mode-picker"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
+                    id="arrest-controls"
+                    sim-hide-if="alive"
                 >
-                    <header>
-                        <p>Transition Time ⏳</p>
-                    </header>
-
-                    <sim-radiogroup
-                        data-sim-parameter="transition-time"
-                        sim-value="{{ updates['transition-time'] }}"
-                    >
-                        <div class="sim-button-group">
-                            <label>
-                                Instant
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="0"
-                                    checked
-                                />
-                            </label>
-                            <label>
-                                30s
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="30"
-                                />
-                            </label>
-                            <label>
-                                1m
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="60"
-                                />
-                            </label>
-                            <label>
-                                3m
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="180"
-                                />
-                            </label>
-                        </div>
-                    </sim-radiogroup>
-                </div>
-
-                <div
-                    class="sim-input-group"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
-                >
-                    <header>
-                        <p>Investigations 🔍</p>
-                    </header>
-                    <div id="tiles">
-                        <button
-                            {# type="button" suppresses form submission #}
-                            type="button"
-                            onclick="document.querySelector('#radiology-cxr').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🩻</span>
-                            <span class="label">CXR</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#radiology-echo').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">📺</span>
-                            <span class="label">Echo</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#abg-picker').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🩸</span>
-                            <span class="label">ABG</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#bsl-picker').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🍭</span>
-                            <span class="label">BSL</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sim-input-group" id="arrest-controls">
                     <header>
                         <p>Arrest Controls 🚨</p>
-                        <input
-                            type="checkbox"
-                            checked
-                            role="switch"
-                            data-sim-enabler-for="ecg-arrest"
-                            class="sim-input-group-switch green"
-                        />
                     </header>
                     <div class="sim-input-group-main">
                         <div class="sim-select green">
@@ -801,7 +716,167 @@ page]) #}
                             class="button dark red"
                         ></button>
                     </div>
-                </div>
+                </section>
+                <section
+                    class="sim-input-group"
+                    sim-hide-if="alive"
+                    id="arrest-monitor-picker"
+                    {% if data.demo==true %}style="display: none;"{% endif %}
+                >
+                    <header>
+                        <p>Monitors 📺</p>
+                    </header>
+                    <div class="tile-grid">
+                        <label class="tile">
+                            <span>ECG</span>
+                            <input
+                                type="checkbox"
+                                {{ checked(enablers['ecg'], False) }}
+                                role="switch"
+                                data-sim-parameter="controller-switch-ecg"
+                                sim-sync
+                                class="green"
+                            />
+                        </label>
+                        <label class="tile">
+                            <span>Pleth</span>
+                            <input
+                                type="checkbox"
+                                {{ checked(enablers['spo2'], False) }}
+                                role="switch"
+                                data-sim-parameter="controller-switch-spo2"
+                                sim-sync
+                                class="blue"
+                            />
+                        </label>
+                        <label class="tile">
+                            <span>NIBP</span>
+                            <input
+                                type="checkbox"
+                                {{ checked(enablers['nibp'], False) }}
+                                role="switch"
+                                data-sim-parameter="controller-switch-nibp"
+                                sim-sync
+                                class="purple"
+                            />
+                        </label>
+                        <label class="tile">
+                            <span>Art Line</span>
+                            <input
+                                type="checkbox"
+                                {{ checked(enablers['art'], False) }}
+                                role="switch"
+                                data-sim-parameter="controller-switch-art"
+                                sim-sync
+                                class="red"
+                            />
+                        </label>
+                        <label class="tile">
+                            <span>Capno</span>
+                            <input
+                                type="checkbox"
+                                {{ checked(enablers['capno'], False) }}
+                                role="switch"
+                                data-sim-parameter="controller-switch-capno"
+                                sim-sync
+                                class="yellow"
+                            />
+                        </label>
+                    </div>
+                </section>
+                <section
+                    class="sim-input-group"
+                    id="mode-picker"
+                    {% if data.demo==true %}style="display: none;"{% endif %}
+                >
+                    <header>
+                        <p>Transition Time ⏳</p>
+                    </header>
+
+                    <sim-radiogroup
+                        data-sim-parameter="transition-time"
+                        sim-value="{{ updates['transition-time'] }}"
+                    >
+                        <div class="sim-button-group">
+                            <label>
+                                Instant
+                                <input
+                                    type="radio"
+                                    name="sim-transition-time"
+                                    value="0"
+                                    checked
+                                />
+                            </label>
+                            <label>
+                                30s
+                                <input
+                                    type="radio"
+                                    name="sim-transition-time"
+                                    value="30"
+                                />
+                            </label>
+                            <label>
+                                1m
+                                <input
+                                    type="radio"
+                                    name="sim-transition-time"
+                                    value="60"
+                                />
+                            </label>
+                            <label>
+                                3m
+                                <input
+                                    type="radio"
+                                    name="sim-transition-time"
+                                    value="180"
+                                />
+                            </label>
+                        </div>
+                    </sim-radiogroup>
+                </section>
+                <section
+                    class="sim-input-group"
+                    {% if data.demo==true %}style="display: none;"{% endif %}
+                >
+                    <header>
+                        <p>Investigations 🔍</p>
+                    </header>
+                    <div class="tile-grid">
+                        <button
+                            {# type="button" suppresses form submission #}
+                            type="button"
+                            onclick="document.querySelector('#radiology-cxr').showModal()"
+                            class="tile"
+                        >
+                            <span class="thumbnail">🩻</span>
+                            <span class="label">CXR</span>
+                        </button>
+                        <button
+                            type="button"
+                            onclick="document.querySelector('#radiology-echo').showModal()"
+                            class="tile"
+                        >
+                            <span class="thumbnail">📺</span>
+                            <span class="label">Echo</span>
+                        </button>
+                        <button
+                            type="button"
+                            onclick="document.querySelector('#abg-picker').showModal()"
+                            class="tile"
+                        >
+                            <span class="thumbnail">🩸</span>
+                            <span class="label">ABG</span>
+                        </button>
+                        <button
+                            type="button"
+                            onclick="document.querySelector('#bsl-picker').showModal()"
+                            class="tile"
+                        >
+                            <span class="thumbnail">🍭</span>
+                            <span class="label">BSL</span>
+                        </button>
+                    </div>
+                </section>
             </form>
         </div>
 
