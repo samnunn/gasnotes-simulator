@@ -276,7 +276,7 @@ export function registerControllerSyncEmitter(socket) {
     let form = document.querySelector("form#sim-input");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        let message = dumpAllInputState();
+        let message = _dumpAllInputState();
         socket.emit("sim-update", JSON.stringify(message));
 
         if (sendButton) {
@@ -291,7 +291,7 @@ export function registerControllerSyncEmitter(socket) {
     });
 }
 
-function dumpAllInputState() {
+function _dumpAllInputState() {
     let message = {
         sim_room_id: document.body.dataset.simRoomId,
         updates: {},
