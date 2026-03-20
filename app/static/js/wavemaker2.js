@@ -90,7 +90,7 @@ path {
     margin: 0;
     padding: 0;
 }
-</style>`
+</style>`;
 
             // add waveSet to DOM
             this.appendChild(this.waveSet);
@@ -498,7 +498,7 @@ path {
             newWave.x_offset = x_offset;
             newWave.x_cursor = 0;
             newWave.classList.add("wave");
-            newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.y_cursor} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`
+            newWave.innerHTML = `<svg width="10000" height="${this.height}" style="position:absolute; left: ${x_offset}px;"><path fill="${this.fillColour}" fill-opacity="${this.fillOpacity}" d="M 0,${this.y_cursor} " stroke="${this.strokeColour}" stroke-width="${this.strokeWidth}" fill="none"></path></svg>`;
             newWave.svg = newWave.querySelector("svg");
             return newWave;
         }
@@ -1105,7 +1105,7 @@ path {
                 }
                 // let maximumComplexDuration = targetDuration
                 // let minimumComplexDuration = 400
-                // let idealComplexDuration = 
+                // let idealComplexDuration =
                 // let pqrstComplexDuration = 0.6 * 60000 / this.rate;
 
                 let isoelectricLine = this.rate > 120 ? this.rate * 0.0006 : 0;
@@ -1169,11 +1169,15 @@ path {
                 // idea = 0.00005 * (x - 270)^2 + 250
                 // let idealPQRST = 0.00005 * (targetDuration - 270)**2 + 250
                 // let idealPQRST = 250 + 350 / (1 + Math.pow(Math.E, 7 - 0.009 * targetDuration))
-                let idealPQRST = 270 + 360 / (1 + Math.pow(Math.E, 7 - 0.0122 * targetDuration))
+                let idealPQRST =
+                    270 +
+                    360 / (1 + Math.pow(Math.E, 7 - 0.0122 * targetDuration));
 
                 for (let i = 0; i < keyframes.length; i++) {
-                    keyframes[i][0] = keyframes[i][0] * (idealPQRST/generatedPQRST); // x
-                    keyframes[i][2] = keyframes[i][2] * (idealPQRST/generatedPQRST); // x spline
+                    keyframes[i][0] =
+                        keyframes[i][0] * (idealPQRST / generatedPQRST); // x
+                    keyframes[i][2] =
+                        keyframes[i][2] * (idealPQRST / generatedPQRST); // x spline
                 }
 
                 // add isoelectric filler
