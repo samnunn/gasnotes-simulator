@@ -187,93 +187,11 @@ export function registerMonitorSyncReceiver(socket) {
         document.body.setAttribute("sim-mode", mode);
 
         if (mode == "arrested") {
-            // disable all parameters by default and selectively re-enable
-            let allElements = document.querySelectorAll("[sim-parameter]");
-            for (let el of allElements) {
-                el.setAttribute("sim-disabled", "true");
-            }
+            updates = _mutateUpdatesForCardiacArrest(updates);
 
-            // set user-defined arrest rhythms (or CPR)
-            let ecgTrace = document.querySelector(
-                '[sim-parameter="ecg-rhythm"]',
-            );
-            let cprActive = updates["sim-cpr"];
-
-            let arrestedMorphology;
-            if (cprActive == "on") {
-                arrestedMorphology = "cpr";
-            } else {
-                arrestedMorphology = updates["arrest-rhythm"];
-            }
-            ecgTrace.setAttribute("morphology", arrestedMorphology);
-
-            // set heart rate according to morphology
-            if (["sinus", "flatline"].includes(arrestedMorphology)) {
-                ecgTrace.setAttribute("rate", 60);
-            } else if (arrestedMorphology == "cpr") {
-                ecgTrace.setAttribute("rate", 100);
-            } else {
-                ecgTrace.setAttribute("rate", 250);
-            }
-
-            // set user-defined etco2
-            let capnoTrace = document.querySelector(
-                '[sim-parameter="capno-trace"]',
-            );
-            let etco2 = updates["arrest-etco2"];
-
-            let y_scale = etco2 / 36;
-            y_scale = Math.max(0.15, Math.min(1, y_scale));
-
-            capnoTrace.setAttribute("y-scale", y_scale);
-            capnoTrace.setAttribute("sim-value", "capno-normal");
-
-            let etco2Readout = document.querySelector(
-                '[sim-parameter="etco2"]',
-            );
-            etco2Readout.setAttribute("sim-value", etco2);
-            etco2Readout.setAttribute("sim-disabled", false);
-
-            // user user-defined capno
-            let capnoMorphology = updates["arrest-capno"];
-            capnoTrace.setAttribute("sim-value", capnoMorphology);
-            capnoTrace.removeAttribute("sim-disabled");
-
-            // set wobbly spo2 (simulates under-reading a poor trace during arrest)
+            // make spo2 wobbly (needs to be actively un-done when alive)
             let spo2Readout = document.querySelector('[sim-parameter="spo2"]');
-            spo2Readout.setAttribute("sim-value", 64);
-            spo2Readout.removeAttribute("sim-disabled");
             spo2Readout.setAttribute("wobble", 15);
-
-            // make nibp uninterpretable
-            let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
-            let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
-            document
-                .querySelector(
-                    `[sim-parameter="systolic-blood-pressure-noninvasive"]`,
-                )
-                ?.setAttribute("sim-value", imaginarySbp);
-            document
-                .querySelector(
-                    `[sim-parameter="diastolic-blood-pressure-noninvasive"]`,
-                )
-                ?.setAttribute("sim-value", "??");
-            document
-                .querySelector(
-                    `[sim-parameter="mean-arterial-pressure-noninvasive"]`,
-                )
-                ?.setAttribute("sim-value", imaginaryMap);
-
-            // set arrest-style morphologies for remaining traces
-            document
-                .querySelector('[sim-parameter="spo2-trace"]')
-                .setAttribute("sim-value", "flatline");
-            document
-                .querySelector('[sim-parameter="artline-trace"]')
-                .setAttribute("sim-value", "flatline");
-
-            // prevent further updates by returning early
-            return;
         } else {
             // unset wobble on spo2
             let spo2Readout = document.querySelector('[sim-parameter="spo2"]');
@@ -398,4 +316,42 @@ function dumpAllInputState() {
     }
 
     return message;
+}
+
+function _mutateUpdatesForCardiacArrest(updates) {
+    // assign ecg-rhythm to cpr OR arrest-rhythm
+    if (updates["sim-cpr"] == "on") {
+        updates["ecg-rhythm"] = "cpr";
+    } else {
+        updates["ecg-rhythm"] = updates["arrest-rhythm"];
+    }
+
+    // set heart rate according to morphology
+    if (["sinus", "flatline"].includes(updates["ecg-rhythm"])) {
+        updates["heart-rate"] = 104;
+    } else if (updates["ecg-rhythm"] == "cpr") {
+        updates["heart-rate"] = 100;
+    } else {
+        updates["heart-rate"] = 250;
+    }
+
+    // transfer arrest capno/etco2 to main
+    updates["etco2"] = updates["arrest-etco2"];
+    updates["capno-trace"] = updates["arrest-capno"];
+
+    // set spo2 to sod-all
+    updates["spo2"] = 64;
+
+    // make nibp uninterpretably low
+    let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
+    let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
+    updates["systolic-blood-pressure-noninvasive"] = imaginarySbp;
+    updates["diastolic-blood-pressure-noninvasive"] = "??";
+    updates["mean-arterial-pressure-noninvasive"] = imaginaryMap;
+
+    // set arrest-style morphologies for remaining traces
+    updates["spo2-trace"] = "spo2-badtrace";
+    updates["artline-trace"] = "spo2-badtrace";
+
+    return updates;
 }
