@@ -42,7 +42,7 @@ customElements.define(
             this.strokeWidth = parseInt(this.getAttribute("stroke-width")) || 2;
             this.height = parseInt(this.getAttribute("height")) || 250;
             this.maxLayers = parseInt(this.getAttribute("max-layers")) || 10;
-            this.y_scale = parseFloat(this.getAttribute("y-scale")) || 1;
+            this.y_scale = this.calculateYScale();
             this.y_cursor = this.height / 2; // initial baseline = 50% of this.height
             this.wobble_enabled =
                 this.getAttribute("baseline-wobble") == "true";
@@ -54,9 +54,9 @@ customElements.define(
 
             // style the waveSet
             // this.waveSet.style.height = `${this.height}px`;
-        // style the waveSet
-        this.waveSet.style.height = `${this.height}px`
-        this.waveSet.innerHTML = `<style>
+            // style the waveSet
+            this.waveSet.style.height = `${this.height}px`;
+            this.waveSet.innerHTML = `<style>
 sim-wave {
     display: block;
     width: 100%;
@@ -120,11 +120,11 @@ path {
                     this.rate = newValue;
                 }
             }
-            if (name == "y-scale") {
-                this.y_scale = newValue;
-            }
             if (name == "morphology" || name == "sim-value") {
                 this.morphology = newValue;
+            }
+            if (name == "data-scalar") {
+                this.y_scale = this.calculateYScale();
             }
             if (name == "sim-disabled") {
                 if (this.getAttribute("sim-disabled").toLowerCase() == "true") {
@@ -139,7 +139,7 @@ path {
         static get observedAttributes() {
             return [
                 "rate",
-                "y-scale",
+                "data-scalar",
                 "morphology",
                 "sim-value",
                 "sim-disabled",
@@ -449,6 +449,40 @@ path {
         // \____/\__/_/_/_/\__/\__, /  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
         //                    /____/
 
+        // Y SCALING
+        // Used to scale the height of traces (like capno) that can appear shorter/taller according to an external variable (like etco2)
+        // Uses a simple linear equation: y = mx + c
+        // With min and max guardrails
+        // Defaults to 1 when nothing is set
+
+        // This gets called:
+        // - via the attributeChangedCallback above (when changing [data-scalar])
+        // - during initialisation of the wave element
+
+        calculateYScale() {
+            // accept sensible defaults for these, if not already set
+            let m = this.dataset.scaleM || 1;
+            let c = this.dataset.scaleC || 0;
+            let min = this.dataset.scaleMin || 0;
+            let max = this.dataset.scaleMax || 1;
+
+            // kick up a fuss if no scalar is set, but fail safe
+            let scalar = this.dataset.scalar || 1;
+            if (!this.hasAttribute("data-scalar")) {
+                console.warn(
+                    "Wavemaker: no scalar value provided for Y scaling, skipping",
+                );
+                return 1;
+            }
+
+            let scale = Math.min(Math.max(m * scalar + c, min), max);
+            console.debug(
+                `Wavemaker: Y scale calculated as ${scale} from m: ${m}, c: ${c}, scalar: ${scalar}, min: ${min}, max: ${max}`,
+            );
+            return scale;
+        }
+
+        // UNIT CONVERSIONS
         pixelsToMilliseconds(pixels) {
             return (1000 * pixels) / this.pixelsPerSecond;
         }
