@@ -121,7 +121,14 @@ path {
                 }
             }
             if (name == "morphology" || name == "sim-value") {
-                this.morphology = newValue;
+                if (
+                    this.getAttribute("data-sim-enabled")?.toLowerCase() ==
+                    "false"
+                ) {
+                    this.morphology = "sim-disconnect";
+                } else {
+                    this.morphology = newValue;
+                }
             }
             if (name == "data-scalar") {
                 this.y_scale = this.calculateYScale();
