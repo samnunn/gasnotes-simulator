@@ -61,18 +61,19 @@ customElements.define(
             clearTimeout(this.wobble_timer);
 
             let trueValue = this.getAttribute("sim-value");
-            let randomValue =
-                parseInt(trueValue) +
-                Math.floor(
-                    Math.random() * this.wobble_factor * 2 - this.wobble_factor,
-                );
+            trueValue = parseInt(trueValue);
+
+            let randomComponent = Math.floor(
+                Math.random() * this.wobble_factor * 2 - this.wobble_factor,
+            );
+            let randomValue = trueValue + randomComponent;
 
             // apply limits
-            if (isNaN(this.wobble_max)) {
+            if (!isNaN(this.wobble_max)) {
                 randomValue = Math.min(randomValue, this.wobble_max);
             }
 
-            if (isNaN(this.wobble_min)) {
+            if (!isNaN(this.wobble_min)) {
                 randomValue = Math.max(randomValue, this.wobble_min);
             }
 
