@@ -634,7 +634,7 @@ sim-slider {
     }
 }
 
-& sim-slider[sim-disabled] {
+& sim-slider[data-sim-enabled] {
     & .sim-value {
         opacity: 0;
         visibility: hidden;

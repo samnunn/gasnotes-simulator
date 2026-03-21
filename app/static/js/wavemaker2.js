@@ -126,9 +126,14 @@ path {
             if (name == "data-scalar") {
                 this.y_scale = this.calculateYScale();
             }
-            if (name == "sim-disabled") {
-                if (this.getAttribute("sim-disabled").toLowerCase() == "true") {
-                    this.setAttribute("sim-value", "sim-disconnect");
+            if (name == "data-sim-enabled") {
+                if (
+                    this.getAttribute("data-sim-enabled")?.toLowerCase() ==
+                    "false"
+                ) {
+                    this.morphology = "sim-disconnect";
+                } else {
+                    this.morphology = this.getAttribute("morphology");
                 }
             }
 
@@ -137,13 +142,7 @@ path {
         }
 
         static get observedAttributes() {
-            return [
-                "rate",
-                "data-scalar",
-                "morphology",
-                "sim-value",
-                "sim-disabled",
-            ];
+            return ["rate", "data-scalar", "morphology", "data-sim-enabled"];
         }
 
         //     __  ___      _          __

@@ -244,7 +244,7 @@
             width: 50px;
             padding: 0 0.5ch;
         }
-        #nibp-timer-widget[sim-disabled="true"] {
+        #nibp-timer-widget[data-sim-enabled="true"] {
             visibility: hidden;
         }
 
@@ -557,243 +557,192 @@
         }
     </style>
 
-    {% with enablers = data.last_known_state.enablers or {}, updates = data.last_known_state.updates or {} %}
-
-        {% if data.demo == true %}
-            {% set enablers = {"art": True, "capno": True} %}
-        {% endif %}
-
-        <div id="sim-monitor">
-            <div>
-                <sim-trace
-                    height="200"
-                    id="ecg"
-                    sim-parameter="ecg-rhythm"
-                    sim-value="{{ updates['ecg-rhythm'] | default('sinus') }}"
-                    rate="{{ updates['heart-rate'] | default('67') }}"
-                    stroke-colour="rgb(76, 209, 55)"
-                    {{ enabled(enablers, "ecg", True) }}
-                ></sim-trace>
-            </div>
-            <div>
-                <p class="readout-label">HR (/min)</p>
+    <div id="sim-monitor">
+        <div>
+            <sim-trace
+                height="200"
+                id="ecg"
+                data-sim-parameter="ecg-rhythm heart-rate enabler-for-ecg"
+                data-sim-parameter-mapping="ecg-rhythm:morphology heart-rate:rate enabler-for-ecg:data-sim-enabled"
+                stroke-colour="rgb(76, 209, 55)"
+            ></sim-trace>
+        </div>
+        <div>
+            <p class="readout-label">HR (/min)</p>
+            <sim-readout
+                data-sim-parameter="heart-rate"
+                class="green"
+                data-sim-wobble-min="0"
+                data-sim-wobble="3"
+                sim-limit-low="50"
+                sim-limit-high="100"
+            ></sim-readout>
+        </div>
+        <div>
+            <sim-trace
+                height="200"
+                id="spo2"
+                data-sim-parameter="spo2-trace enabler-for-spo2"
+                data-sim-parameter-mapping="spo2-trace:morphology enabler-for-spo2:data-sim-enabled"
+                mode="copycat"
+                pacemaker="ecg"
+                stroke-colour="rgb(0, 168, 255)"
+            ></sim-trace>
+        </div>
+        <div>
+            <p class="readout-label">SpO<sub>2</sub> (%)</p>
+            <sim-readout
+                data-sim-parameter="spo2 enabler-for-spo2"
+                data-sim-parameter-mapping="spo2:sim-value enabler-for-spo2:data-sim-enabled"
+                class="blue"
+                data-sim-wobble="2"
+                data-sim-wobble-max="100"
+                data-sim-wobble-min="0"
+                sim-limit-low="94"
+                sim-limit-high="200"
+            ></sim-readout>
+        </div>
+        <div>
+            <sim-trace
+                height="200"
+                mode="copycat"
+                pacemaker="ecg"
+                data-sim-parameter="artline-trace enabler-for-art"
+                data-sim-parameter-mapping="artline-trace:morphology enabler-for-art:data-sim-enabled"
+                stroke-colour="rgb(232, 65, 24)"
+            ></sim-trace>
+        </div>
+        <div id="bp-readout">
+            <p class="readout-label">ART (mmHg)</p>
+            <div class="flex wrap">
                 <sim-readout
-                    prefix=""
-                    suffix=""
-                    sim-parameter="heart-rate"
-                    class="green"
-                    sim-value="{{ updates['heart-rate'] | default('67') }}"
-                    sim-transitionable="true"
-                    wobble-min="0"
-                    wobble="3"
-                    sim-limit-low="50"
-                    sim-limit-high="100"
-                    {{ enabled(enablers, "ecg", True) }}
-                ></sim-readout>
-            </div>
-            <div>
-                <sim-trace
-                    height="200"
-                    id="spo2"
-                    sim-parameter="spo2-trace"
-                    mode="copycat"
-                    pacemaker="ecg"
-                    sim-value="{{ updates['spo2-trace'] | default('spo2') }}"
-                    data-scale-min="0.4"
-                    data-scale-max="1"
-                    data-scale-m="0.01"
-                    data-scale-c="0"
-                    stroke-colour="rgb(0, 168, 255)"
-                    {{ enabled(enablers, "spo2", True) }}
-                ></sim-trace>
-            </div>
-            <div>
-                <p class="readout-label">SpO<sub>2</sub> (%)</p>
-                <sim-readout
-                    prefix=""
-                    suffix=""
-                    sim-parameter="spo2"
-                    class="blue"
-                    sim-value="{{ updates['spo2'] | default('99') }}"
-                    sim-transitionable="true"
-                    wobble="2"
-                    wobble-max="100"
-                    wobble-min="0"
-                    sim-limit-low="94"
-                    sim-limit-high="200"
-                    {{ enabled(enablers, "spo2", True) }}
-                ></sim-readout>
-            </div>
-            <div>
-                <sim-trace
-                    height="200"
-                    mode="copycat"
-                    pacemaker="ecg"
-                    sim-parameter="artline-trace"
-                    sim-value="{{ updates['artline-trace'] | default('artline') }}"
-                    stroke-colour="rgb(232, 65, 24)"
-                    {{ enabled(enablers, "art", False) }}
-                ></sim-trace>
-            </div>
-            <div id="bp-readout">
-                <p class="readout-label">ART (mmHg)</p>
-                <div class="flex wrap">
-                    <sim-readout
-                        prefix=""
-                        suffix=" / "
-                        class="red"
-                        sim-parameter="systolic-blood-pressure"
-                        sim-value="{{ updates['systolic-blood-pressure'] | default('119') }}"
-                        sim-transitionable="true"
-                        {{ enabled(enablers, "art", False) }}
-                    ></sim-readout>
-                    <sim-readout
-                        prefix=""
-                        suffix=""
-                        class="red"
-                        sim-parameter="diastolic-blood-pressure"
-                        sim-value="{{ updates['diastolic-blood-pressure'] | default('57') }}"
-                        sim-transitionable="true"
-                        {{ enabled(enablers, "art", False) }}
-                    ></sim-readout>
-                </div>
-                <sim-readout
-                    prefix="("
-                    suffix=")"
-                    sim-parameter="mean-arterial-pressure"
+                    data-sim-suffix=" / "
                     class="red"
-                    sim-value="{{ updates['mean-arterial-pressure'] | default('78') }}"
-                    sim-transitionable="true"
+                    data-sim-parameter="systolic-blood-pressure enabler-for-art"
+                    data-sim-parameter-mapping="systolic-blood-pressure:sim-value enabler-for-art:data-sim-enabled"
+                ></sim-readout>
+                <sim-readout
+                    class="red"
+                    data-sim-parameter="diastolic-blood-pressure enabler-for-art"
+                    data-sim-parameter-mapping="diastolic-blood-pressure:sim-value enabler-for-art:data-sim-enabled"
+                ></sim-readout>
+            </div>
+            <sim-readout
+                data-sim-prefix="("
+                data-sim-suffix=")"
+                class="red"
+                data-sim-parameter="mean-arterial-pressure enabler-for-art"
+                data-sim-parameter-mapping="mean-arterial-pressure:sim-value enabler-for-art:data-sim-enabled"
+                sim-limit-low="60"
+                sim-limit-high="120"
+            ></sim-readout>
+        </div>
+        <div>
+            <sim-trace
+                height="200"
+                id="capno"
+                data-sim-parameter="capno-trace respiratory-rate etco2 enabler-for-capno"
+                data-sim-parameter-mapping="capno-trace:morphology respiratory-rate:rate etco2:data-scalar enabler-for-capno:data-sim-enabled"
+                stroke-colour="rgb(251, 197, 49)"
+                fill-colour="rgb(251, 197, 49)"
+                fill-opacity="0.15"
+                x-rate="60"
+                y-scale="1"
+                data-scale-min="0.05"
+                data-scale-max="1.5"
+                data-scale-m="0.025"
+                data-scale-c="0"
+            ></sim-trace>
+        </div>
+        <div id="etco2">
+            <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
+            <sim-readout
+                data-sim-parameter="etco2 enabler-for-capno"
+                data-sim-parameter-mapping="etco2:sim-value enabler-for-capno:data-sim-enabled"
+                class="yellow"
+                sim-transitionable="true"
+                data-sim-wobble="2"
+                data-sim-wobble-min="0"
+                sim-limit-low="34"
+                sim-limit-high="46"
+            ></sim-readout>
+        </div>
+        <audio
+            id="nibp-audio"
+            src="{{ url_for('static', filename='audio/nibp.mp3') }}"
+            preload="auto"
+        ></audio>
+        <div id="nibp">
+            <p class="readout-label">
+                NIBP (mmHg)
+                <span id="nibp-timer-widget" data-sim-enabled="true"
+                    >Auto 02:00</span
+                >
+            </p>
+            <!-- slow-updating -->
+            <div class="flex wrap">
+                <sim-readout
+                    data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
+                    class="purple"
+                    data-sim-parameter="enabler-for-nibp"
+                    data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
+                ></sim-readout>
+                <sim-readout
+                    data-sim-prefix=" / "
+                    data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
+                    class="purple"
+                    data-sim-parameter="enabler-for-nibp"
+                    data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
+                ></sim-readout>
+                <sim-readout
+                    data-sim-prefix="("
+                    data-sim-suffix=")"
+                    data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
+                    class="purple"
+                    data-sim-parameter="enabler-for-nibp"
+                    data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
                     sim-limit-low="60"
                     sim-limit-high="120"
-                    {{ enabled(enablers, "art", False) }}
                 ></sim-readout>
             </div>
-            <div>
-                <sim-trace
-                    height="200"
-                    id="capno"
-                    sim-parameter="capno-trace"
-                    sim-value="{{ updates['capno-trace'] | default('capno-normal') }}"
-                    rate="{{ updates['respiratory-rate'] | default('18') }}"
-                    stroke-colour="rgb(251, 197, 49)"
-                    fill-colour="rgb(251, 197, 49)"
-                    fill-opacity="0.15"
-                    x-rate="60"
-                    y-scale="1"
-                    data-scale-min="0.05"
-                    data-scale-max="1.5"
-                    data-scale-m="0.025"
-                    data-scale-c="0"
-                    {{ enabled(enablers, "capno", False) }}
-                ></sim-trace>
-            </div>
-            <div id="etco2">
-                <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
-                <sim-readout
-                    prefix=""
-                    suffix=""
-                    sim-parameter="etco2"
-                    sim-value="{{ updates['etco2'] | default('36') }}"
-                    class="yellow"
-                    sim-transitionable="true"
-                    wobble="2"
-                    wobble-min="0"
-                    sim-limit-low="34"
-                    sim-limit-high="46"
-                    {{ enabled(enablers, "capno", False) }}
-                ></sim-readout>
-            </div>
-            <audio
-                id="nibp-audio"
-                src="{{ url_for('static', filename='audio/nibp.mp3') }}"
-                preload="auto"
-            ></audio>
-            <div id="nibp">
-                <p class="readout-label">
-                    NIBP (mmHg)
-                    <span id="nibp-timer-widget" sim-disabled="true"
-                        >Auto 02:00</span
-                    >
-                </p>
-                <!-- slow-updating -->
-                <div class="flex wrap">
-                    <sim-readout
-                        prefix=""
-                        suffix=""
-                        data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
-                        class="purple"
-                        sim-value="{{ updates['systolic-blood-pressure-noninvasive'] | default('104') }}"
-                        {{ enabled(enablers, "nibp", True) }}
-                    ></sim-readout>
-                    <sim-readout
-                        prefix=" / "
-                        suffix=""
-                        data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
-                        class="purple"
-                        sim-value="{{ updates['diastolic-blood-pressure-noninvasive'] | default('66') }}"
-                        {{ enabled(enablers, "nibp", True) }}
-                    ></sim-readout>
-                    <sim-readout
-                        prefix="("
-                        suffix=")"
-                        data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
-                        class="purple"
-                        sim-value="{{ updates['mean-arterial-pressure-noninvasive'] | default('78') }}"
-                        sim-limit-low="60"
-                        sim-limit-high="120"
-                        {{ enabled(enablers, "nibp", True) }}
-                    ></sim-readout>
-                </div>
-                <!-- live-updating -->
-                <sim-readout
-                    prefix=""
-                    suffix=""
-                    sim-parameter="systolic-blood-pressure-noninvasive"
-                    class="purple"
-                    sim-value="{{ updates['systolic-blood-pressure-noninvasive'] | default('104') }}"
-                    {{ enabled(enablers, "nibp", True) }}
-                    hidden
-                ></sim-readout>
-                <sim-readout
-                    prefix=" / "
-                    suffix=""
-                    sim-parameter="diastolic-blood-pressure-noninvasive"
-                    class="purple"
-                    sim-value="{{ updates['diastolic-blood-pressure-noninvasive'] | default('66') }}"
-                    {{ enabled(enablers, "nibp", True) }}
-                    hidden
-                ></sim-readout>
-                <sim-readout
-                    prefix="("
-                    suffix=")"
-                    sim-parameter="mean-arterial-pressure-noninvasive"
-                    class="purple"
-                    sim-value="{{ updates['mean-arterial-pressure-noninvasive'] | default('78') }}"
-                    {{ enabled(enablers, "nibp", True) }}
-                    hidden
-                ></sim-readout>
-            </div>
-            <div id="rr">
-                <p class="readout-label">RR (/min)</p>
-                <sim-readout
-                    prefix=""
-                    suffix=""
-                    display-name="Respiratory Rate"
-                    sim-parameter="respiratory-rate"
-                    sim-value="{{ updates['respiratory-rate'] | default('18') }}"
-                    class="white"
-                    sim-transitionable="true"
-                    wobble="1"
-                    wobble-min="0"
-                    {{ enabled(enablers, "capno", False) }}
-                    sim-limit-low="8"
-                    sim-limit-high="20"
-                ></sim-readout>
-            </div>
+            <!-- live-updating -->
+            <sim-readout
+                data-sim-parameter="systolic-blood-pressure-noninvasive"
+                class="purple"
+                hidden
+            ></sim-readout>
+            <sim-readout
+                data-sim-prefix=" / "
+                data-sim-parameter="diastolic-blood-pressure-noninvasive"
+                class="purple"
+                hidden
+            ></sim-readout>
+            <sim-readout
+                data-sim-prefix="("
+                data-sim-suffix=")"
+                data-sim-parameter="mean-arterial-pressure-noninvasive"
+                class="purple"
+                hidden
+            ></sim-readout>
         </div>
-    {% endwith %}
+        <div id="rr">
+            <p class="readout-label">RR (/min)</p>
+            <sim-readout
+                display-name="Respiratory Rate"
+                data-sim-parameter="respiratory-rate enabler-for-capno"
+                data-sim-parameter-mapping="respiratory-rate:sim-value enabler-for-capno:data-sim-enabled"
+                class="white"
+                sim-transitionable="true"
+                data-sim-wobble="1"
+                data-sim-wobble-min="0"
+                sim-limit-low="8"
+                sim-limit-high="20"
+            ></sim-readout>
+        </div>
+    </div>
+
     {% include "components/connection_modal.html" %}
+
     <dialog class="tray" id="resources">
         <div id="resource-header">
             <span>Resources</span>
@@ -808,6 +757,7 @@
     </dialog>
 
     {% include 'components/abg_machine.html' %}
+
     <script>
         window.initial_state = `{{ data.initial_state | default({}) | tojson }}`;
     </script>

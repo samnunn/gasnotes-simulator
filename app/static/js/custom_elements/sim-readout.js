@@ -9,9 +9,12 @@ customElements.define(
 
         constructor() {
             super();
-            this.prefix = this.getAttribute("prefix");
-            this.suffix = this.getAttribute("suffix");
-            this.wobble_factor = parseInt(this.getAttribute("wobble")) || 0;
+            this.prefix = this.dataset.simPrefix || "";
+            this.suffix = this.dataset.simSuffix || "";
+            this.wobble_factor = parseInt(this.dataset.simWobble) || 0;
+            this.wobble_min = parseInt(this.dataset.simWobbleMin);
+            this.wobble_max = parseInt(this.dataset.simWobbleMax);
+
             this.limitHigh =
                 parseInt(this.getAttribute("sim-limit-high")) || null;
             this.limitLow =
@@ -28,7 +31,9 @@ customElements.define(
                 printedValue = this.getAttribute("sim-value");
             }
 
-            if (this.getAttribute("sim-disabled")?.toLowerCase() == "true") {
+            if (
+                this.getAttribute("data-sim-enabled")?.toLowerCase() == "false"
+            ) {
                 printedValue = "--";
             }
 
@@ -62,13 +67,13 @@ customElements.define(
                     Math.random() * this.wobble_factor * 2 - this.wobble_factor,
                 );
 
-            let max = parseInt(this.getAttribute("wobble-max"));
-            if (Number.isInteger(max)) {
-                randomValue = Math.min(randomValue, max);
+            // apply limits
+            if (this.wobble_max) {
+                randomValue = Math.min(randomValue, this.wobble_max);
             }
-            let min = parseInt(this.getAttribute("wobble-min"));
-            if (Number.isInteger(min)) {
-                randomValue = Math.max(randomValue, min);
+
+            if (this.wobble_min) {
+                randomValue = Math.max(randomValue, this.wobble_min);
             }
 
             this.updateReadout(randomValue);
@@ -87,15 +92,15 @@ customElements.define(
         }
 
         attributeChangedCallback(name, oldValue, newValue) {
-            if (name == "wobble") {
-                this.wobble_factor = parseInt(newValue);
+            if (name == "data-sim-wobble") {
+                this.wobble_factor = parseInt(newValue) || 0;
             } else {
                 this.updateReadout();
             }
         }
 
         static get observedAttributes() {
-            return ["sim-value", "sim-disabled", "wobble"];
+            return ["sim-value", "data-sim-enabled", "data-simwobble"];
         }
     },
 );

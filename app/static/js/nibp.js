@@ -81,7 +81,7 @@ function animateCuffPressure(
 
     // make sure it's visible
     mapDisplay.removeAttribute("hidden");
-    mapDisplay.setAttribute("sim-disabled", "false");
+    mapDisplay.setAttribute("data-sim-enabled", "true");
 
     function frame(now) {
         // clock math
@@ -162,7 +162,7 @@ function renderNibpTimerWidget() {
 
     if (
         nextTriggerTimeMs &&
-        nibpTimerWidget.getAttribute("sim-disabled") != "true" &&
+        nibpTimerWidget.getAttribute("data-sim-enabled") != "true" &&
         now >= nextTriggerTimeMs
     ) {
         // run nibp
@@ -261,9 +261,9 @@ export function attachMonitorNibpCycleSwitchHandler() {
         if (state == true) {
             resetNibpTimer();
             renderNibpTimerWidget();
-            nibpTimerWidget.setAttribute("sim-disabled", "false");
+            nibpTimerWidget.setAttribute("data-sim-enabled", "false");
         } else {
-            nibpTimerWidget.setAttribute("sim-disabled", "true");
+            nibpTimerWidget.setAttribute("data-sim-enabled", "true");
         }
         console.debug(`NIBP: switch changed to "${state ? "on" : "off"}"`);
     });
