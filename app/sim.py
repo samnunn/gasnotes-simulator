@@ -51,6 +51,7 @@ DEFAULT_DATA = {
     "enabler-for-spo2": "true",
     "enabler-for-nibp": "true",
     "enabler-for-art": "true",
+    "enabler-for-capno": "false",
 
     "arrest-rhythm": "vfib",
     "arrest-capno": "flatline",
