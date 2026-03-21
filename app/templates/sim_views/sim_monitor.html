@@ -570,8 +570,8 @@
         <div>
             <p class="readout-label">HR (/min)</p>
             <sim-readout
-                data-sim-parameter="heart-rate"
                 class="green"
+                data-sim-parameter="heart-rate"
                 data-sim-wobble-min="0"
                 data-sim-wobble="3"
                 sim-limit-low="50"
@@ -592,9 +592,9 @@
         <div>
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
             <sim-readout
+                class="blue"
                 data-sim-parameter="spo2 enabler-for-spo2"
                 data-sim-parameter-mapping="spo2:sim-value enabler-for-spo2:data-sim-enabled"
-                class="blue"
                 data-sim-wobble="2"
                 data-sim-wobble-max="100"
                 data-sim-wobble-min="0"
@@ -607,17 +607,17 @@
                 height="200"
                 mode="copycat"
                 pacemaker="ecg"
+                stroke-colour="rgb(232, 65, 24)"
                 data-sim-parameter="artline-trace enabler-for-art"
                 data-sim-parameter-mapping="artline-trace:morphology enabler-for-art:data-sim-enabled"
-                stroke-colour="rgb(232, 65, 24)"
             ></sim-trace>
         </div>
         <div id="bp-readout">
             <p class="readout-label">ART (mmHg)</p>
             <div class="flex wrap">
                 <sim-readout
-                    data-sim-suffix=" / "
                     class="red"
+                    data-sim-suffix=" / "
                     data-sim-parameter="systolic-blood-pressure enabler-for-art"
                     data-sim-parameter-mapping="systolic-blood-pressure:sim-value enabler-for-art:data-sim-enabled"
                 ></sim-readout>
@@ -639,13 +639,13 @@
         </div>
         <div>
             <sim-trace
-                height="200"
                 id="capno"
+                height="200"
+                fill-opacity="0.15"
+                fill-colour="rgb(251, 197, 49)"
+                stroke-colour="rgb(251, 197, 49)"
                 data-sim-parameter="capno-trace respiratory-rate etco2 enabler-for-capno"
                 data-sim-parameter-mapping="capno-trace:morphology respiratory-rate:rate etco2:data-scalar enabler-for-capno:data-sim-enabled"
-                stroke-colour="rgb(251, 197, 49)"
-                fill-colour="rgb(251, 197, 49)"
-                fill-opacity="0.15"
                 x-rate="60"
                 y-scale="1"
                 data-scale-min="0.05"
@@ -657,9 +657,9 @@
         <div id="etco2">
             <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
             <sim-readout
+                class="yellow"
                 data-sim-parameter="etco2 enabler-for-capno"
                 data-sim-parameter-mapping="etco2:sim-value enabler-for-capno:data-sim-enabled"
-                class="yellow"
                 sim-transitionable="true"
                 data-sim-wobble="2"
                 data-sim-wobble-min="0"
@@ -682,23 +682,23 @@
             <!-- slow-updating -->
             <div class="flex wrap">
                 <sim-readout
-                    data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
                     class="purple"
+                    data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
                     data-sim-parameter="enabler-for-nibp"
                     data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
                 ></sim-readout>
                 <sim-readout
+                    class="purple"
                     data-sim-prefix=" / "
                     data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
-                    class="purple"
                     data-sim-parameter="enabler-for-nibp"
                     data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
                 ></sim-readout>
                 <sim-readout
+                    class="purple"
                     data-sim-prefix="("
                     data-sim-suffix=")"
                     data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
-                    class="purple"
                     data-sim-parameter="enabler-for-nibp"
                     data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
                     sim-limit-low="60"
@@ -707,8 +707,8 @@
             </div>
             <!-- live-updating -->
             <sim-readout
-                data-sim-parameter="systolic-blood-pressure-noninvasive"
                 class="purple"
+                data-sim-parameter="systolic-blood-pressure-noninvasive"
                 hidden
             ></sim-readout>
             <sim-readout
@@ -728,10 +728,10 @@
         <div id="rr">
             <p class="readout-label">RR (/min)</p>
             <sim-readout
+                class="white"
                 display-name="Respiratory Rate"
                 data-sim-parameter="respiratory-rate enabler-for-capno"
                 data-sim-parameter-mapping="respiratory-rate:sim-value enabler-for-capno:data-sim-enabled"
-                class="white"
                 sim-transitionable="true"
                 data-sim-wobble="1"
                 data-sim-wobble-min="0"
