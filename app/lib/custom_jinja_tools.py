@@ -25,6 +25,6 @@ def value_autoselect(comparator: str, value: str):
 def enabled(all_enablers: dict, this_enabler: str, default: bool):
     is_enabled = all_enablers.get(this_enabler, default)
     is_enabled = str(not is_enabled).lower()
-    output = f'data-sim-enabled-by="{this_enabler}" sim-disabled="{is_enabled}"'
+    output = f'data-sim-enabled-by="{this_enabler}" data-sim-enabled="{is_enabled}"'
 
     return Markup(output)
