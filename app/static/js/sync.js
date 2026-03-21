@@ -1,90 +1,257 @@
 import { updateNibpReadoutImmediately } from "./nibp";
 
-export class TransitionManager {
-    targetElement;
-    targetValue;
-    initialValue;
-    currentValue;
-    timeout;
-    incrementSize;
-    incrementDuration = 3000;
-    running = true;
-    nonTransitionable = false;
+// export class TransitionManager {
+//     targetElement;
+//     targetValue;
+//     initialValue;
+//     currentValue;
+//     timeout;
+//     incrementSize;
+//     incrementDuration = 3000;
+//     running = true;
+//     nonTransitionable = false;
 
-    constructor(targetElement, targetValue, targetParameter = "sim-value") {
-        this.targetElement = targetElement;
-        this.targetValue = parseInt(targetValue);
-        this.initialValue = parseInt(
-            this.targetElement.getAttribute("sim-value"),
-        );
-        this.currentValue = this.initialValue;
+//     constructor(targetElement, targetValue, targetParameter = "sim-value") {
+//         this.targetElement = targetElement;
+//         this.targetValue = parseInt(targetValue);
+//         this.initialValue = parseInt(
+//             this.targetElement.getAttribute("sim-value"),
+//         );
+//         this.currentValue = this.initialValue;
 
-        // immediately commit changes for non-transitionable elements
-        // early return to prevent any further horseplay
-        if (this.targetElement.hasAttribute("sim-transitionable") != true) {
-            // needs to skip parseInt() because wave morphologies are strings
-            setValue(this.targetElement, targetValue);
-            this.nonTransitionable = true;
-            return;
-        }
+//         // immediately commit changes for non-transitionable elements
+//         // early return to prevent any further horseplay
+//         if (this.targetElement.hasAttribute("sim-transitionable") != true) {
+//             // needs to skip parseInt() because wave morphologies are strings
+//             setValue(this.targetElement, targetValue);
+//             this.nonTransitionable = true;
+//             return;
+//         }
 
-        // stop the currently-running transition
-        if (this.targetElement.activeTransition instanceof TransitionManager) {
-            this.targetElement.activeTransition.running = false;
-        }
+//         // stop the currently-running transition
+//         if (this.targetElement.activeTransition instanceof TransitionManager) {
+//             this.targetElement.activeTransition.running = false;
+//         }
 
-        // substitute this transition
-        this.targetElement.activeTransition = this;
+//         // substitute this transition
+//         this.targetElement.activeTransition = this;
+//     }
+
+//     start() {
+//         if (this.nonTransitionable) return;
+
+//         // set duration
+//         let duration = document.body.getAttribute("sim-transition-time") || 0;
+
+//         // duration is an integer number of seconds
+//         if (duration > 0) {
+//             this.incrementSize =
+//                 (this.targetValue - this.initialValue) /
+//                 ((duration * 1000) / this.incrementDuration);
+//         } else {
+//             this.incrementSize = this.targetValue - this.initialValue;
+//         }
+
+//         // begin
+//         this.increment();
+//     }
+
+//     increment() {
+//         // only increment if running == true (gets set to false as an interrupt/end of transition signal)
+
+//         // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
+//         let totalChange = Math.abs(this.currentValue - this.initialValue);
+//         let plannedChange = Math.abs(this.targetValue - this.initialValue);
+//         if (totalChange >= plannedChange) {
+//             this.currentValue = this.targetValue;
+//             this.running = false;
+//         } else {
+//             this.currentValue += this.incrementSize;
+//         }
+
+//         // commit changes to the DOM
+//         // parseInt() to get rid of decimals
+//         setValue(this.targetElement, parseInt(this.currentValue));
+
+//         if (this.running == true) {
+//             // set a timeout for next increment
+//             // will be a no-op if this.running was set to false above
+//             this.timeout = setTimeout(() => {
+//                 this.increment();
+//             }, this.incrementDuration); // period is set in this.incrementDuration above
+//         }
+//     }
+
+//     cancel() {
+//         this.timeout = null;
+//     }
+// }
+
+class SimTransitionSupervisor {
+    // assumes state object has exactly the right keys (should be validated before handing over)
+    // functions assume their inputs and strings, so often parseFloat() etc
+    // they return strings too
+
+    constructor(initial_state) {
+        this.INCREMENT_DURATION = 3_000;
+        this.TRANSITIONABLE_ELEMENTS = [
+            "heart-rate",
+            "spo2",
+            "etco2",
+            "respiratory-rate",
+            "systolic-blood-pressure-noninvasive",
+            "diastolic-blood-pressure-noninvasive",
+            "mean-arterial-pressure-noninvasive",
+            "systolic-blood-pressure",
+            "diastolic-blood-pressure",
+            "mean-arterial-pressure",
+        ];
+
+        this.timeout = null;
+
+        this.current_state = initial_state;
+        this.target_state = initial_state;
+        this.deltas = {};
     }
 
-    start() {
-        if (this.nonTransitionable) return;
+    set_target_state(new_target_state, transition_duration) {
+        this.deltas = this._calculateDeltas(
+            this.deltas,
+            this.current_state,
+            this.target_state,
+            new_target_state,
+            transition_duration,
+        );
+        this.target_state = new_target_state;
 
-        // set duration
-        let duration = document.body.getAttribute("sim-transition-time") || 0;
-
-        // duration is an integer number of seconds
-        if (duration > 0) {
-            this.incrementSize =
-                (this.targetValue - this.initialValue) /
-                ((duration * 1000) / this.incrementDuration);
-        } else {
-            this.incrementSize = this.targetValue - this.initialValue;
-        }
-
-        // begin
+        // increment immediately
+        clearTimeout(this.timeout);
         this.increment();
     }
 
     increment() {
-        // only increment if running == true (gets set to false as an interrupt/end of transition signal)
+        let intermediate_state = this.current_state;
 
-        // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
-        let totalChange = Math.abs(this.currentValue - this.initialValue);
-        let plannedChange = Math.abs(this.targetValue - this.initialValue);
-        if (totalChange >= plannedChange) {
-            this.currentValue = this.targetValue;
-            this.running = false;
-        } else {
-            this.currentValue += this.incrementSize;
+        for (let key in intermediate_state) {
+            if (key in this.deltas) {
+                intermediate_state[key] =
+                    parseFloat(intermediate_state[key]) +
+                    parseFloat(this.deltas[key]);
+
+                // overshoot/completion detector
+                // elegant? no
+                // understandable? yes
+                let target = parseFloat(this.target_state[key]); // stored as strings elsewhere, sigh
+                let is_increasing = this.deltas[key] > 0;
+                let is_decreasing = !is_increasing;
+                let increase_complete = intermediate_state[key] >= target;
+                let decrease_complete = intermediate_state[key] <= target;
+
+                if (
+                    (is_increasing && increase_complete) ||
+                    (is_decreasing && decrease_complete)
+                ) {
+                    intermediate_state[key] = target;
+                    delete this.deltas[key];
+                }
+
+                // re-stringify
+                intermediate_state[key] = intermediate_state[key]
+                    .toFixed(0)
+                    .toString();
+            } else {
+                intermediate_state[key] = this.target_state[key];
+            }
         }
 
-        // commit changes to the DOM
-        // parseInt() to get rid of decimals
-        setValue(this.targetElement, parseInt(this.currentValue));
+        console.debug(
+            `Sync: transitioning to intermediate state: `,
+            intermediate_state,
+        );
 
-        if (this.running == true) {
-            // set a timeout for next increment
-            // will be a no-op if this.running was set to false above
-            this.timeout = setTimeout(() => {
-                this.increment();
-            }, this.incrementDuration); // period is set in this.incrementDuration above
+        // apply current_state to DOM
+        _applyStateToDom(intermediate_state);
+
+        // save state
+        this.current_state = intermediate_state;
+
+        // eat own tail
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+            this.increment();
+        }, this.INCREMENT_DURATION);
+    }
+
+    _calculateDeltas(
+        stale_deltas,
+        current_state,
+        stale_target_state,
+        new_target_state,
+        transition_duration,
+    ) {
+        let deltas = stale_deltas;
+        for (let key in new_target_state) {
+            if (!this.TRANSITIONABLE_ELEMENTS.includes(key)) continue; // skip if non-transitionable
+
+            if (transition_duration == 0) {
+                // immediate transition
+
+                deltas[key] =
+                    parseFloat(new_target_state[key]) -
+                    parseFloat(current_state[key]);
+            } else {
+                // gradual transition
+
+                let target_unchanged =
+                    new_target_state[key] == stale_target_state[key];
+                if (target_unchanged) {
+                    // keep using the old delta, effectively "continuing" the old transition
+                    continue;
+                } else {
+                    // recaulate delta based on new target, picking up from current state (wherever we are in the old transition)
+                    deltas[key] =
+                        (parseFloat(new_target_state[key]) -
+                            parseFloat(current_state[key])) *
+                        (this.INCREMENT_DURATION / transition_duration);
+                }
+            }
+        }
+        return deltas;
+    }
+}
+
+export function validateStateObject(state) {
+    let requiredKeys = Object.keys(window.default_data["updates"]);
+    let observedKeys = Object.keys(state);
+
+    if (requiredKeys.length != observedKeys.length) {
+        console.error(
+            "Sync: proposed state object is missing required keys",
+            state,
+        );
+    }
+
+    for (let key of requiredKeys) {
+        if (!(key in state)) {
+            console.error(
+                `Sync: state object is missing required key: ${key}`,
+                state,
+            );
+            return false;
         }
     }
 
-    cancel() {
-        this.timeout = null;
+    for (let key of observedKeys) {
+        if (!requiredKeys.includes(key)) {
+            console.error(
+                `Sync: state object has unexpected key: ${key}`,
+                state,
+            );
+            return false;
+        }
     }
+
+    return true;
 }
 
 export function setValue(target, value) {
@@ -121,7 +288,7 @@ export function transitionIfAble(func) {
 }
 
 export function registerMonitorSyncReceiver(socket) {
-    if (document.body.dataset.simDemoMode == "true") return;
+    // if (document.body.dataset.simDemoMode == "true") return;
 
     DEV: (() => {
         // check for elements with multiple sim-parameters that don't have a valid mapping
@@ -157,17 +324,16 @@ export function registerMonitorSyncReceiver(socket) {
         }
     })();
 
-    function handleMonitorStateUpdate(message) {
-        let state = message["updates"];
-        console.debug(
-            "Sync: got updated state from server, updates were: ",
-            state,
-        );
-        let enablers = message["enablers"];
-        console.debug(
-            "Sync: got updated state from server, enablers were: ",
-            enablers,
-        );
+    let transitionManager = new SimTransitionSupervisor(
+        window.default_data["updates"],
+    );
+
+    function handleMonitorStateUpdate(state) {
+        // validate state
+        if (!validateStateObject(state)) {
+            console.error("Sync: received invalid state object", state);
+            return;
+        }
 
         // special case for cardiac arrest
         let mode = state["sim-mode"];
@@ -192,27 +358,44 @@ export function registerMonitorSyncReceiver(socket) {
 
         // todo: re-implement transitions
 
-        // apply state
-        _applyStateToDom(state);
+        // apply state with transitions
+
+        // _applyStateToDom(state);
+        let transitionTime = state["transition-time"] || 0;
+        transitionManager.set_target_state(state, transitionTime);
     }
 
     socket.on("sim-update", (msg) => {
         let message = JSON.parse(msg);
-        handleMonitorStateUpdate(message);
+        let state = message["updates"];
+
+        console.debug(
+            "Sync: got updated state from server, updates were: ",
+            state,
+        );
+
+        handleMonitorStateUpdate(state);
         document.querySelector("dialog[open]")?.close();
     });
 
     // re-apply existing state on pageload
     // this will run through any arrest special-casing etc
     window.addEventListener("load", (e) => {
-        if (document.body.dataset.simDemoMode == "true") return;
+        // if (document.body.dataset.simDemoMode == "true") return;
+
+        console.debug(
+            `Sync: applying initial state on page load: `,
+            window.default_data["updates"],
+        );
+
         try {
-            let state = JSON.parse(window.initial_state);
+            let message = window.default_data;
+            let state = message["updates"];
             handleMonitorStateUpdate(state);
             updateNibpReadoutImmediately();
         } catch (e) {
             console.error(
-                "Sync: couldn't parse/apply state from window.initial_state (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
+                "Sync: couldn't parse/apply state from window.default_data (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
                 e,
             );
         }
@@ -307,6 +490,8 @@ function _mutateStateForCardiacArrest(updates) {
 }
 
 function _applyStateToDom(state) {
+    console.debug(`Sync: applying state to DOM: `, state);
+
     for (let simParameter in state) {
         let simValue = state[simParameter];
 

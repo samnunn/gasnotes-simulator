@@ -759,7 +759,9 @@
     {% include 'components/abg_machine.html' %}
 
     <script>
-        window.initial_state = `{{ data.initial_state | default({}) | tojson }}`;
+        window.default_data = JSON.parse(
+            `{{ data.initial_state | default({}) | tojson }}`,
+        );
     </script>
 
     {%
