@@ -13,8 +13,10 @@ class ESBuildFilter(Filter):
 
         cmd = ["esbuild", kwargs["source_path"], "--bundle"]
 
-        if not current_app.debug:
-            cmd += ["--minify", "--drop:console"]
+        if current_app.debug:
+            cmd += ["--define:DEBUG=true"]
+        else:
+            cmd += ["--minify", "--drop:console", "--drop-labels=DEV"]
 
         result = subprocess.run(
             cmd,
