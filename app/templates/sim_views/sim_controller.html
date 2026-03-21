@@ -176,7 +176,7 @@ page]) #}
         }
     </style>
 
-    {% with enablers = data.last_known_state.enablers or {}, updates = data.last_known_state.updates or {} %}
+    {% with updates = data.initial_state.updates %}
         <div id="controller" class="wrapped">
             <form action="#" id="sim-input">
                 <section
@@ -222,10 +222,9 @@ page]) #}
                         <p>ECG 💛</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['ecg'], False) }}
+                            data-sim-parameter="enabler-for-ecg"
+                            {{ checked(updates['enabler-for-ecg'], False) }}
                             role="switch"
-                            data-sim-enabler-for="ecg"
-                            data-sim-parameter="controller-switch-ecg"
                             sim-sync
                             class="sim-input-group-switch green"
                         />
@@ -238,7 +237,7 @@ page]) #}
                                 sim-sync
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] | default('67') }}"
+                                value="{{ updates['heart-rate'] }}"
                             />
                         </sim-slider>
                         <div class="sim-select green">
@@ -314,10 +313,9 @@ page]) #}
                         <p>Pulse Oximeter 😮‍💨</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['spo2'], False) }}
                             role="switch"
-                            data-sim-enabler-for="spo2"
-                            data-sim-parameter="controller-switch-spo2"
+                            data-sim-parameter="enabler-for-spo2"
+                            {{ checked(updates['enabler-for-spo2'], False) }}
                             sim-sync
                             class="sim-input-group-switch blue"
                         />
@@ -333,7 +331,7 @@ page]) #}
                                 type="range"
                                 min="35"
                                 max="100"
-                                value="{{ updates['spo2'] | default('99') }}"
+                                value="{{ updates['spo2'] }}"
                             />
                         </sim-slider>
                         <sim-slider data-display-name=" HR" class="blue">
@@ -343,7 +341,7 @@ page]) #}
                                 sim-sync
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] | default('67') }}"
+                                value="{{ updates['heart-rate'] }}"
                             />
                         </sim-slider>
                         <div class="sim-select blue" id="spo2-picker">
@@ -376,10 +374,9 @@ page]) #}
                         <p>Non-Invasive BP 💨</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['nibp'], False) }}
                             role="switch"
-                            data-sim-enabler-for="nibp"
-                            data-sim-parameter="controller-switch-nibp"
+                            data-sim-parameter="enabler-for-nibp"
+                            {{ checked(updates['enabler-for-nibp'], False) }}
                             sim-sync
                             class="sim-input-group-switch purple"
                         />
@@ -395,7 +392,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['systolic-blood-pressure-noninvasive'] | default('104') }}"
+                                    value="{{ updates['systolic-blood-pressure-noninvasive'] }}"
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="DBP" class="purple">
@@ -406,7 +403,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['diastolic-blood-pressure-noninvasive'] | default('66') }}"
+                                    value="{{ updates['diastolic-blood-pressure-noninvasive'] }}"
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="MAP" class="purple">
@@ -417,7 +414,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['mean-arterial-pressure-noninvasive'] | default('78') }}"
+                                    value="{{ updates['mean-arterial-pressure-noninvasive'] }}"
                                 />
                             </sim-slider>
                         </sim-mapgroup>
@@ -462,10 +459,9 @@ page]) #}
                         <p>Arterial Line 🩸</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['art'], False) }}
                             role="switch"
-                            data-sim-enabler-for="art"
-                            data-sim-parameter="controller-switch-art"
+                            data-sim-parameter="enabler-for-art"
+                            {{ checked(updates['enabler-for-art'], False) }}
                             sim-sync
                             class="sim-input-group-switch red"
                         />
@@ -480,7 +476,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['systolic-blood-pressure'] | default('119') }}"
+                                    value="{{ updates['systolic-blood-pressure'] }}"
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="DBP" class="red">
@@ -491,7 +487,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['diastolic-blood-pressure'] | default('57') }}"
+                                    value="{{ updates['diastolic-blood-pressure'] }}"
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="MAP" class="red">
@@ -502,7 +498,7 @@ page]) #}
                                     sim-sync
                                     min="20"
                                     max="200"
-                                    value="{{ updates['mean-arterial-pressure'] | default('78') }}"
+                                    value="{{ updates['mean-arterial-pressure'] }}"
                                 />
                             </sim-slider>
                         </sim-mapgroup>
@@ -544,7 +540,7 @@ page]) #}
                                 sim-sync
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] | default('67') }}"
+                                value="{{ updates['heart-rate'] }}"
                             />
                         </sim-slider>
                     </div>
@@ -554,10 +550,9 @@ page]) #}
                         <p>Capnography 🫁</p>
                         <input
                             type="checkbox"
-                            {{ checked(enablers['capno'], False) }}
                             role="switch"
-                            data-sim-enabler-for="capno"
-                            data-sim-parameter="controller-switch-capno"
+                            data-sim-parameter="enabler-for-capno"
+                            {{ checked(updates['enabler-for-capno'], False) }}
                             sim-sync
                             class="sim-input-group-switch yellow"
                         />
@@ -570,7 +565,7 @@ page]) #}
                                 type="range"
                                 min="0"
                                 max="60"
-                                value="{{ updates['respiratory-rate'] | default('18') }}"
+                                value="{{ updates['respiratory-rate'] }}"
                             />
                         </sim-slider>
                         <sim-slider
@@ -583,7 +578,7 @@ page]) #}
                                 type="range"
                                 min="0"
                                 max="90"
-                                value="{{ updates['etco2'] | default('36') }}"
+                                value="{{ updates['etco2'] }}"
                             />
                         </sim-slider>
                         <div class="sim-select yellow" id="capno-picker">
@@ -731,9 +726,9 @@ page]) #}
                             <span>ECG</span>
                             <input
                                 type="checkbox"
-                                {{ checked(enablers['ecg'], False) }}
+                                {{ checked(updates['enabler-for-ecg'], False) }}
                                 role="switch"
-                                data-sim-parameter="controller-switch-ecg"
+                                data-sim-parameter="enabler-for-ecg"
                                 sim-sync
                                 class="green"
                             />
@@ -742,9 +737,9 @@ page]) #}
                             <span>Pleth</span>
                             <input
                                 type="checkbox"
-                                {{ checked(enablers['spo2'], False) }}
+                                {{ checked(updates['enabler-for-spo2'], False) }}
                                 role="switch"
-                                data-sim-parameter="controller-switch-spo2"
+                                data-sim-parameter="enabler-for-spo2"
                                 sim-sync
                                 class="blue"
                             />
@@ -753,9 +748,9 @@ page]) #}
                             <span>NIBP</span>
                             <input
                                 type="checkbox"
-                                {{ checked(enablers['nibp'], False) }}
+                                {{ checked(updates['enabler-for-nibp'], False) }}
                                 role="switch"
-                                data-sim-parameter="controller-switch-nibp"
+                                data-sim-parameter="enabler-for-nibp"
                                 sim-sync
                                 class="purple"
                             />
@@ -764,9 +759,9 @@ page]) #}
                             <span>Art Line</span>
                             <input
                                 type="checkbox"
-                                {{ checked(enablers['art'], False) }}
+                                {{ checked(updates['enabler-for-art'], False) }}
                                 role="switch"
-                                data-sim-parameter="controller-switch-art"
+                                data-sim-parameter="enabler-for-art"
                                 sim-sync
                                 class="red"
                             />
@@ -775,9 +770,9 @@ page]) #}
                             <span>Capno</span>
                             <input
                                 type="checkbox"
-                                {{ checked(enablers['capno'], False) }}
+                                {{ checked(updates['enabler-for-capno'], False) }}
                                 role="switch"
-                                data-sim-parameter="controller-switch-capno"
+                                data-sim-parameter="enabler-for-capno"
                                 sim-sync
                                 class="yellow"
                             />
