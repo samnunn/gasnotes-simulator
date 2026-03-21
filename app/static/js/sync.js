@@ -1,3 +1,5 @@
+import { updateNibpReadoutImmediately } from "./nibp";
+
 export class TransitionManager {
     targetElement;
     targetValue;
@@ -71,55 +73,6 @@ export class TransitionManager {
         // parseInt() to get rid of decimals
         setValue(this.targetElement, parseInt(this.currentValue));
 
-        // AWFUL HACK: special case for etCO2
-        if (this.targetElement.getAttribute("sim-parameter") == "etco2") {
-            let y_scale = this.currentValue / 36;
-            y_scale = Math.max(0.15, Math.min(1, y_scale));
-            document.querySelector("#capno").setAttribute("y-scale", y_scale);
-        }
-
-        // AWFUL HACK: special case for RR
-        if (
-            this.targetElement.getAttribute("sim-parameter") ==
-            "respiratory-rate"
-        ) {
-            document
-                .querySelector("#capno")
-                .setAttribute("rate", this.currentValue);
-        }
-
-        // AWFUL HACK: special case for HR
-        if (this.targetElement.getAttribute("sim-parameter") == "heart-rate") {
-            document
-                .querySelector("#ecg")
-                .setAttribute("rate", this.currentValue);
-        }
-
-        // AWFUL HACK: special case for map (NIBP-dervived)
-        if (
-            this.targetElement.getAttribute("sim-parameter") ==
-            "mean-arterial-pressure-noninvasive"
-        ) {
-            document
-                .querySelector('[sim-parameter="spo2-trace"]')
-                .setAttribute("y-scale", y_scale * 0.4 + 0.6);
-        }
-
-        // AWFUL HACK: special case for map (artline-derived)
-        if (
-            this.targetElement.getAttribute("sim-parameter") ==
-            "mean-arterial-pressure"
-        ) {
-            let y_scale = (this.currentValue - 15) / 65;
-            y_scale = Math.max(0.05, Math.min(1, y_scale));
-            document
-                .querySelector('[sim-parameter="artline-trace"]')
-                .setAttribute("y-scale", y_scale);
-            document
-                .querySelector('[sim-parameter="spo2-trace"]')
-                .setAttribute("y-scale", y_scale * 0.4 + 0.6);
-        }
-
         if (this.running == true) {
             // set a timeout for next increment
             // will be a no-op if this.running was set to false above
@@ -170,11 +123,45 @@ export function transitionIfAble(func) {
 export function registerMonitorSyncReceiver(socket) {
     if (document.body.dataset.simDemoMode == "true") return;
 
-    function handleSimUpdate(message) {
-        let updates = message["updates"];
+    DEV: (() => {
+        // check for elements with multiple sim-parameters that don't have a valid mapping
+        let multiParamElements = document.querySelectorAll(
+            `[data-sim-parameter*=" "]`,
+        );
+        for (let mp of multiParamElements) {
+            if (!mp.hasAttribute("data-sim-parameter-mapping")) {
+                console.error(
+                    `Sync: no "data-sim-parameter-mapping" found when element listens to multiple parameters -> RACE CONDITION`,
+                    mp,
+                );
+                continue;
+            }
+
+            let parameters = mp.dataset.simParameter?.split(" ");
+            let maps = mp.dataset.simParameterMapping?.split(" ");
+
+            for (let p of parameters) {
+                let matchingMaps = 0;
+                for (let m of maps) {
+                    if (m.split(":")[0] === p) {
+                        matchingMaps++;
+                    }
+                }
+                if (matchingMaps === 0) {
+                    console.error(
+                        `Sync: no valid mapping found for parameter "${p}" on this element (that listens to multiple parameters), meaning nothing will happen when that parameter changes`,
+                        mp,
+                    );
+                }
+            }
+        }
+    })();
+
+    function handleMonitorStateUpdate(message) {
+        let state = message["updates"];
         console.debug(
             "Sync: got updated state from server, updates were: ",
-            updates,
+            state,
         );
         let enablers = message["enablers"];
         console.debug(
@@ -183,78 +170,40 @@ export function registerMonitorSyncReceiver(socket) {
         );
 
         // special case for cardiac arrest
-        let mode = updates["sim-mode"];
-        document.body.setAttribute("sim-mode", mode);
+        let mode = state["sim-mode"];
+        let spo2Readout = document.querySelector(
+            '[data-sim-parameter~="spo2"]',
+        );
 
         if (mode == "arrested") {
-            updates = _mutateUpdatesForCardiacArrest(updates);
-
+            // imperatively mutate state to reflect arrest conditions
+            state = _mutateStateForCardiacArrest(state);
             // make spo2 wobbly (needs to be actively un-done when alive)
-            let spo2Readout = document.querySelector('[sim-parameter="spo2"]');
-            spo2Readout.setAttribute("wobble", 15);
+            spo2Readout.setAttribute("data-sim-wobble", 15);
         } else {
             // unset wobble on spo2
-            let spo2Readout = document.querySelector('[sim-parameter="spo2"]');
-            spo2Readout.setAttribute("wobble", 2);
+            spo2Readout.setAttribute("data-sim-wobble", 2);
         }
 
-        // update each [sim-parameter]
-        for (let u in updates) {
-            const targetElements = document.querySelectorAll(
-                `[sim-parameter="${u}"]`,
-            );
+        // todo: special cases (imperatively, sigh)
+        // - spo2 y-scale defined by map from nibp/art line
+        // - art y-scale dervied from map
+        // - HR derived from spo2 (should turn blue)
 
-            for (let el of targetElements) {
-                // start transition
-                // non-transitioning elements will automatically get a transition time of zero
-                new TransitionManager(el, updates[u]);
-            }
+        // todo: re-implement transitions
 
-            // transition time
-            if (u == "transition-time") {
-                document.body.setAttribute("sim-transition-time", updates[u]);
-            }
-        }
-
-        // enable or disable elements
-        for (let e in enablers) {
-            let listeningElements = document.querySelectorAll(
-                `[data-sim-enabled-by="${e}"]`,
-            );
-            for (let le of listeningElements) {
-                le.setAttribute("sim-disabled", !enablers[e]);
-            }
-
-            // special case: HR defined by spo2 trace
-            let hr = document.querySelector([`[sim-parameter="heart-rate"]`]);
-            if (enablers["ecg"] == false && enablers["spo2"] == true) {
-                hr.setAttribute("sim-disabled", false);
-                hr.classList.add("blue");
-                hr.classList.remove("green");
-            } else {
-                hr.classList.add("green");
-                hr.classList.remove("blue");
-            }
-        }
-
-        // start all transitions
-        // do this after state has been loaded in, so they all start/finish at the same time
-        const transitionableElements = document.querySelectorAll(
-            "[sim-transitionable]",
-        );
-        for (let el of transitionableElements) {
-            el.activeTransition.start();
-        }
+        // apply state
+        _applyStateToDom(state);
     }
+
     socket.on("sim-update", (msg) => {
         let message = JSON.parse(msg);
-        handleSimUpdate(message);
+        handleMonitorStateUpdate(message);
         document.querySelector("dialog[open]")?.close();
     });
-    // hack: re-apply existing state on pageload
-    // most parameters will be set on the server side
-    // but this will run through any arrest special-casing etc
 
+    // re-apply existing state on pageload
+    // this will run through any arrest special-casing etc
     window.addEventListener("load", (e) => {
         if (document.body.dataset.simDemoMode == "true") return;
         try {
@@ -319,7 +268,7 @@ function _dumpAllInputState() {
     return message;
 }
 
-function _mutateUpdatesForCardiacArrest(updates) {
+function _mutateStateForCardiacArrest(updates) {
     // assign ecg-rhythm to cpr OR arrest-rhythm
     if (updates["sim-cpr"] == "on") {
         updates["ecg-rhythm"] = "cpr";
@@ -355,4 +304,50 @@ function _mutateUpdatesForCardiacArrest(updates) {
     updates["artline-trace"] = "spo2-badtrace";
 
     return updates;
+}
+
+function _applyStateToDom(state) {
+    for (let simParameter in state) {
+        let simValue = state[simParameter];
+
+        let interestedElements = document.querySelectorAll(
+            `[data-sim-parameter~="${simParameter}"]`,
+        );
+
+        for (let ie of interestedElements) {
+            // when there are no mappings, just apply to sim-value
+            // sharp edge: this can cause a race condition when there aren't mappings to cover all cases
+            if (!ie.hasAttribute("data-sim-parameter-mapping")) {
+                ie.setAttribute("sim-value", simValue);
+                continue;
+            }
+
+            // assemble mappings
+            let rawMappings = ie.dataset.simParameterMapping?.split(" ") || [];
+            let mappings = [];
+            for (let rm of rawMappings) {
+                let split = rm.split(":");
+                if (split.length === 2) {
+                    mappings.push(split);
+                }
+            }
+
+            // iterate over mappings
+            // sharp edge: this has potentiate to over-write itself if two mappings are defined for a sim parameter
+            let matchedMappings = 0;
+            for (let m of mappings) {
+                let [mapped_sim_param, mapped_element_attr] = m;
+                if (mapped_sim_param === simParameter) {
+                    ie.setAttribute(mapped_element_attr, simValue);
+                    matchedMappings += 1;
+                }
+            }
+            if (matchedMappings === 0) {
+                console.error(
+                    `Sync: no matching mapping found for sync parameter "${simParameter}" in element ${ie}, even though *some* mappings exist. Assigning value to sim-value`,
+                    ie,
+                );
+            }
+        }
+    }
 }
