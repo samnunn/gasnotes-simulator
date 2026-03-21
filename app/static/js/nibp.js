@@ -7,7 +7,7 @@ let delayedAudioOutputs = document.querySelectorAll(
 export function updateNibpReadoutImmediately() {
     for (let d of delayedAudioOutputs) {
         let dataSource = document.querySelector(
-            `#nibp [sim-parameter="${d.dataset.simDelayedDatasource}"]`,
+            `#nibp [data-sim-parameter="${d.dataset.simDelayedDatasource}"]`,
         );
         let dataValue = dataSource.getAttribute("sim-value");
         d.removeAttribute("hidden");
@@ -21,7 +21,9 @@ function updateNibpReadoutWithAnimation(max) {
 
     // get peak value
     let targetSbp = document
-        .querySelector(`[sim-parameter="systolic-blood-pressure-noninvasive"]`)
+        .querySelector(
+            `[data-sim-parameter="systolic-blood-pressure-noninvasive"]`,
+        )
         .getAttribute("sim-value");
     let peakPressure = (targetSbp * 1.25).toFixed(0);
 
