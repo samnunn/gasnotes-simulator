@@ -2,7 +2,7 @@ from markupsafe import Markup
 
 
 def checked(is_checked: bool, default: bool = True):
-    if is_checked or default == True:
+    if is_checked == True or is_checked == "true" or default == True:
         return "checked"
     else:
         return ""
