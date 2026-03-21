@@ -57,6 +57,7 @@ DEFAULT_DATA = {
     "arrest-capno": "flatline",
     "arrest-etco2": "0",
 }
+DEMO_DATA = { **DEFAULT_DATA, "enabler-for-capno": "true" }
 
 # flask
 app = Flask(__name__)
@@ -108,7 +109,7 @@ def index():
     data = {}
     data["demo"] = True
     data["title"] = "Simulation Monitor"
-    data["initial_state"] = {"updates":DEFAULT_DATA}
+    data["initial_state"] = {"updates":DEMO_DATA}
     data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
     data["controller_html"] = render_template(
         "sim_views/sim_controller.html", data=data
