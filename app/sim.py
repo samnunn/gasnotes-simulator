@@ -23,6 +23,39 @@ from werkzeug.exceptions import HTTPException
 
 # constants
 DEBUG = os.environ.get("DEBUG", "0") == "1"
+DEFAULT_DATA = {
+    "sim-mode": "alive",
+
+    "transition-time": "0",
+
+    "heart-rate": "67",
+    "ecg-rhythm": "sinus",
+
+    "etco2": "36",
+    "respiratory-rate": "18",
+    "capno-trace": "capno-normal",
+
+    "spo2": "99",
+    "spo2-trace": "spo2",
+    
+    "artline-trace": "artline",
+    "systolic-blood-pressure": "119",
+    "diastolic-blood-pressure": "57",
+    "mean-arterial-pressure": "78",
+    
+    "systolic-blood-pressure-noninvasive": "104",
+    "diastolic-blood-pressure-noninvasive": "66",
+    "mean-arterial-pressure-noninvasive": "78",
+    
+    "enabler-for-ecg": "true",
+    "enabler-for-spo2": "true",
+    "enabler-for-nibp": "true",
+    "enabler-for-art": "true",
+
+    "arrest-rhythm": "vfib",
+    "arrest-capno": "flatline",
+    "arrest-etco2": "0",
+}
 
 # flask
 app = Flask(__name__)
@@ -74,7 +107,7 @@ def index():
     data = {}
     data["demo"] = True
     data["title"] = "Simulation Monitor"
-    data["last_known_state"] = {}
+    data["initial_state"] = {"updates":DEFAULT_DATA}
     data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
     data["controller_html"] = render_template(
         "sim_views/sim_controller.html", data=data
@@ -147,12 +180,13 @@ def sim_monitor(sim_room_id):
     data["title"] = f"Monitor ({sim_room_id.upper()})"
 
     # get existing data (if available)
-    data["last_known_state"] = {}
+    data["initial_state"] = {}
     try:
         existing_data = room_helpers.get_sim_room_data(sim_room_id)
-        data["last_known_state"] = existing_data
+        data["initial_state"] = existing_data
     except Exception:
         app.logger.error(f"Unable to pull last-known state for sim room {sim_room_id}")
+        data["initial_state"] = {"updates":DEFAULT_DATA}
 
     return render_template("sim_views/sim_monitor.html", data=data)
 
@@ -173,12 +207,13 @@ def sim_controller(sim_room_id):
     data["title"] = f"Controller ({sim_room_id.upper()})"
 
     # get existing data (if available)
-    data["last_known_state"] = {}
+    data["initial_state"] = {}
     try:
         existing_data = room_helpers.get_sim_room_data(sim_room_id)
-        data["last_known_state"] = existing_data
+        data["initial_state"] = existing_data
     except Exception:
         app.logger.error(f"Unable to pull last-known state for sim room {sim_room_id}")
+        data["initial_state"] = {"updates":DEFAULT_DATA}
 
     return render_template(
         "sim_views/sim_controller.html",
@@ -235,7 +270,7 @@ def handle_sim_update(data):
 
     # Only send an update if the sim room exists
     if room_helpers.sim_room_exists(sim_room_id):
-        room_helpers.update_sim_room(sim_room_id, json_data)
+        room_helpers.update_sim_room_data_by_id(sim_room_id, json_data)
         emit("sim-update", data, to=sim_room_id)
         app.logger.info(f"Relayed sim-update to room {sim_room_id}: {repr(json_data)}")
     else:

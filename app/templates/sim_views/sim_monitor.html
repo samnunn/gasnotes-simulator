@@ -809,7 +809,7 @@
 
     {% include 'components/abg_machine.html' %}
     <script>
-        window.last_known_state = `{{ data.last_known_state | default({}) | tojson }}`;
+        window.initial_state = `{{ data.initial_state | default({}) | tojson }}`;
     </script>
 
     {%

@@ -258,11 +258,12 @@ export function registerMonitorSyncReceiver(socket) {
     window.addEventListener("load", (e) => {
         if (document.body.dataset.simDemoMode == "true") return;
         try {
-            let state = JSON.parse(window.last_known_state);
-            handleSimUpdate(state);
+            let state = JSON.parse(window.initial_state);
+            handleMonitorStateUpdate(state);
+            updateNibpReadoutImmediately();
         } catch (e) {
-            console.warn(
-                "Sync: couldn't parse/apply existing state from window.last_known_state (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
+            console.error(
+                "Sync: couldn't parse/apply state from window.initial_state (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
                 e,
             );
         }
