@@ -95,7 +95,10 @@ customElements.define(
             if (name == "data-sim-wobble") {
                 this.wobble_factor = parseInt(newValue) || 0;
             } else {
-                this.updateReadout();
+                if (newValue != oldValue) {
+                    // prevent transitions from over-writing wobble
+                    this.updateReadout();
+                }
             }
         }
 
