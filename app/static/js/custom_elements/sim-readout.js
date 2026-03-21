@@ -68,11 +68,11 @@ customElements.define(
                 );
 
             // apply limits
-            if (this.wobble_max) {
+            if (isNaN(this.wobble_max)) {
                 randomValue = Math.min(randomValue, this.wobble_max);
             }
 
-            if (this.wobble_min) {
+            if (isNaN(this.wobble_min)) {
                 randomValue = Math.max(randomValue, this.wobble_min);
             }
 
