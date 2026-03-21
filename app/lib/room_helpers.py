@@ -1,30 +1,32 @@
 import json
 import os
 import random
+from pathlib import Path
 
 SIM_ROOM_STORE = "sim_rooms"
 
 
 def sim_room_exists(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
-    sim_path = make_sim_room_filepath(sim_room_id)
+    sim_path = get_sim_room_path_from_id(sim_room_id)
     return os.path.exists(sim_path)
 
 
 def open_sim_room():
     sim_room_id = generate_room_id()
-    update_sim_room(sim_room_id)
+    sim_room_path = get_sim_room_path_from_id(sim_room_id)
+    Path(sim_room_path).touch()
     return sim_room_id
 
 
-def update_sim_room(sim_room_id, data=[]):
-    sim_path = make_sim_room_filepath(sim_room_id)
+def update_sim_room_data_by_id(sim_room_id, data=[]):
+    sim_path = get_sim_room_path_from_id(sim_room_id)
     json.dump(data, open(sim_path, "w"))
     return True
 
 
 def get_sim_room_data(sim_room_id):
-    sim_path = make_sim_room_filepath(sim_room_id)
+    sim_path = get_sim_room_path_from_id(sim_room_id)
     data = json.load(open(sim_path, "r"))
     return data
 
@@ -43,6 +45,6 @@ def normalise_room_id(sim_room_id):
     return sim_room_id.upper()
 
 
-def make_sim_room_filepath(sim_room_id):
+def get_sim_room_path_from_id(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
     return os.path.join(SIM_ROOM_STORE, sim_room_id + ".txt")
