@@ -159,7 +159,7 @@ function renderNibpTimerWidget() {
             Math.round((nextTriggerTimeMs - now) / 1000),
         );
         let time = renderSecondsAsMMSS(secondsRemaining);
-        nibpTimerWidget.innerText = `Auto ${time}`;
+        nibpTimerWidget.innerText = `Auto ${time}`;
     }
 
     if (
