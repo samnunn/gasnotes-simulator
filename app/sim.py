@@ -25,6 +25,7 @@ from werkzeug.exceptions import HTTPException
 DEBUG = os.environ.get("DEBUG", "0") == "1"
 DEFAULT_DATA = {
     "sim-mode": "alive",
+    "sim-cpr": "alive",
 
     "transition-time": "0",
 
