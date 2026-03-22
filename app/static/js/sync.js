@@ -130,6 +130,10 @@ class SimTransitionSupervisor {
     }
 
     increment() {
+        console.log(
+            `SimTransitionSupervisor: incrementing state towards target state`,
+        );
+
         let intermediate_state = this.current_state;
 
         for (let key in intermediate_state) {
@@ -146,7 +150,6 @@ class SimTransitionSupervisor {
                 let is_decreasing = !is_increasing;
                 let increase_complete = intermediate_state[key] >= target;
                 let decrease_complete = intermediate_state[key] <= target;
-
                 if (
                     (is_increasing && increase_complete) ||
                     (is_decreasing && decrease_complete)
@@ -160,6 +163,9 @@ class SimTransitionSupervisor {
                     .toFixed(0)
                     .toString();
             } else {
+                // guarantees that any keys without a matching delta will be set to their target value
+                // _calculateDeltas relies on this behaviour!
+                // it assumes that NOT making/replacing a delta for a changed parameter will cause it to jump immediately
                 intermediate_state[key] = this.target_state[key];
             }
         }
@@ -176,10 +182,20 @@ class SimTransitionSupervisor {
         this.current_state = intermediate_state;
 
         // eat own tail
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-            this.increment();
-        }, this.INCREMENT_DURATION);
+        let deltas_remaining = Object.keys(this.deltas).length;
+        if (deltas_remaining > 0) {
+            console.debug(
+                `SimTransitionSupervisor: ${deltas_remaining} delta remaining, scheduling next increment`,
+                this.deltas,
+            );
+            this.timeout = setTimeout(() => {
+                this.increment();
+            }, this.INCREMENT_DURATION);
+        } else {
+            console.debug(
+                `SimTransitionSupervisor: reached target state, stopping transition`,
+            );
+        }
     }
 
     _calculateDeltas(
@@ -189,32 +205,46 @@ class SimTransitionSupervisor {
         new_target_state,
         transition_duration,
     ) {
+        // adds a delta (float) to this.deltas for any transitionable parameter that needs transitioning (i.e. time != 0 and difference != 0)
+        // any parameter that doesn't get a delta will transition immediately, including non-transitionable parameters
+
         let deltas = stale_deltas;
         for (let key in new_target_state) {
-            if (!this.TRANSITIONABLE_ELEMENTS.includes(key)) continue; // skip if non-transitionable
-
+            // skip when transition_duration is zero
+            // - intended effect: jump immediately to target_state AND stop any ongoing transition
+            // - assumes that any parameter without a delta will jump immediately
+            // - also assumes that `delete` a non-existent key is a no-op
             if (transition_duration == 0) {
-                // immediate transition
-
-                deltas[key] =
-                    parseFloat(new_target_state[key]) -
-                    parseFloat(current_state[key]);
-            } else {
-                // gradual transition
-
-                let target_unchanged =
-                    new_target_state[key] == stale_target_state[key];
-                if (target_unchanged) {
-                    // keep using the old delta, effectively "continuing" the old transition
-                    continue;
-                } else {
-                    // recaulate delta based on new target, picking up from current state (wherever we are in the old transition)
-                    deltas[key] =
-                        (parseFloat(new_target_state[key]) -
-                            parseFloat(current_state[key])) *
-                        (this.INCREMENT_DURATION / transition_duration);
-                }
+                delete deltas[key];
+                continue;
             }
+
+            // skip if non-transitionable
+            if (!this.TRANSITIONABLE_ELEMENTS.includes(key)) continue;
+
+            // skip when target is unchanged (string comparison is fine here), which will either:
+            // - not make a delta (causing an immediate jump to the new target), or
+            // - keep using an old delta, effectively "continuing" the old transition
+            let target_unchanged =
+                new_target_state[key] == stale_target_state[key];
+            let duration_unchanged =
+                stale_target_state["transition-time"] ==
+                new_target_state["transition-time"];
+            if (target_unchanged && duration_unchanged) continue;
+
+            // skip when planned change is NaN (e.g. when new target is "??")
+            // - e.g. diastolic-blood-pressure-noninvasive gets changed to "??" in cardiac arrest
+            // - consider removing and ditching "??" in cardiac arrest altogether #todo
+            let planned_change =
+                parseFloat(new_target_state[key]) -
+                parseFloat(current_state[key]);
+            if (isNaN(planned_change)) continue; // skip if new target isn't a number (e.g. "??")
+
+            // otherise, perform a transition
+            // recalculate delta based on new target, picking up from current state (wherever we are in the old transition)
+            deltas[key] =
+                planned_change *
+                (this.INCREMENT_DURATION / transition_duration);
         }
         return deltas;
     }
@@ -356,10 +386,6 @@ export function registerMonitorSyncReceiver(socket) {
         // - art y-scale dervied from map
         // - HR derived from spo2 (should turn blue)
 
-        // todo: re-implement transitions
-
-        // apply state with transitions
-
         // _applyStateToDom(state);
         let transitionTime = state["transition-time"] || 0;
         transitionManager.set_target_state(state, transitionTime);
@@ -477,6 +503,7 @@ function _mutateStateForCardiacArrest(updates) {
 
     // make nibp uninterpretably low
     let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
+    let imaginaryDbp = (5 + Math.random() * 10).toFixed(0);
     let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
     updates["systolic-blood-pressure-noninvasive"] = imaginarySbp;
     updates["diastolic-blood-pressure-noninvasive"] = "??";
