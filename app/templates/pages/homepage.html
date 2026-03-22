@@ -42,27 +42,54 @@
             overflow-x: hidden;
         }
 
-        #preview {
-            --scale: 5;
+        #sim-mainarea {
+            justify-content: start; /* default is vertical centering, which is applicable for index/connect but not here */
+        }
+
+        #preview-in-flow {
+            --preview-container-actual-width-max: 1000px;
+            --preview-container-actual-width: 90vw;
+
+            --preview-container-imaginary-width: 1200px;
+
+            /* scale-limit stops the preview from being larger than container-actual-width-max */
+            --preview-container-scale-limit: calc(
+                var(--preview-container-actual-width-max) /
+                    var(--preview-container-imaginary-width)
+            );
+
+            /* scale factor = actual / imaginary width */
+            /* limited so that the preview doesn't exceed actual-width-max */
+            --preview-container-scale: min(
+                var(--preview-container-scale-limit),
+                calc(
+                    var(--preview-container-actual-width) /
+                        var(--preview-container-imaginary-width)
+                )
+            );
+
             position: relative;
-            margin: var(--spacing-l) auto;
-            padding: 0.5rem 0 6rem 0;
+
+            margin: 0 auto;
+
+            width: 90vw;
             max-width: 1000px;
-            width: 80vw;
-            --glow-color: rgb(226, 50, 141);
+            aspect-ratio: 4/3;
+
+            display: flex;
+
+            transition: transform 200ms ease;
+        }
+        #preview-in-flow:hover {
+            transform: scale(1.02);
+
+            &::before {
+                opacity: 0.3;
+                transform: scale(1.8);
+            }
         }
 
-        #preview:hover {
-            #tiny-monitor {
-                transform: rotate(-1.75deg) scale(1.025);
-            }
-
-            #tiny-phone {
-                transform: rotate(5deg) scale(1.025);
-            }
-        }
-
-        #preview::before {
+        #preview-in-flow::before {
             width: 100%;
             height: 100%;
             margin: 0;
@@ -70,7 +97,7 @@
             background: radial-gradient(
                 ellipse at 50% 50%,
                 rgba(2, 0, 36, 1) 0%,
-                var(--glow-color) 16%,
+                rgb(226, 50, 141) 16%,
                 transparent 60%
             );
             transform: scale(1.6);
@@ -87,96 +114,108 @@
             pointer-events: none;
         }
 
-        #preview:hover::before {
-            opacity: 0.4;
+        #preview-out-of-flow {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            translate: -50% -50%;
+
+            width: var(--preview-container-imaginary-width);
+            aspect-ratio: 4/3;
+
+            scale: var(--preview-container-scale);
+
+            --preview-bezel-size: min(12px, 4vw);
         }
 
         #tiny-monitor {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            translate: -50% -50%;
+
             display: grid;
             grid-template-rows: auto 1fr;
             grid-template-columns: 1fr;
+
             background-color: #222;
-            padding: 0 0.4rem 0.4rem 0.4rem;
-            border-radius: 0.9rem;
-            /* min-height: 700px; */
+
+            padding: 0 var(--preview-bezel-size) var(--preview-bezel-size)
+                var(--preview-bezel-size);
+
+            border-radius: calc(var(--preview-bezel-size) * 2);
             border: 2px solid #444;
-            width: 90%;
-            aspect-ratio: 4/3;
 
-            position: relative;
-            transform: rotate(-1.5deg);
+            width: 100%; /* imaginary monitor size, for scaling purposes */
+            height: 100%;
 
-            & #tiny-monitor-browser-chrome {
-                --size: min(12px, 2vw);
-
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: calc(0.75 * var(--size));
-                margin: var(--size);
-                margin-left: calc(0.5 * var(--size));
-
-                & .window-chrome-circle {
-                    width: var(--size);
-                    height: var(--size);
-                    background-color: rgb(255 95 87);
-                    border-radius: 50%;
-                }
-
-                & .window-chrome-circle:nth-child(2) {
-                    background-color: rgb(255 188 45);
-                }
-
-                & .window-chrome-circle:nth-child(3) {
-                    background-color: rgb(40 200 65);
-                }
-            }
-
-            transition: all 200ms ease;
-            transform-origin: 75% 75%;
+            transform: scale(0.9) rotate(-1deg);
+            transform-origin: 0 0;
         }
 
-        #monitor-box {
-            width: calc(100% * var(--scale));
-            height: calc(100% * var(--scale));
-            transform: scale(calc(100% * (1 / var(--scale))));
-            transform-origin: top left;
-            border-radius: 1rem;
+        #tiny-monitor-browser-chrome {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: calc(0.75 * var(--preview-bezel-size));
+            margin: calc(1.25 * var(--preview-bezel-size));
+            margin-left: calc(0.5 * var(--preview-bezel-size));
+
+            & .window-chrome-circle {
+                width: var(--preview-bezel-size);
+                height: var(--preview-bezel-size);
+                background-color: rgb(255 95 87);
+                border-radius: 50%;
+            }
+
+            & .window-chrome-circle:nth-child(2) {
+                background-color: rgb(255 188 45);
+            }
+
+            & .window-chrome-circle:nth-child(3) {
+                background-color: rgb(40 200 65);
+            }
+        }
+
+        iframe#monitor-box {
+            width: 100%;
+            height: 100%;
+            border-radius: calc(var(--preview-bezel-size) * 1.5);
             pointer-events: none;
             touch-action: none;
             overflow: hidden;
         }
 
         #tiny-phone {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+
             display: grid;
             grid-template-columns: 1fr;
             grid-template-rows: 1fr;
-            background-color: #222;
-            border: 2px solid #444;
-            padding: 1% 0.75%;
-            border-radius: min(2vw, 0.9rem);
-            width: 25%;
-            max-width: 200px;
-            aspect-ratio: 9/18;
-            pointer-events: none;
-            touch-action: none;
-            overflow: hidden;
 
-            position: absolute;
-            top: 45%;
-            right: -10px;
-            transform: rotate(4deg);
-            transition: all 200ms ease;
-            transform-origin: 40% 90%;
+            background-color: #222;
+
+            padding: var(--preview-bezel-size);
+
+            border: 2px solid #444;
+            border-radius: calc(var(--preview-bezel-size) * 2);
+
+            width: 350px; /* imaginary phone size, for scaling purposes */
+            aspect-ratio: 9/18;
+            transform-origin: 100% 100%;
+            transform: scale(0.65) translate(-10%, 0) rotate(5deg);
+
+            transition: rotate 200ms ease;
         }
 
-        #phone-box {
-            --phonescale: calc(var(--scale) * 0.8);
-            width: calc(100% * (var(--phonescale) + 1));
-            height: calc(100% * (var(--phonescale) + 1));
-            transform: scale(calc(100% * (1 / (var(--phonescale) + 1))));
-            transform-origin: top left;
-            border-radius: 1rem;
+        iframe#phone-box {
+            width: 100%;
+            height: 100%;
+
+            border-radius: calc(var(--preview-bezel-size) * 1.5);
+
             pointer-events: none;
             touch-action: none;
             overflow: hidden;
@@ -186,60 +225,6 @@
             text-align: center;
             text-wrap: balance;
             margin-bottom: var(--spacing-l);
-        }
-
-        @media (min-width: 200px) {
-            #preview {
-                --scale: 5.1;
-            }
-        }
-
-        @media (min-width: 300px) {
-            #preview {
-                --scale: 4.6;
-            }
-        }
-
-        @media (min-width: 400px) {
-            #preview {
-                --scale: 3.4;
-            }
-        }
-
-        @media (min-width: 500px) {
-            #preview {
-                --scale: 2.7;
-            }
-        }
-
-        @media (min-width: 600px) {
-            #preview {
-                --scale: 2.2;
-            }
-        }
-
-        @media (min-width: 700px) {
-            #preview {
-                --scale: 2;
-            }
-        }
-
-        @media (min-width: 800px) {
-            #preview {
-                --scale: 1.8;
-            }
-        }
-
-        @media (min-width: 900px) {
-            #preview {
-                --scale: 1.7;
-            }
-        }
-
-        @media (min-width: 1000px) {
-            #preview {
-                --scale: 1.4;
-            }
         }
     </style>
 
@@ -251,8 +236,8 @@
         />
     </section>
 
-    <section class="wrapped warm-glow" id="preview">
-        <a href="{{ url_for('sim_new') }}">
+    <section class="wrapped warm-glow" id="preview-in-flow">
+        <div id="preview-out-of-flow">
             <div id="tiny-monitor" class="">
                 <div id="tiny-monitor-browser-chrome">
                     <div class="window-chrome-circle"></div>
@@ -274,9 +259,12 @@
                     scrolling="no"
                 ></iframe>
             </div>
-        </a>
+        </div>
     </section>
-    <section class="wrapped" style="text-align: center; text-wrap: balance">
+    <section
+        class="wrapped mt-3"
+        style="text-align: center; text-wrap: balance"
+    >
         <p>
             <strong
                 >Simulation Monitor is a remote-controlled vitals monitor
@@ -302,4 +290,59 @@
         </p>
     </section>
     <script src="{{ url_for('static', filename='js/starfield.js') }}"></script>
+    <script>
+        // gross firefox workaround
+        // firefox doesn't support casting px/vw units to pure numbers, so the calc() that does this on other browsers breaks in firefox
+        // with less than 2% market share, I don't really know why I'm doing this
+        (() => {
+            if (!navigator.userAgent.includes("Firefox/")) return;
+
+            const previewInFlow = document.getElementById("preview-in-flow");
+            if (!previewInFlow) return;
+
+            let resizeFrameId = null;
+
+            function updatePreviewScale() {
+                const styles = getComputedStyle(previewInFlow);
+                const imaginaryWidth = parseFloat(
+                    styles.getPropertyValue(
+                        "--preview-container-imaginary-width",
+                    ),
+                );
+                const actualWidthMax = parseFloat(
+                    styles.getPropertyValue(
+                        "--preview-container-actual-width-max",
+                    ),
+                );
+                const actualWidth = previewInFlow.getBoundingClientRect().width;
+
+                if (!imaginaryWidth || !actualWidthMax || !actualWidth) return;
+
+                const scale = Math.min(
+                    actualWidthMax / imaginaryWidth,
+                    actualWidth / imaginaryWidth,
+                );
+
+                previewInFlow.style.setProperty(
+                    "--preview-container-scale",
+                    scale.toString(),
+                );
+            }
+
+            function queuePreviewScaleUpdate() {
+                if (resizeFrameId !== null) {
+                    cancelAnimationFrame(resizeFrameId);
+                }
+
+                resizeFrameId = requestAnimationFrame(() => {
+                    resizeFrameId = null;
+                    updatePreviewScale();
+                });
+            }
+
+            window.addEventListener("load", queuePreviewScaleUpdate);
+            window.addEventListener("resize", queuePreviewScaleUpdate);
+            queuePreviewScaleUpdate();
+        })();
+    </script>
 {% endblock %}
