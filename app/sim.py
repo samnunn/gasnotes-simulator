@@ -95,7 +95,7 @@ def make_app():
 
     @app.route("/connect", methods=["GET", "POST"])
     @limit_slow
-    @cache.cached(timeout=600)
+    @cache.cached(timeout=600, unless=lambda: request.method != "GET")
     def sim_connect():
         if request.method == "GET":
             # Assemable page data
