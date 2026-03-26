@@ -1,0 +1,36 @@
+DEFAULT_DATA = {
+    "sim-mode": "alive",
+    "sim-cpr": "alive",
+
+    "transition-time": "0",
+
+    "heart-rate": "67",
+    "ecg-rhythm": "sinus",
+
+    "etco2": "36",
+    "respiratory-rate": "18",
+    "capno-trace": "capno-normal",
+
+    "spo2": "99",
+    "spo2-trace": "spo2",
+    
+    "artline-trace": "artline",
+    "systolic-blood-pressure": "119",
+    "diastolic-blood-pressure": "57",
+    "mean-arterial-pressure": "78",
+    
+    "systolic-blood-pressure-noninvasive": "104",
+    "diastolic-blood-pressure-noninvasive": "66",
+    "mean-arterial-pressure-noninvasive": "78",
+    
+    "enabler-for-ecg": "true",
+    "enabler-for-spo2": "true",
+    "enabler-for-nibp": "true",
+    "enabler-for-art": "true",
+    "enabler-for-capno": "false",
+
+    "arrest-rhythm": "vfib",
+    "arrest-capno": "flatline",
+    "arrest-etco2": "0",
+}
+DEMO_DATA = { **DEFAULT_DATA, "enabler-for-capno": "true" }

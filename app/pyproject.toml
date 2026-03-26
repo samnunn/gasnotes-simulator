@@ -13,5 +13,14 @@ dependencies = [
     "flask-minify>=0.50",
     "flask-socketio>=5.5.1",
     "gunicorn>=23.0.0",
+    "playwright>=1.58.0",
+    "pytest>=9.0.2",
+    "pytest-playwright>=0.7.2",
+    "pytest-xdist>=3.8.0",
     "segno>=1.6.6",
+]
+
+[tool.uv]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
 ]
