@@ -6,3 +6,5 @@ sim_rooms/*
 private/*
 *.pyc
 node_modules/
+.webassets-cache
+app/static/gen

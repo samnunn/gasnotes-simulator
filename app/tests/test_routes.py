@@ -5,10 +5,6 @@ from flask.testing import FlaskClient
 from lib import room_helpers
 
 
-def test_ratelimiting_disabled(test_app):
-    assert test_app.config.get("RATELIMIT_ENABLED") is False
-
-
 def test_fixtures_working(test_client: FlaskClient, test_app: Flask):
     assert test_app.debug is False
 
@@ -30,7 +26,8 @@ def test_new_redirects_to_new_monitor_room(test_client: FlaskClient, test_app: F
     assert re.fullmatch(r"/sim/[A-Z0-9]{6}/monitor", location)
 
     room_id = location.split("/")[2]
-    assert room_helpers.sim_room_exists(room_id)
+    with test_app.app_context():
+        assert room_helpers.sim_room_exists(room_id)
 
 
 def test_connect_form_rendering(test_client: FlaskClient):
@@ -43,7 +40,8 @@ def test_connect_form_rendering(test_client: FlaskClient):
 def test_connect_post_redirects_to_controller_for_existing_room(
     test_client: FlaskClient, test_app: Flask
 ):
-    room_id = room_helpers.open_sim_room()
+    with test_app.app_context():
+        room_id = room_helpers.open_sim_room()
 
     response = test_client.post(
         "/connect", data={"simcode": room_id.lower()}, follow_redirects=False
@@ -67,26 +65,20 @@ def test_sim_index_rejects_invalid_room_codes(test_client: FlaskClient):
     assert "Invalid SimCode." in response.get_data(as_text=True)
 
 
-def test_sim_index_404s_for_missing_valid_room(test_client: FlaskClient):
+def test_sim_index_404_for_missing_valid_room(test_client: FlaskClient):
     response = test_client.get("/sim/ABC123")
 
     assert response.status_code == 404
     assert "Not found." in response.get_data(as_text=True)
 
 
-def test_monitor_page_renders_even_without_existing_room(test_client: FlaskClient):
+def test_monitor_page_404s_without_existing_room(test_client: FlaskClient):
     response = test_client.get("/sim/ABC123/monitor")
 
-    assert response.status_code == 200
-    html = response.get_data(as_text=True)
-    assert "Monitor (ABC123)" in html
-    assert 'data-sim-room-id="ABC123"' in html
+    assert response.status_code == 404
 
 
-def test_controller_page_renders_even_without_existing_room(test_client: FlaskClient):
+def test_controller_page_404s_without_existing_room(test_client: FlaskClient):
     response = test_client.get("/sim/ABC123/controller")
 
-    assert response.status_code == 200
-    html = response.get_data(as_text=True)
-    assert "Controller (ABC123)" in html
-    assert 'data-sim-room-id="ABC123"' in html
+    assert response.status_code == 404

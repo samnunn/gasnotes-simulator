@@ -1,17 +1,16 @@
 services:
-    test_server:
-        restart: unless-stopped
+    test-server:
         build:
             context: app
             dockerfile: Dockerfile
-        ports:
-            - "8666:8069"
+            target: dev_server
+        restart: unless-stopped
         volumes:
-            - ./sim_rooms:/app/sim_rooms
+            - ./sim_rooms:/sim_rooms
         environment:
-            - CMD=uv run gunicorn -b 0.0.0.0:8069 --worker-class eventlet -w 1 wsgi:app
-            - DEBUG=0
             - SIM_SECRETKEY="test-secret-key"
+            - SIM_ROOM_STORE=/sim_rooms
+            - RATELIMIT_ENABLED=0
         healthcheck:
             test: ["CMD", "curl", "-f", "http://127.0.0.1:8069"]
             interval: 5s
@@ -19,16 +18,36 @@ services:
             retries: 5
             start_period: 10s
             start_interval: 2s
-    test_runner:
-        depends_on:
-            test_server:
-                condition: service_healthy
+    test-runner:
         build:
             context: app
             dockerfile: Dockerfile
+            target: test_runner
         volumes:
-            - ./sim_rooms:/app/sim_rooms
+            - ./sim_rooms:/sim_rooms
         environment:
-            - CMD=uv run python -m pytest
-        env_file:
-            - .env
+            - SIM_SECRETKEY="test-secret-key"
+            - SIM_TEST_SERVER_ADDR=http://test-server:8069
+            - SIM_ROOM_STORE=/sim_rooms
+            - RATELIMIT_ENABLED=0
+        depends_on:
+            test-server:
+                condition: service_healthy
+    test-runner-headed:
+        build:
+            context: app
+            dockerfile: Dockerfile
+            target: test_runner_headed
+        ports:
+            - "5901:5900"
+        volumes:
+            - ./sim_rooms:/sim_rooms
+        environment:
+            - SIM_SECRETKEY="test-secret-key"
+            - SIM_TEST_SERVER_ADDR=http://test-server:8069
+            - SIM_ROOM_STORE=/sim_rooms
+            - RATELIMIT_ENABLED=0
+            - VNC_PASSWORD=sim
+        depends_on:
+            test-server:
+                condition: service_healthy

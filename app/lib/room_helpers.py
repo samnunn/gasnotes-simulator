@@ -3,7 +3,7 @@ import os
 import random
 from pathlib import Path
 
-SIM_ROOM_STORE = "sim_rooms"
+from flask import current_app
 
 
 def sim_room_exists(sim_room_id):
@@ -47,4 +47,8 @@ def normalise_room_id(sim_room_id):
 
 def get_sim_room_path_from_id(sim_room_id):
     sim_room_id = normalise_room_id(sim_room_id)
-    return os.path.join(SIM_ROOM_STORE, sim_room_id + ".txt")
+    path_relative = os.path.join(
+        current_app.config.get("SIM_ROOM_STORE"), sim_room_id + ".txt"
+    )
+    path_absolute = Path(path_relative).absolute()
+    return path_absolute

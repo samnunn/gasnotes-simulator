@@ -65,6 +65,66 @@ For the sake of simplicity, each active SimCode is stored as a text file in `./s
 
 The [hosted version][gasnotes-sim] runs happily on the smallest [DigitalOcean Droplet](https://m.do.co/c/5248daea7efd) (affiliate link). If you are looking to host your own, check out the [sysadmin notes](sysadmin/SYSADMIN.md).
 
+## Testing
+[grug have love/hate relationship with test](https://grugbrain.dev/#grug-on-testing).
+
+### Quickstart
+
+```bash
+./sysadmin/test.sh
+```
+
+### Details
+
+The test suite is containerised and orchestrated using Docker Compose. `compose.test.yaml` describes two containers:
+
+- `test-server`: runs the Flask app in development mode (rate limiting and caching disabled)
+- `test-runner`: runs pytest (see below)
+
+And kills them both when the testing is finished. `test-runner` has two kinds of tests:
+
+- **"In vivo"** poke the `test-server` using [Playwright][playwright]
+    - I believe a professional would call these **"end to end" tests**
+    - Everything runs against Chromium
+- **"In vitro"** tests are run against a [Flask test-client](https://flask.palletsprojects.com/en/stable/testing/) living within the `test-runner` container
+    - I believe a professional would call these **"unit" tests**
+    - Allows direct fiddling with app internals
+
+### Coverage
+The included test suite is far from complete, but should prevent major whoopsie-doopsies. It currently covers:
+
+- Flask routes (should render *something* reasonable)
+- Flask redirects
+- Rate limiting behaviour
+    - The test environment disables rate limiting by default, except for the dedicated rate-limit test cases
+- Browser rendering
+- Basic sending/receiving of physiological data
+
+### Debug Mode
+Sometimes you just need to see what's happening. `test-debug.sh` will spin up a version of `test-runner` that has a minimal desktop environment and a VNC server.
+
+```bash
+./sysadmin/test_debug.sh
+```
+
+or
+
+```bash
+./sysadmin/host_test_debug.sh
+```
+
+
+Then open [vnc://localhost:5901](vnc://localhost:5901). The password is `sim`.
+
+### Host Mode
+When desperate, you can also run test (and the app itself) on your host machine like so:
+
+```bash
+./sysadmin/host_test.sh
+```
+
+It expects a live non-ratelimited copy of the app to be running on `localhost:8069`.
+
 ## Open Source
 
 Simulation Monitor is released under the [MIT License](LICENSE.txt). This software makes use of these open source projects:
@@ -94,3 +154,4 @@ And these closed-source ones:
 [homebrew]: https://brew.sh/
 [smtp]: https://www.showmethepocus.com/
 [radiopedia]: https://radiopaedia.org/?lang=us
+[playwright]:https://playwright.dev/

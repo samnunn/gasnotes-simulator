@@ -1,16 +1,18 @@
+import os
+from urllib.parse import urljoin
+
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from playwright.sync_api import BrowserContext, Page
 from sim import make_app
 
-# FIXTURES
+BASE_URL = os.environ.get("SIM_TEST_SERVER_ADDR")
 
 
 @pytest.fixture(scope="session")
 def test_app() -> Flask:
-    app: Flask = make_app()
-    app.config["RATELIMIT_ENABLED"] = False
-    return app
+    return make_app({"RATELIMIT_ENABLED": False})
 
 
 @pytest.fixture(scope="session")
@@ -21,10 +23,32 @@ def test_client(test_app: Flask) -> FlaskClient:
 
 @pytest.fixture(scope="session")
 def test_app_ratelimited() -> Flask:
-    app = test_app()
-    return app
+    return make_app({"RATELIMIT_ENABLED": True})
 
 
 @pytest.fixture(scope="session")
 def test_client_ratelimited(test_app_ratelimited: Flask) -> FlaskClient:
     return test_app_ratelimited.test_client()
+
+
+@pytest.fixture(scope="function")
+def browser_controller(page: Page):
+    page.goto(urljoin(BASE_URL, "new"))
+    page.get_by_role("link", name="Switch to Controller").click()
+    return page
+
+
+@pytest.fixture(scope="function")
+def browser_monitor(page: Page):
+    page.goto(urljoin(BASE_URL, "new"))
+    return page
+
+
+@pytest.fixture(scope="function")
+def browser_pair(context: BrowserContext):
+    monitor_page = context.new_page()
+    monitor_page.goto(urljoin(BASE_URL, "new"))
+    controller_page = context.new_page()
+    controller_page.goto(monitor_page.url.replace("/monitor", "/controller"))
+
+    return monitor_page, controller_page

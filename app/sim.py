@@ -1,4 +1,4 @@
-def make_app():
+def make_app(config_overrides={}):
     import json
     import os
     import re
@@ -23,13 +23,17 @@ def make_app():
     # /____/\___/\__/\__,_/ .___/
     #                    /_/
 
-    # constants
-    DEBUG = os.environ.get("DEBUG", "0") == "1"
-
     # flask
     app = Flask(__name__)
-    app.debug = DEBUG
-    app.secret_key = os.environ.get("SIM_SECRETKEY")
+
+    # env config
+    app.config.update(
+        SECRET_KEY=os.environ.get("SIM_SECRETKEY"),
+        SIM_ROOM_STORE=os.environ.get("SIM_ROOM_STORE"),
+        RATELIMIT_ENABLED=os.environ.get("RATELIMIT_ENABLED", "") != "0",
+    )
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # socketio
     socketio = SocketIO(app)
@@ -48,6 +52,7 @@ def make_app():
         default_limits=["1000 per day"],
         storage_uri="memory://",
     )
+    app.limiter = limiter
     default_error_message = "Rate limit exceeded. Please try again later."
     limit_fast = limiter.shared_limit(
         "5/second;50/minute;1000/day",
@@ -143,6 +148,10 @@ def make_app():
         if not bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)):
             abort(400, "Invalid SimCode.")
 
+        # Check that room exists
+        if not room_helpers.sim_room_exists(sim_room_id):
+            abort(404, "This sim room does not exist.")
+
         data = {}
         data["sim_room_id"] = sim_room_id
         data["title"] = f"Monitor ({sim_room_id.upper()})"
@@ -170,6 +179,10 @@ def make_app():
         # Validate SimCode
         if not bool(re.match(r"^[a-zA-Z0-9]{6}$", sim_room_id)):
             abort(400, "Invalid SimCode.")
+
+        # Check that room exists
+        if not room_helpers.sim_room_exists(sim_room_id):
+            abort(404, "This sim room does not exist.")
 
         data = {}
         data["sim_room_id"] = sim_room_id
