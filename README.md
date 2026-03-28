@@ -74,6 +74,14 @@ The [hosted version][gasnotes-sim] runs happily on the smallest [DigitalOcean Dr
 ./sysadmin/test.sh
 ```
 
+When desperate, you can also run test (and the app itself) on your host machine like so:
+
+```bash
+./sysadmin/host_test.sh
+```
+
+It expects a live non-ratelimited copy of the app to be running on `localhost:8069`
+
 ### Details
 
 The test suite is containerised and orchestrated using Docker Compose. `compose.test.yaml` describes two containers:
@@ -112,15 +120,6 @@ You could also run it on your host machine:
 ```bash
 ./sysadmin/host_test_debug.sh
 ```
-
-### Host Mode
-When desperate, you can also run test (and the app itself) on your host machine like so:
-
-```bash
-./sysadmin/host_test.sh
-```
-
-It expects a live non-ratelimited copy of the app to be running on `localhost:8069`
 
 ## Open Source
 
