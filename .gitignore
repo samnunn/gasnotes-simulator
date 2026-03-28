@@ -8,3 +8,4 @@ private/*
 node_modules/
 .webassets-cache
 app/static/gen
+*.log
