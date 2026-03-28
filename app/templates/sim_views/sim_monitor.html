@@ -571,6 +571,7 @@
             <p class="readout-label">HR (/min)</p>
             <sim-readout
                 class="green"
+                data-testid="monitor-readout-heart-rate"
                 data-sim-parameter="heart-rate"
                 data-sim-wobble-min="0"
                 data-sim-wobble="3"
@@ -593,6 +594,7 @@
             <p class="readout-label">SpO<sub>2</sub> (%)</p>
             <sim-readout
                 class="blue"
+                data-testid="monitor-readout-spo2"
                 data-sim-parameter="spo2 enabler-for-spo2"
                 data-sim-parameter-mapping="spo2:sim-value enabler-for-spo2:data-sim-enabled"
                 data-sim-wobble="2"
@@ -675,7 +677,10 @@
         <div id="nibp">
             <p class="readout-label">
                 NIBP (mmHg)
-                <span id="nibp-timer-widget" data-sim-enabled="true"
+                <span
+                    id="nibp-timer-widget"
+                    data-testid="readout-nibp-timer"
+                    data-sim-enabled="true"
                     >Auto 02:00</span
                 >
             </p>
@@ -683,6 +688,7 @@
             <div class="flex wrap">
                 <sim-readout
                     class="purple"
+                    data-testid="readout-nibp-sbp-delayed"
                     data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
                     data-sim-parameter="enabler-for-nibp"
                     data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"
@@ -690,6 +696,7 @@
                 <sim-readout
                     class="purple"
                     data-sim-prefix=" / "
+                    data-testid="readout-nibp-dbp-delayed"
                     data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
                     data-sim-parameter="enabler-for-nibp"
                     data-sim-parameter-mapping="enabler-for-nibp:data-sim-enabled"

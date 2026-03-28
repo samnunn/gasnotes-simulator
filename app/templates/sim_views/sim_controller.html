@@ -233,6 +233,7 @@ page]) #}
                         <sim-slider data-display-name="HR" class="green">
                             <input
                                 type="range"
+                                data-testid="controller-heart-rate"
                                 data-sim-parameter="heart-rate"
                                 sim-sync
                                 min="30"
@@ -314,6 +315,7 @@ page]) #}
                         <input
                             type="checkbox"
                             role="switch"
+                            data-testid="controller-enabler-spo2-primary"
                             data-sim-parameter="enabler-for-spo2"
                             {{ checked(updates['enabler-for-spo2'], False) }}
                             sim-sync
@@ -327,6 +329,7 @@ page]) #}
                         >
                             <input
                                 type="range"
+                                data-testid="controller-spo2"
                                 data-sim-parameter="spo2"
                                 type="range"
                                 min="35"
@@ -337,6 +340,7 @@ page]) #}
                         <sim-slider data-display-name=" HR" class="blue">
                             <input
                                 type="range"
+                                data-testid="controller-heart-rate-mirror"
                                 data-sim-parameter="heart-rate"
                                 sim-sync
                                 min="30"
@@ -434,7 +438,7 @@ page]) #}
                                             checked
                                         />
                                     </label>
-                                    <label>
+                                    <label data-testid="controller-nibp-auto">
                                         Auto
                                         <input
                                             type="radio"
@@ -444,7 +448,11 @@ page]) #}
                                     </label>
                                 </div>
                             </sim-radiogroup>
-                            <button class="button purple" sim-nibp-cycle-button>
+                            <button
+                                class="button purple"
+                                sim-nibp-cycle-button
+                                data-testid="controller-nibp-run-now"
+                            >
                                 Run Now
                             </button>
                         </div>
@@ -739,6 +747,7 @@ page]) #}
                                 type="checkbox"
                                 {{ checked(updates['enabler-for-spo2'], False) }}
                                 role="switch"
+                                data-testid="controller-enabler-spo2-mirror"
                                 data-sim-parameter="enabler-for-spo2"
                                 sim-sync
                                 class="blue"
