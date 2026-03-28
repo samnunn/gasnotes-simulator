@@ -66,7 +66,7 @@ For the sake of simplicity, each active SimCode is stored as a text file in `./s
 The [hosted version][gasnotes-sim] runs happily on the smallest [DigitalOcean Droplet](https://m.do.co/c/5248daea7efd) (affiliate link). If you are looking to host your own, check out the [sysadmin notes](sysadmin/SYSADMIN.md).
 
 ## Testing
-[grug have love/hate relationship with test](https://grugbrain.dev/#grug-on-testing).
+[Grug have love/hate relationship with test](https://grugbrain.dev/#grug-on-testing).
 
 ### Quickstart
 
@@ -83,9 +83,9 @@ The test suite is containerised and orchestrated using Docker Compose. `compose.
 
 And kills them both when the testing is finished. `test-runner` has two kinds of tests:
 
-- **"In vivo"** poke the `test-server` using [Playwright][playwright]
+- **"In vivo"** tests poke the `test-server` using [Playwright][playwright]
     - I believe a professional would call these **"end to end" tests**
-    - Everything runs against Chromium
+    - Everything runs against Chromium and WebKit
 - **"In vitro"** tests are run against a [Flask test-client](https://flask.palletsprojects.com/en/stable/testing/) living within the `test-runner` container
     - I believe a professional would call these **"unit" tests**
     - Allows direct fiddling with app internals
@@ -97,8 +97,7 @@ The included test suite is far from complete, but should prevent major whoopsie-
 - Flask redirects
 - Rate limiting behaviour
     - The test environment disables rate limiting by default, except for the dedicated rate-limit test cases
-- Browser rendering
-- Basic sending/receiving of physiological data
+- Basic sending/receiving between controller and monitor
 
 ### Debug Mode
 Sometimes you just need to see what's happening. `test-debug.sh` will spin up a version of `test-runner` that has a minimal desktop environment and a VNC server.
@@ -106,15 +105,13 @@ Sometimes you just need to see what's happening. `test-debug.sh` will spin up a 
 ```bash
 ./sysadmin/test_debug.sh
 ```
+Then open [vnc://localhost:5901](vnc://localhost:5901). The password is `sim`.
 
-or
+You could also run it on your host machine:
 
 ```bash
 ./sysadmin/host_test_debug.sh
 ```
-
-
-Then open [vnc://localhost:5901](vnc://localhost:5901). The password is `sim`.
 
 ### Host Mode
 When desperate, you can also run test (and the app itself) on your host machine like so:
@@ -123,7 +120,7 @@ When desperate, you can also run test (and the app itself) on your host machine 
 ./sysadmin/host_test.sh
 ```
 
-It expects a live non-ratelimited copy of the app to be running on `localhost:8069`.
+It expects a live non-ratelimited copy of the app to be running on `localhost:8069`
 
 ## Open Source
 
@@ -131,10 +128,9 @@ Simulation Monitor is released under the [MIT License](LICENSE.txt). This softwa
 
 - [Flask][flask] (BSD-3-Clause License)
 - [Flask-SocketIO][flask-socketio] (MIT License)
-- [SocketIO][socketio] (MIT License)
-- [pyenv](https://github.com/pyenv/pyenv) (MIT License)
-- [pipenv](https://github.com/pypa/pipenv) (MIT License)
-- [Homebrew](https://github.com/Homebrew/brew) (BSD-2-Clause License)
+- [SocketIO][socketio] client library (MIT License)
+- [uv](https://github.com/astral-sh/uv) (MIT and Apache-2.0 Licenses)
+- [ruff](https://github.com/astral-sh/ruff) (MIT License)
 - [cloudflared](https://github.com/cloudflare/cloudflared) (Apache-2.0 License)
 - [Tailscale](https://github.com/tailscale/tailscale) (BSD-3-Clause License)
 - [Twemoji](https://github.com/twitter/twemoji) for the pager (📟) favicon (CC-BY 4.0 License)
