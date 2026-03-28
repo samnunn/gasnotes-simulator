@@ -7,7 +7,7 @@ from flask.testing import FlaskClient
 from playwright.sync_api import BrowserContext, Page
 from sim import make_app
 
-BASE_URL = os.environ.get("SIM_TEST_SERVER_ADDR")
+BASE_URL: str = os.environ.get("SIM_TEST_SERVER_ADDR", "http://127.0.0.1:8609")
 
 
 @pytest.fixture(scope="session")
@@ -41,13 +41,15 @@ def browser_controller(page: Page):
 @pytest.fixture(scope="function")
 def browser_monitor(page: Page):
     page.goto(urljoin(BASE_URL, "new"))
+    page.get_by_role("button", name="Open Simulation").click()
     return page
 
 
 @pytest.fixture(scope="function")
-def browser_pair(context: BrowserContext):
+def browser_monitor_controller_pair(context: BrowserContext) -> tuple[Page, Page]:
     monitor_page = context.new_page()
     monitor_page.goto(urljoin(BASE_URL, "new"))
+    monitor_page.get_by_role("button", name="Open Simulation").click()
     controller_page = context.new_page()
     controller_page.goto(monitor_page.url.replace("/monitor", "/controller"))
 
