@@ -9,6 +9,11 @@ cat <<'EOF'
 /____/_/_/ /_/ /_/    /_/  \___/____/\__/\___/_/                                                                                         
 EOF
 
+if [ -z "$1" ]; then
+  echo "Usage: $0 <pytest -k expression>"
+  exit 1
+fi
+
 if ! curl -fsS http://127.0.0.1:8069/ >/dev/null 2>&1; then
   echo -e "======================= ERROR ======================\n"
   echo -e "Expected a copy of the app to be running at http://127.0.0.1:8069\n"
@@ -23,8 +28,6 @@ fi
     export SECRET_KEY=dummy_secret_key
     export SIM_TEST_SERVER_ADDR=http://127.0.0.1:8069
 
-    uv tool run playwright install chromium
-
-    export PWDEBUG=1
-    uv run python -m pytest -v --headed 
+    uv tool run playwright install chromium webkit
+    PWDEBUG=1 uv run python -m pytest --verbose --headed -k "$1"
 )
