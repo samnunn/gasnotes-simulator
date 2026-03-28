@@ -24,3 +24,5 @@ dependencies = [
 required-environments = [
     "sys_platform == 'linux' and platform_machine == 'aarch64'",
 ]
+[tool.ty.environment]
+root = ["./app"]
