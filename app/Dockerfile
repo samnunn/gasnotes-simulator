@@ -21,9 +21,9 @@ CMD uv run --no-sync flask --app wsgi:app --debug run --host=0.0.0.0 --port=8069
 # test runner
 FROM base AS test_runner
 RUN uv tool run playwright install-deps
-RUN uv tool run playwright install chromium
+RUN uv tool run playwright install chromium webkit
 COPY . .
-CMD uv run --no-sync python -m pytest -v
+CMD uv run --no-sync python -m pytest --verbose --numprocesses 4 --browser webkit --browser chromium
 
 # test runner (headed)
 FROM test_runner AS test_runner_headed
