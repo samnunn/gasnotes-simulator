@@ -52,7 +52,9 @@ function playHeartBeepOnce(simAudioControlObjects) {
     oscillatorNode.type = "triangle";
 
     // decide frequency
-    let spo2Element = document.querySelector('[data-sim-parameter~="spo2"]');
+    // #todo refactor to avoid getting this info from the DOM…
+    // #smell
+    let spo2Element = document.querySelector("#readout-spo2");
     let spo2Value = parseInt(spo2Element.getAttribute("sim-value")) || 99;
 
     let frequency = 150 + 8 * parseInt(spo2Value);

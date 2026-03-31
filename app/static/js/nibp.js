@@ -1,5 +1,4 @@
 import { audioIsRunning } from "./audio.js";
-import { getValue, setValue } from "./sync.js";
 
 let delayedAudioOutputs = document.querySelectorAll(
     "#nibp [data-sim-delayed-datasource]",
@@ -7,7 +6,7 @@ let delayedAudioOutputs = document.querySelectorAll(
 export function updateNibpReadoutImmediately() {
     for (let d of delayedAudioOutputs) {
         let dataSource = document.querySelector(
-            `#nibp [data-sim-parameter="${d.dataset.simDelayedDatasource}"]`,
+            `#nibp [data-sim-parameters="${d.dataset.simDelayedDatasource}"]`,
         );
         let dataValue = dataSource.getAttribute("sim-value");
         d.removeAttribute("hidden");
@@ -22,7 +21,7 @@ function updateNibpReadoutWithAnimation(max) {
     // get peak value
     let targetSbp = document
         .querySelector(
-            `[data-sim-parameter="systolic-blood-pressure-noninvasive"]`,
+            `[data-sim-parameters="systolic-blood-pressure-noninvasive"]`,
         )
         .getAttribute("sim-value");
     let peakPressure = (targetSbp * 1.25).toFixed(0);
@@ -182,7 +181,7 @@ export function registerNibpAutoCycleStateReceiver(socket) {
         let message = JSON.parse(msg);
         let state = message["nibp_auto_cycling"] == "true";
 
-        setValue(nibpSwitch, state);
+        _setNibpSwitchState(nibpSwitch, state);
         console.debug(
             `NIBP: auto-cycle state (${state}) received from server and applied locally`,
         );
@@ -200,7 +199,7 @@ export function registerNibpAutoCycleStateEmitter(socket) {
     );
     let nibpSwitch = document.querySelector("[sim-nibp-cycle-switch]");
     nibpSwitch.addEventListener("input", (e) => {
-        let state = getValue(nibpSwitch);
+        let state = _getNibpSwitchState(nibpSwitch);
 
         let message = {
             sim_room_id: document.body.dataset.simRoomId,
@@ -271,34 +270,25 @@ export function attachMonitorNibpCycleSwitchHandler() {
     });
 }
 
-// let nibpAudio = document.getElementById("nibp-audio");
-// nibp button hookup
-// auto-send nibp updates
-// emitter
-// let nibpAutoToggle = document.getElementById(`nibp-cycling-switch`);
-// nibpAutoToggle.addEventListener("input", (e) => {
-//     let state = nibpAutoToggle.querySelector("input[data-sim-parameter]").value;
-//     let message = {
-//         sim_room_id: document.body.dataset.simRoomId,
-//         nibp_auto_cycling: state,
-//     };
-//     socket.emit("sim-nibp-state-update", JSON.stringify(message));
-// });
-// receiver
-// nibpAutoToggle.addEventListener("input", (e) => {
-//     let autoCyclingEnabled = nibpAutoToggle.checked;
-//     let message = {
-//         sim_room_id: document.body.dataset.simRoomId,
-//         nibp_auto_cycling: autoCyclingEnabled,
-//     };
-//     // TODO: fix
-//     // socket.emit("sim-nibp-state-update", JSON.stringify(message))
-//     if (autoCyclingEnabled) {
-//         startNibpTimerWidget();
-//     } else {
-//         stopNibpTimerWidget();
-//     }
-// });
-// if (nibpAutoToggle.checked) {
-//     startNibpTimerWidget();
-// }
+function _setNibpSwitchState(target, value) {
+    if (target.hasAttribute("sim-value")) {
+        target.setAttribute("sim-value", value);
+    } else if (target.matches(`input[type="checkbox"]`)) {
+        target.checked = value.toString() == "true" ? true : false;
+    } else if (target.matches(`p, span`)) {
+        target.innerText = value;
+    } else {
+        target.value = value;
+    }
+}
+function _getNibpSwitchState(target) {
+    if (target.hasAttribute("sim-value")) {
+        return target.getAttribute("sim-value");
+    } else if (target.matches(`input[type="checkbox"]`)) {
+        return target.checked.toString();
+    } else if (target.matches(`p, span`)) {
+        return target.innerText;
+    } else {
+        return target.value;
+    }
+}

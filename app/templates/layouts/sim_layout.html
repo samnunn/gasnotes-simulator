@@ -64,6 +64,11 @@
             }
         }
     </style>
+    <script>
+        window.default_data = JSON.parse(
+            `{{ data.initial_state | default({}) | tojson }}`,
+        );
+    </script>
     <header id="sim-toolbar-top" class="sim-toolbar">
         {% block sim_toolbar_top %}
             <div class="toolbar-hidden"></div>

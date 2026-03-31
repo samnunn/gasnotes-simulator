@@ -1,92 +1,5 @@
 import { updateNibpReadoutImmediately } from "./nibp";
 
-// export class TransitionManager {
-//     targetElement;
-//     targetValue;
-//     initialValue;
-//     currentValue;
-//     timeout;
-//     incrementSize;
-//     incrementDuration = 3000;
-//     running = true;
-//     nonTransitionable = false;
-
-//     constructor(targetElement, targetValue, targetParameter = "sim-value") {
-//         this.targetElement = targetElement;
-//         this.targetValue = parseInt(targetValue);
-//         this.initialValue = parseInt(
-//             this.targetElement.getAttribute("sim-value"),
-//         );
-//         this.currentValue = this.initialValue;
-
-//         // immediately commit changes for non-transitionable elements
-//         // early return to prevent any further horseplay
-//         if (this.targetElement.hasAttribute("sim-transitionable") != true) {
-//             // needs to skip parseInt() because wave morphologies are strings
-//             setValue(this.targetElement, targetValue);
-//             this.nonTransitionable = true;
-//             return;
-//         }
-
-//         // stop the currently-running transition
-//         if (this.targetElement.activeTransition instanceof TransitionManager) {
-//             this.targetElement.activeTransition.running = false;
-//         }
-
-//         // substitute this transition
-//         this.targetElement.activeTransition = this;
-//     }
-
-//     start() {
-//         if (this.nonTransitionable) return;
-
-//         // set duration
-//         let duration = document.body.getAttribute("sim-transition-time") || 0;
-
-//         // duration is an integer number of seconds
-//         if (duration > 0) {
-//             this.incrementSize =
-//                 (this.targetValue - this.initialValue) /
-//                 ((duration * 1000) / this.incrementDuration);
-//         } else {
-//             this.incrementSize = this.targetValue - this.initialValue;
-//         }
-
-//         // begin
-//         this.increment();
-//     }
-
-//     increment() {
-//         // only increment if running == true (gets set to false as an interrupt/end of transition signal)
-
-//         // if the total change exceeds the planned change, terminate the transition. otherwise increment/decrement
-//         let totalChange = Math.abs(this.currentValue - this.initialValue);
-//         let plannedChange = Math.abs(this.targetValue - this.initialValue);
-//         if (totalChange >= plannedChange) {
-//             this.currentValue = this.targetValue;
-//             this.running = false;
-//         } else {
-//             this.currentValue += this.incrementSize;
-//         }
-
-//         // commit changes to the DOM
-//         // parseInt() to get rid of decimals
-//         setValue(this.targetElement, parseInt(this.currentValue));
-
-//         if (this.running == true) {
-//             // set a timeout for next increment
-//             // will be a no-op if this.running was set to false above
-//             this.timeout = setTimeout(() => {
-//                 this.increment();
-//             }, this.incrementDuration); // period is set in this.incrementDuration above
-//         }
-//     }
-
-//     cancel() {
-//         this.timeout = null;
-//     }
-// }
-
 class SimTransitionSupervisor {
     // assumes state object has exactly the right keys (should be validated before handing over)
     // functions assume their inputs and strings, so often parseFloat() etc
@@ -176,7 +89,19 @@ class SimTransitionSupervisor {
         );
 
         // apply current_state to DOM
-        _applyStateToDom(intermediate_state);
+        // _applyStateToDom(intermediate_state);
+        try {
+            _applyStateToDomFragment(
+                "#sim-monitor",
+                "data-sim-parameters",
+                intermediate_state,
+            );
+        } catch (e) {
+            console.error(
+                `Sync: encountered an error while updating state in the DOM`,
+                e,
+            );
+        }
 
         // save state
         this.current_state = intermediate_state;
@@ -250,126 +175,21 @@ class SimTransitionSupervisor {
     }
 }
 
-export function validateStateObject(state) {
-    let requiredKeys = Object.keys(window.default_data["updates"]);
-    let observedKeys = Object.keys(state);
-
-    if (requiredKeys.length != observedKeys.length) {
-        console.error(
-            "Sync: proposed state object is missing required keys",
-            state,
-        );
-    }
-
-    for (let key of requiredKeys) {
-        if (!(key in state)) {
-            console.error(
-                `Sync: state object is missing required key: ${key}`,
-                state,
-            );
-            return false;
-        }
-    }
-
-    for (let key of observedKeys) {
-        if (!requiredKeys.includes(key)) {
-            console.error(
-                `Sync: state object has unexpected key: ${key}`,
-                state,
-            );
-            return false;
-        }
-    }
-
-    return true;
-}
-
-export function setValue(target, value) {
-    if (target.hasAttribute("sim-value")) {
-        target.setAttribute("sim-value", value);
-    } else if (target.matches(`input[type="checkbox"]`)) {
-        target.checked = value.toString() == "true" ? true : false;
-    } else if (target.matches(`p, span`)) {
-        target.innerText = value;
-    } else {
-        target.value = value;
-    }
-}
-export function getValue(target) {
-    if (target.hasAttribute("sim-value")) {
-        return target.getAttribute("sim-value");
-    } else if (target.matches(`input[type="checkbox"]`)) {
-        return target.checked.toString();
-    } else if (target.matches(`p, span`)) {
-        return target.innerText;
-    } else {
-        return target.value;
-    }
-}
-
-export function transitionIfAble(func) {
-    if (document.startViewTransition) {
-        document.startViewTransition(() => {
-            func();
-        });
-    } else {
-        func();
-    }
-}
-
 export function registerMonitorSyncReceiver(socket) {
-    // if (document.body.dataset.simDemoMode == "true") return;
-
-    DEV: (() => {
-        // check for elements with multiple sim-parameters that don't have a valid mapping
-        let multiParamElements = document.querySelectorAll(
-            `[data-sim-parameter*=" "]`,
-        );
-        for (let mp of multiParamElements) {
-            if (!mp.hasAttribute("data-sim-parameter-mapping")) {
-                console.error(
-                    `Sync: no "data-sim-parameter-mapping" found when element listens to multiple parameters -> RACE CONDITION`,
-                    mp,
-                );
-                continue;
-            }
-
-            let parameters = mp.dataset.simParameter?.split(" ");
-            let maps = mp.dataset.simParameterMapping?.split(" ");
-
-            for (let p of parameters) {
-                let matchingMaps = 0;
-                for (let m of maps) {
-                    if (m.split(":")[0] === p) {
-                        matchingMaps++;
-                    }
-                }
-                if (matchingMaps === 0) {
-                    console.error(
-                        `Sync: no valid mapping found for parameter "${p}" on this element (that listens to multiple parameters), meaning nothing will happen when that parameter changes`,
-                        mp,
-                    );
-                }
-            }
-        }
-    })();
-
     let transitionManager = new SimTransitionSupervisor(
         window.default_data["updates"],
     );
 
     function handleMonitorStateUpdate(state) {
         // validate state
-        if (!validateStateObject(state)) {
+        if (!_validateStateObject(state)) {
             console.error("Sync: received invalid state object", state);
             return;
         }
 
         // special case for cardiac arrest
         let mode = state["sim-mode"];
-        let spo2Readout = document.querySelector(
-            '[data-sim-parameter~="spo2"]',
-        );
+        let spo2Readout = document.querySelector("#readout-spo2");
 
         if (mode == "arrested") {
             // imperatively mutate state to reflect arrest conditions
@@ -405,37 +225,28 @@ export function registerMonitorSyncReceiver(socket) {
     });
 
     // re-apply existing state on pageload
-    // this will run through any arrest special-casing etc
-    window.addEventListener("load", (e) => {
-        // if (document.body.dataset.simDemoMode == "true") return;
-
-        console.debug(
-            `Sync: applying initial state on page load: `,
-            window.default_data["updates"],
-        );
-
-        try {
-            let message = window.default_data;
-            let state = message["updates"];
-            handleMonitorStateUpdate(state);
-            updateNibpReadoutImmediately();
-        } catch (e) {
-            console.error(
-                "Sync: couldn't parse/apply state from window.default_data (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
-                e,
-            );
-        }
+    _applySavedStateOnPageload((state) => {
+        handleMonitorStateUpdate(state);
+        updateNibpReadoutImmediately();
     });
 }
 
 export function registerControllerSyncEmitter(socket) {
+    window.dumpstate = _serialiseStateFromDomFragment;
+
     if (document.body.dataset.simDemoMode == "true") return;
 
     let sendButton = document.querySelector("#send");
     let form = document.querySelector("form#sim-input");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        let message = _dumpAllInputState();
+        let message = {
+            sim_room_id: document.body.dataset.simRoomId,
+            updates: _serialiseStateFromDomFragment(
+                "#controller",
+                "data-sim-input",
+            ),
+        };
         socket.emit("sim-update", JSON.stringify(message));
 
         if (sendButton) {
@@ -448,118 +259,250 @@ export function registerControllerSyncEmitter(socket) {
         sendButton.classList.add("red");
         sendButton.value = "Send";
     });
+
+    // re-apply existing state on pageload
+    _applySavedStateOnPageload((state) => {
+        _applyStateToDomFragment("#controller", "data-sim-input", state);
+    });
 }
 
-function _dumpAllInputState() {
-    let message = {
-        sim_room_id: document.body.dataset.simRoomId,
-        updates: {},
-        enablers: {},
-    };
-
-    // sim values
-    let inputs = document.querySelectorAll("[data-sim-parameter]");
-    for (let i of inputs) {
-        let simValue = getValue(i);
-
-        message["updates"][i.dataset.simParameter] = simValue;
+export function setSimValue(el, attributeName, attributeValue) {
+    // special case for "checked"
+    if (attributeName == "checked") {
+        if (attributeValue == "false" || Boolean(attributeValue) == false) {
+            el.checked = false;
+        } else {
+            el.checked = true;
+        }
+        return;
     }
 
-    // enabled/disabled components
-    let enablers = document.querySelectorAll("[data-sim-enabler-for]");
-    for (let e of enablers) {
-        let enablerFor = e.dataset.simEnablerFor;
-        let isEnabled = e.checked;
-
-        message["enablers"][enablerFor] = isEnabled;
+    // special case for "value"
+    if (attributeName == "value") {
+        el.value = attributeValue;
+        el.dispatchEvent(
+            new CustomEvent("input", {
+                bubbles: true,
+                detail: { preventAutophagy: true },
+            }),
+        );
+        return;
     }
 
-    return message;
+    // general case
+    el.setAttribute(attributeName, attributeValue);
 }
 
-function _mutateStateForCardiacArrest(updates) {
-    // assign ecg-rhythm to cpr OR arrest-rhythm
-    if (updates["sim-cpr"] == "on") {
-        updates["ecg-rhythm"] = "cpr";
+export function getSimValue(el, attributeName) {
+    let attributeValue;
+
+    if (attributeName == "checked") {
+        attributeValue = el.checked;
+    } else if (attributeName == "value") {
+        attributeValue = el.value;
     } else {
-        updates["ecg-rhythm"] = updates["arrest-rhythm"];
+        attributeValue = el.getAttribute("sim-value") || "";
+    }
+
+    return attributeValue;
+}
+
+function _applySavedStateOnPageload(initFunction) {
+    window.addEventListener("load", (e) => {
+        console.debug(
+            `Sync: applying initial state on page load: `,
+            window.default_data["updates"],
+        );
+
+        try {
+            let state = window.default_data["updates"];
+            initFunction(state);
+        } catch (e) {
+            console.error(
+                "Sync: couldn't parse/apply state from window.default_data (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
+                e,
+            );
+        }
+        // needs to be on next frame to enable all animations to be suppressed on pageload
+        requestAnimationFrame(() => {
+            document.body.classList.remove("sim-fouc-suppressed");
+        });
+    });
+}
+
+function _mutateStateForCardiacArrest(state) {
+    // assign ecg-rhythm to cpr OR arrest-rhythm
+    if (state["sim-cpr"] == "on") {
+        state["ecg-rhythm"] = "cpr";
+    } else {
+        state["ecg-rhythm"] = state["arrest-rhythm"];
     }
 
     // set heart rate according to morphology
-    if (["sinus", "flatline"].includes(updates["ecg-rhythm"])) {
-        updates["heart-rate"] = 104;
-    } else if (updates["ecg-rhythm"] == "cpr") {
-        updates["heart-rate"] = 100;
+    if (["sinus", "flatline"].includes(state["ecg-rhythm"])) {
+        state["heart-rate"] = 104;
+    } else if (state["ecg-rhythm"] == "cpr") {
+        state["heart-rate"] = 100;
     } else {
-        updates["heart-rate"] = 250;
+        state["heart-rate"] = 250;
     }
 
     // transfer arrest capno/etco2 to main
-    updates["etco2"] = updates["arrest-etco2"];
-    updates["capno-trace"] = updates["arrest-capno"];
+    state["etco2"] = state["arrest-etco2"];
+    state["capno-trace"] = state["arrest-capno"];
 
     // set spo2 to sod-all
-    updates["spo2"] = 64;
+    state["spo2"] = 64;
 
     // make nibp uninterpretably low
     let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
     let imaginaryDbp = (5 + Math.random() * 10).toFixed(0);
     let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
-    updates["systolic-blood-pressure-noninvasive"] = imaginarySbp;
-    updates["diastolic-blood-pressure-noninvasive"] = "??";
-    updates["mean-arterial-pressure-noninvasive"] = imaginaryMap;
+    state["systolic-blood-pressure-noninvasive"] = imaginarySbp;
+    state["diastolic-blood-pressure-noninvasive"] = "??";
+    state["mean-arterial-pressure-noninvasive"] = imaginaryMap;
 
     // set arrest-style morphologies for remaining traces
-    updates["spo2-trace"] = "spo2-badtrace";
-    updates["artline-trace"] = "spo2-badtrace";
+    state["spo2-trace"] = "spo2-badtrace";
+    state["artline-trace"] = "spo2-badtrace";
 
-    return updates;
+    return state;
 }
 
-function _applyStateToDom(state) {
-    console.debug(`Sync: applying state to DOM: `, state);
-
-    for (let simParameter in state) {
-        let simValue = state[simParameter];
-
-        let interestedElements = document.querySelectorAll(
-            `[data-sim-parameter~="${simParameter}"]`,
+function _serialiseStateFromDomFragment(selector, mapAttribute) {
+    let containerElement = document.querySelector(selector);
+    if (!containerElement) {
+        throw new Error(
+            "Sync: _serialiseStateFromDomFragment selector did not match anything",
         );
+    }
 
-        for (let ie of interestedElements) {
-            // when there are no mappings, just apply to sim-value
-            // sharp edge: this can cause a race condition when there aren't mappings to cover all cases
-            if (!ie.hasAttribute("data-sim-parameter-mapping")) {
-                ie.setAttribute("sim-value", simValue);
+    let inputElements = containerElement.querySelectorAll(`[${mapAttribute}]`);
+    if (inputElements.length == 0) {
+        throw new Error(
+            `_serialiseStateFromDomFragment could not find any elements with [data-sim-parameters] in <${selector}>`,
+        );
+    }
+
+    let states = {};
+
+    for (let ie of inputElements) {
+        let parametersString = ie.getAttribute(mapAttribute);
+
+        if (parametersString.split(" ").length > 1) {
+            console.error(
+                `Sync: _serialiseStateFromDomFragment found an input with multiple mappings (${parametersString}), which is not allowed. Skipping.`,
+            );
+            continue;
+        }
+
+        let [parameterName, attributeName] = parametersString.split(":");
+
+        if (states[parameterName] != undefined) {
+            console.error(
+                `Sync: _serialiseStateFromDomFragment found multiple inputs with [${mapAttribute}]*="${parameterName}", skipping (all but the first one)`,
+            );
+            continue;
+        }
+
+        let value = getSimValue(ie, attributeName);
+
+        states[parameterName] = value;
+    }
+
+    // validate
+    if (!_validateStateObject(states)) {
+        throw new Error(
+            "_serialiseStateFromDomFragment produced an invalid/incomplete state object",
+        );
+    }
+
+    return states;
+}
+
+function _applyStateToDomFragment(selector, mapAttribute, states) {
+    let containerElement = document.querySelector(selector);
+    if (!containerElement) {
+        throw new Error(
+            "Sync: _applyStateToDomFragment selector did not match anything",
+        );
+    }
+
+    let interestedElements = containerElement.querySelectorAll(
+        `[${mapAttribute}]`,
+    );
+    if (interestedElements.length == 0) {
+        throw new Error(
+            `_applyStateToDomFragment could not find any elements with [${mapAttribute}] in <${selector}>`,
+        );
+    }
+
+    for (let ie of interestedElements) {
+        let parametersString = ie.getAttribute(mapAttribute);
+        let parameterMappings = parametersString.split(" ");
+
+        let anonymousParameters = [];
+        for (let pm of parameterMappings) {
+            let [parameterName, attributeName] = pm.split(":");
+
+            // anonymous parameters
+            if (attributeName == undefined) {
+                attributeName = "sim-value";
+                anonymousParameters.push(parameterName);
+                if (anonymousParameters.length > 1) {
+                    console.warn(
+                        `Sync: element has multiple "anonymous" parameters (${anonymousParameters.join()}) implicitly mapped to [sim-value]. "${anonymousParameters[0]}" was permitted, now skipping "${parameterName}" to avoid a race condition.`,
+                        ie,
+                    );
+                    continue;
+                }
+            }
+
+            // get value
+            let attributeValue = states[parameterName];
+            if (attributeValue == undefined) {
+                console.error(
+                    `Sync: _applyStateToDomFragment could not find a value for "${parameterName}" in state object. Validation must have failed to catch this!`,
+                );
                 continue;
             }
 
-            // assemble mappings
-            let rawMappings = ie.dataset.simParameterMapping?.split(" ") || [];
-            let mappings = [];
-            for (let rm of rawMappings) {
-                let split = rm.split(":");
-                if (split.length === 2) {
-                    mappings.push(split);
-                }
-            }
-
-            // iterate over mappings
-            // sharp edge: this has potentiate to over-write itself if two mappings are defined for a sim parameter
-            let matchedMappings = 0;
-            for (let m of mappings) {
-                let [mapped_sim_param, mapped_element_attr] = m;
-                if (mapped_sim_param === simParameter) {
-                    ie.setAttribute(mapped_element_attr, simValue);
-                    matchedMappings += 1;
-                }
-            }
-            if (matchedMappings === 0) {
-                console.error(
-                    `Sync: no matching mapping found for sync parameter "${simParameter}" in element ${ie}, even though *some* mappings exist. Assigning value to sim-value`,
-                    ie,
-                );
-            }
+            // set attr
+            setSimValue(ie, attributeName, attributeValue);
         }
     }
+}
+
+function _validateStateObject(state) {
+    let requiredKeys = Object.keys(window.default_data["updates"]);
+    let observedKeys = Object.keys(state);
+
+    if (requiredKeys.length != observedKeys.length) {
+        console.error(
+            "Sync: proposed state object is missing required keys",
+            state,
+        );
+    }
+
+    for (let key of requiredKeys) {
+        if (!(key in state)) {
+            console.error(
+                `Sync: state object is missing required key: ${key}`,
+                state,
+            );
+            return false;
+        }
+    }
+
+    for (let key of observedKeys) {
+        if (!requiredKeys.includes(key)) {
+            console.error(
+                `Sync: state object has unexpected key: ${key}`,
+                state,
+            );
+            return false;
+        }
+    }
+
+    return true;
 }

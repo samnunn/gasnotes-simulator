@@ -104,6 +104,20 @@ body {
 
     color: white;
     background-color: black;
+
+    opacity: 1;
+}
+
+body.sim-fouc-suppressed,
+body.sim-fouc-suppressed *,
+body.sim-fouc-suppressed *::before,
+body.sim-fouc-suppressed *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
+body.sim-fouc-suppressed {
+    opacity: 0;
 }
 
 /*Wrapper*/

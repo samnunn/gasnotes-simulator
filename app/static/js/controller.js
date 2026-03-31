@@ -12,35 +12,38 @@ let socket = getSocket();
 import { registerControllerSyncEmitter } from "./sync";
 registerControllerSyncEmitter(socket);
 
-import { setValue, getValue } from "./sync";
+import { setSimValue, getSimValue } from "./sync";
 
 // SYNC VALUES (within page)
 document.addEventListener("input", (e) => {
     if (!e.target.matches("[sim-sync]")) return;
     if (e?.detail?.preventAutophagy == true) return;
 
-    let parameter = e.target.dataset.simParameter;
-    if (parameter) {
-        let interestedElements = document.querySelectorAll(
-            `[data-sim-parameter="${parameter}"]`,
+    let parametersString = e.target.getAttribute("data-sim-input");
+    let [_, attributeName] = parametersString.split(":");
+
+    let interestedElements = document.querySelectorAll(
+        `[data-sim-input="${parametersString}"]`,
+    );
+
+    for (let ie of interestedElements) {
+        let value = getSimValue(e.target, attributeName);
+        setSimValue(ie, attributeName, value);
+
+        ie.dispatchEvent(
+            new CustomEvent("input", {
+                bubbles: true,
+                detail: {
+                    preventAutophagy: true,
+                },
+            }),
         );
-        for (let ie of interestedElements) {
-            setValue(ie, getValue(e.target));
-            ie.dispatchEvent(
-                new CustomEvent("input", {
-                    bubbles: true,
-                    detail: {
-                        preventAutophagy: true,
-                    },
-                }),
-            );
-        }
     }
 });
 
 // NON-PERFUSING RHYTHM CHECKER
-let normalEcg = document.querySelector('[data-sim-parameter="ecg-rhythm"]');
-let arrestEcg = document.querySelector('[data-sim-parameter="arrest-rhythm"]');
+let normalEcg = document.querySelector('[data-sim-input^="ecg-rhythm"]');
+let arrestEcg = document.querySelector('[data-sim-input^="arrest-rhythm"]');
 let arrestButton = document.querySelector("#arrest-button");
 
 let lastEcgValue = normalEcg.value; // keep track of last non-arrested rhythm choice
@@ -51,7 +54,7 @@ normalEcg.addEventListener("change", (e) => {
         let a = confirm(`Initiate cardiac arrest?`);
         if (!a) {
             document
-                .querySelector('[data-sim-parameter="heart-rate"]')
+                .querySelector('[data-sim-input^="heart-rate"]')
                 .setAttribute("sim-value", 220);
             return true;
         }
@@ -72,7 +75,7 @@ normalEcg.addEventListener("change", (e) => {
 
 // CPR
 let cprButton = document.querySelector("#cpr-button");
-let cprInput = document.querySelector('[data-sim-parameter="sim-cpr"]');
+let cprInput = document.querySelector('[data-sim-input^="sim-cpr"]');
 
 cprButton.addEventListener("click", (e) => {
     cprButton.classList.toggle("red");
@@ -87,9 +90,9 @@ cprButton.addEventListener("click", (e) => {
 });
 
 // ARREST SPECIAL CASE
-let normalCapno = document.querySelector('[data-sim-parameter="capno-trace"]');
-let arrestCapno = document.querySelector('[data-sim-parameter="arrest-capno"]');
-let simModeSwitch = document.querySelector('[data-sim-parameter="sim-mode"]');
+let normalCapno = document.querySelector('[data-sim-input^="capno-trace"]');
+let arrestCapno = document.querySelector('[data-sim-input^="arrest-capno"]');
+let simModeSwitch = document.querySelector('[data-sim-input^="sim-mode"]');
 simModeSwitch.addEventListener("input", (e) => {
     // set mode parameter on body
     // will be picked up by CSS to hide physiologically irrelevant parameters

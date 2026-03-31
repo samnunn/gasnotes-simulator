@@ -87,12 +87,10 @@ page]) #}
             }
         }
 
-        body[sim-mode="arrested"]
-            section.sim-input-group[sim-hide-if~="arrested"] {
+        body[sim-mode="arrested"] [sim-hide-if~="arrested"] {
             display: none;
         }
-        body:not([sim-mode="arrested"])
-            section.sim-input-group[sim-hide-if~="alive"] {
+        body:not([sim-mode="arrested"]) [sim-hide-if~="alive"] {
             display: none;
         }
 
@@ -176,7 +174,8 @@ page]) #}
         }
     </style>
 
-    {% with updates = data.initial_state.updates %}
+    {# {% with updates = data.initial_state.updates %} #}
+    {% with updates = {} %}
         <div id="controller" class="wrapped">
             <form action="#" id="sim-input">
                 <section
@@ -187,10 +186,7 @@ page]) #}
                     <header>
                         <p>Mode 🎮</p>
                     </header>
-                    <sim-radiogroup
-                        data-sim-parameter="sim-mode"
-                        sim-value="{{ updates['sim-mode'] }}"
-                    >
+                    <sim-radiogroup data-sim-input="sim-mode">
                         <div class="sim-button-group">
                             <label>
                                 Alive
@@ -222,8 +218,7 @@ page]) #}
                         <p>ECG 💛</p>
                         <input
                             type="checkbox"
-                            data-sim-parameter="enabler-for-ecg"
-                            {{ checked(updates['enabler-for-ecg'], False) }}
+                            data-sim-input="enabler-for-ecg:checked"
                             role="switch"
                             sim-sync
                             class="sim-input-group-switch green"
@@ -234,74 +229,43 @@ page]) #}
                             <input
                                 type="range"
                                 data-testid="controller-heart-rate"
-                                data-sim-parameter="heart-rate"
+                                data-sim-input="heart-rate:value"
                                 sim-sync
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] }}"
                             />
                         </sim-slider>
                         <div class="sim-select green">
                             <div class="input-label">ECG</div>
-                            {% with rhythm = updates['ecg-rhythm'] %}
-                                <select data-sim-parameter="ecg-rhythm">
-                                    <option
-                                        {{ value_autoselect(rhythm, "sinus" ) }}
-                                    >
-                                        Normal Sinus Rhythm
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "afib" ) }}
-                                    >
-                                        Atrial Fibrillation
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "avnrt" ) }}
-                                    >
-                                        AVNRT
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "hb2m1" ) }}
-                                    >
-                                        2° Heart Block (Mobitz I)
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "hb2m2" ) }}
-                                    >
-                                        2° Heart Block (Mobitz II)
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "stemi" ) }}
-                                    >
-                                        STEMI
-                                    </option>
-                                    <hr />
-                                    <option
-                                        {{ value_autoselect(rhythm, "vfib" ) }}
-                                        sim-arrest
-                                    >
-                                        Ventricular Fibrillation
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "vtach-monomorphic" ) }}
-                                        sim-arrest
-                                    >
-                                        Ventricular Tachycardia
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "vtach-torsades" ) }}
-                                        sim-arrest
-                                    >
-                                        Torsades de Pointes
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(rhythm, "flatline" ) }}
-                                        sim-arrest
-                                    >
-                                        Asystole
-                                    </option>
-                                </select>
-                            {% endwith %}
+                            <select data-sim-input="ecg-rhythm:value">
+                                <option value="sinus">
+                                    Normal Sinus Rhythm
+                                </option>
+                                <option value="afib">
+                                    Atrial Fibrillation
+                                </option>
+                                <option value="avnrt">AVNRT</option>
+                                <option value="hb2m1">
+                                    2° Heart Block (Mobitz I)
+                                </option>
+                                <option value="hb2m2">
+                                    2° Heart Block (Mobitz II)
+                                </option>
+                                <option value="stemi">STEMI</option>
+                                <hr />
+                                <option value="vfib" sim-arrest>
+                                    Ventricular Fibrillation
+                                </option>
+                                <option value="vtach-monomorphic" sim-arrest>
+                                    Ventricular Tachycardia
+                                </option>
+                                <option value="vtach-torsades" sim-arrest>
+                                    Torsades de Pointes
+                                </option>
+                                <option value="flatline" sim-arrest>
+                                    Asystole
+                                </option>
+                            </select>
                         </div>
                     </div>
                 </section>
@@ -316,10 +280,9 @@ page]) #}
                             type="checkbox"
                             role="switch"
                             data-testid="controller-enabler-spo2-primary"
-                            data-sim-parameter="enabler-for-spo2"
-                            {{ checked(updates['enabler-for-spo2'], False) }}
-                            sim-sync
+                            data-sim-input="enabler-for-spo2:checked"
                             class="sim-input-group-switch blue"
+                            sim-sync
                         />
                     </header>
                     <div class="sim-input-group-main">
@@ -330,46 +293,30 @@ page]) #}
                             <input
                                 type="range"
                                 data-testid="controller-spo2"
-                                data-sim-parameter="spo2"
+                                data-sim-input="spo2:value"
                                 type="range"
                                 min="35"
                                 max="100"
-                                value="{{ updates['spo2'] }}"
                             />
                         </sim-slider>
                         <sim-slider data-display-name=" HR" class="blue">
                             <input
                                 type="range"
                                 data-testid="controller-heart-rate-mirror"
-                                data-sim-parameter="heart-rate"
-                                sim-sync
+                                data-sim-input="heart-rate:value"
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] }}"
+                                sim-sync
                             />
                         </sim-slider>
                         <div class="sim-select blue" id="spo2-picker">
                             <div class="input-label">PLETH</div>
-                            {% with trace = updates['spo2-trace'] %}
-                                <select
-                                    name=""
-                                    id=""
-                                    data-sim-parameter="spo2-trace"
-                                >
-                                    <option
-                                        {{ value_autoselect(trace, "spo2" ) }}
-                                    >
-                                        Well Perfused
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "spo2-badtrace" ) }}
-                                    >
-                                        Poorly Perfused
-                                    </option>
-                                    <!-- <hr> -->
-                                    <!-- <option value="flatline">Asystole</option> -->
-                                </select>
-                            {% endwith %}
+                            <select data-sim-input="spo2-trace:value">
+                                <option value="spo2">Well Perfused</option>
+                                <option value="spo2-badtrace">
+                                    Poorly Perfused
+                                </option>
+                            </select>
                         </div>
                     </div>
                 </section>
@@ -379,10 +326,9 @@ page]) #}
                         <input
                             type="checkbox"
                             role="switch"
-                            data-sim-parameter="enabler-for-nibp"
-                            {{ checked(updates['enabler-for-nibp'], False) }}
-                            sim-sync
+                            data-sim-input="enabler-for-nibp:checked"
                             class="sim-input-group-switch purple"
+                            sim-sync
                         />
                     </header>
 
@@ -392,33 +338,30 @@ page]) #}
                                 <input
                                     type="range"
                                     data-sim-sbp
-                                    data-sim-parameter="systolic-blood-pressure-noninvasive"
-                                    sim-sync
+                                    data-sim-input="systolic-blood-pressure-noninvasive:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['systolic-blood-pressure-noninvasive'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="DBP" class="purple">
                                 <input
                                     type="range"
                                     data-sim-dbp
-                                    data-sim-parameter="diastolic-blood-pressure-noninvasive"
-                                    sim-sync
+                                    data-sim-input="diastolic-blood-pressure-noninvasive:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['diastolic-blood-pressure-noninvasive'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="MAP" class="purple">
                                 <input
                                     type="range"
                                     data-sim-map
-                                    data-sim-parameter="mean-arterial-pressure-noninvasive"
-                                    sim-sync
+                                    data-sim-input="mean-arterial-pressure-noninvasive:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['mean-arterial-pressure-noninvasive'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                         </sim-mapgroup>
@@ -468,10 +411,9 @@ page]) #}
                         <input
                             type="checkbox"
                             role="switch"
-                            data-sim-parameter="enabler-for-art"
-                            {{ checked(updates['enabler-for-art'], False) }}
-                            sim-sync
+                            data-sim-input="enabler-for-art:checked"
                             class="sim-input-group-switch red"
+                            sim-sync
                         />
                     </header>
                     <div class="sim-input-group-main">
@@ -480,75 +422,55 @@ page]) #}
                                 <input
                                     type="range"
                                     data-sim-sbp
-                                    data-sim-parameter="systolic-blood-pressure"
-                                    sim-sync
+                                    data-sim-input="systolic-blood-pressure:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['systolic-blood-pressure'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="DBP" class="red">
                                 <input
                                     type="range"
                                     data-sim-dbp
-                                    data-sim-parameter="diastolic-blood-pressure"
-                                    sim-sync
+                                    data-sim-input="diastolic-blood-pressure:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['diastolic-blood-pressure'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                             <sim-slider data-display-name="MAP" class="red">
                                 <input
                                     type="range"
                                     data-sim-map
-                                    data-sim-parameter="mean-arterial-pressure"
-                                    sim-sync
+                                    data-sim-input="mean-arterial-pressure:value"
                                     min="20"
                                     max="200"
-                                    value="{{ updates['mean-arterial-pressure'] }}"
+                                    sim-sync
                                 />
                             </sim-slider>
                         </sim-mapgroup>
                         <div class="sim-select red">
                             <div class="input-label">ART</div>
-                            {% with trace = updates['artline-trace'] %}
-                                <select
-                                    name=""
-                                    id=""
-                                    data-sim-parameter="artline-trace"
-                                >
-                                    <option
-                                        {{ value_autoselect(trace, "artline" ) }}
-                                    >
-                                        Normal Trace
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "artline-overdamped" ) }}
-                                    >
-                                        Over-Damped
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "artline-underdamped" ) }}
-                                    >
-                                        Under-Damped
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "spo2-badtrace" ) }}
-                                    >
-                                        Poorly Perfused
-                                    </option>
-                                </select>
-                            {% endwith %}
+                            <select data-sim-input="artline-trace:value">
+                                <option value="artline">Normal Trace</option>
+                                <option value="artline-overdamped">
+                                    Over-Damped
+                                </option>
+                                <option value="artline-underdamped">
+                                    Under-Damped
+                                </option>
+                                <option value="spo2-badtrace">
+                                    Poorly Perfused
+                                </option>
+                            </select>
                         </div>
                         <sim-slider data-display-name="HR" class="red">
                             <input
                                 type="range"
-                                data-sim-parameter="heart-rate"
+                                data-sim-input="heart-rate:value"
                                 sim-sync
                                 min="30"
                                 max="220"
-                                value="{{ updates['heart-rate'] }}"
                             />
                         </sim-slider>
                     </div>
@@ -559,21 +481,19 @@ page]) #}
                         <input
                             type="checkbox"
                             role="switch"
-                            data-sim-parameter="enabler-for-capno"
-                            {{ checked(updates['enabler-for-capno'], False) }}
-                            sim-sync
+                            data-sim-input="enabler-for-capno:checked"
                             class="sim-input-group-switch yellow"
+                            sim-sync
                         />
                     </header>
                     <div class="sim-input-group-main">
                         <sim-slider data-display-name="RR" class="yellow">
                             <input
                                 type="range"
-                                data-sim-parameter="respiratory-rate"
+                                data-sim-input="respiratory-rate:value"
                                 type="range"
                                 min="0"
                                 max="60"
-                                value="{{ updates['respiratory-rate'] }}"
                             />
                         </sim-slider>
                         <sim-slider
@@ -582,44 +502,28 @@ page]) #}
                         >
                             <input
                                 type="range"
-                                data-sim-parameter="etco2"
+                                data-sim-input="etco2:value"
                                 type="range"
                                 min="0"
                                 max="90"
-                                value="{{ updates['etco2'] }}"
                             />
                         </sim-slider>
                         <div class="sim-select yellow" id="capno-picker">
                             <div class="input-label">CAP</div>
-
-                            {% with trace = updates['capno-trace'] %}
-                                <select
-                                    name=""
-                                    id=""
-                                    data-sim-parameter="capno-trace"
-                                >
-                                    <option
-                                        {{ value_autoselect(trace, "capno-normal" ) }}
-                                    >
-                                        Normal
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "capno-obstructed-moderate" ) }}
-                                    >
-                                        Moderate Obstruction
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "capno-obstructed-severe" ) }}
-                                    >
-                                        Severe Obstruction
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "flatline" ) }}
-                                    >
-                                        Apnoea
-                                    </option>
-                                </select>
-                            {% endwith %}
+                            <select
+                                name=""
+                                id=""
+                                data-sim-input="capno-trace:value"
+                            >
+                                <option value="capno-normal">Normal</option>
+                                <option value="capno-obstructed-moderate">
+                                    Moderate Obstruction
+                                </option>
+                                <option value="capno-obstructed-severe">
+                                    Severe Obstruction
+                                </option>
+                                <option value="flatline">Apnoea</option>
+                            </select>
                         </div>
                     </div>
                 </section>
@@ -629,71 +533,71 @@ page]) #}
                     sim-hide-if="alive"
                 >
                     <header>
-                        <p>Arrest Controls 🚨</p>
+                        <p>ECG 💛</p>
+                        <input
+                            type="checkbox"
+                            role="switch"
+                            data-sim-input="enabler-for-ecg:checked"
+                            class="sim-input-group-switch green"
+                            sim-sync
+                        />
                     </header>
                     <div class="sim-input-group-main">
                         <div class="sim-select green">
                             <div class="input-label">ECG</div>
-                            {% with trace = updates['arrest-rhythm'] %}
-                                <select data-sim-parameter="arrest-rhythm">
-                                    <option
-                                        {{ value_autoselect(trace, "sinus" ) }}
-                                    >
-                                        PEA
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "flatline" ) }}
-                                    >
-                                        Asystole
-                                    </option>
-                                    <hr />
-                                    <option
-                                        {{ value_autoselect(trace, "vfib" ) }}
-                                        selected
-                                    >
-                                        Ventricular Fibrillation
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "vtach-monomorphic" ) }}
-                                    >
-                                        Ventricular Tachycardia
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "vtach-torsades" ) }}
-                                    >
-                                        Torsades de Pointes
-                                    </option>
-                                </select>
-                            {% endwith %}
+                            <select data-sim-input="arrest-rhythm:value">
+                                <option value="sinus">PEA</option>
+                                <option value="flatline">Asystole</option>
+                                <hr />
+                                <option value="vfib">
+                                    Ventricular Fibrillation
+                                </option>
+                                <option value="vtach-monomorphic">
+                                    Ventricular Tachycardia
+                                </option>
+                                <option value="vtach-torsades">
+                                    Torsades de Pointes
+                                </option>
+                            </select>
                         </div>
-
+                        <div class="flex align-center justify-center">
+                            <button
+                                id="cpr-button"
+                                class="button dark red"
+                            ></button>
+                        </div>
+                    </div>
+                </section>
+                <section
+                    class="sim-input-group"
+                    id="arrest-controls"
+                    sim-hide-if="alive"
+                >
+                    <header>
+                        <p>Capnography 🫁</p>
+                        <input
+                            type="checkbox"
+                            role="switch"
+                            data-sim-input="enabler-for-capno:checked"
+                            class="sim-input-group-switch yellow"
+                            sim-sync
+                        />
+                    </header>
+                    <div class="sim-input-group-main">
                         <div class="sim-select yellow">
                             <div class="input-label">CAP</div>
-                            {% with trace = updates['arrest-capno'] %}
-                                <select data-sim-parameter="arrest-capno">
-                                    <option
-                                        {{ value_autoselect(trace, "flatline" ) }}
-                                    >
-                                        Flatline
-                                    </option>
-                                    <hr />
-                                    <option
-                                        {{ value_autoselect(trace, "capno-normal" ) }}
-                                    >
-                                        Normal
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "capno-obstructed-moderate" ) }}
-                                    >
-                                        Moderate Obstruction
-                                    </option>
-                                    <option
-                                        {{ value_autoselect(trace, "capno-obstructed-severe" ) }}
-                                    >
-                                        Severe Obstruction
-                                    </option>
-                                </select>
-                            {% endwith %}
+                            }
+                            <select data-sim-input="arrest-capno:value">
+                                <option value="flatline">Flatline</option>
+                                <hr />
+                                <option value="capno-normal">Normal</option>
+                                <option value="capno-obstructed-moderate">
+                                    Moderate Obstruction
+                                </option>
+                                <option value="capno-obstructed-severe">
+                                    Severe Obstruction
+                                </option>
+                            </select>
                         </div>
                         <sim-slider
                             data-display-name="etCO<sub>2</sub>"
@@ -701,7 +605,7 @@ page]) #}
                         >
                             <input
                                 type="range"
-                                data-sim-parameter="arrest-etco2"
+                                data-sim-input="arrest-etco2:value"
                                 type="range"
                                 min="0"
                                 max="60"
@@ -711,96 +615,62 @@ page]) #}
                         <input
                             type="text"
                             style="display: none;"
-                            data-sim-parameter="sim-cpr"
+                            data-sim-input="sim-cpr:value"
                             value="off"
                         />
-                        <button
-                            id="cpr-button"
-                            class="button dark red"
-                        ></button>
                     </div>
                 </section>
                 <section
                     class="sim-input-group"
                     sim-hide-if="alive"
                     id="arrest-monitor-picker"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
                 >
                     <header>
-                        <p>Monitors 📺</p>
+                        <p>Other Monitors 📺</p>
                     </header>
                     <div class="tile-grid">
-                        <label class="tile">
-                            <span>ECG</span>
-                            <input
-                                type="checkbox"
-                                {{ checked(updates['enabler-for-ecg'], False) }}
-                                role="switch"
-                                data-sim-parameter="enabler-for-ecg"
-                                sim-sync
-                                class="green"
-                            />
-                        </label>
                         <label class="tile">
                             <span>Pleth</span>
                             <input
                                 type="checkbox"
-                                {{ checked(updates['enabler-for-spo2'], False) }}
                                 role="switch"
                                 data-testid="controller-enabler-spo2-mirror"
-                                data-sim-parameter="enabler-for-spo2"
-                                sim-sync
+                                data-sim-input="enabler-for-spo2:checked"
                                 class="blue"
+                                sim-sync
                             />
                         </label>
                         <label class="tile">
                             <span>NIBP</span>
                             <input
                                 type="checkbox"
-                                {{ checked(updates['enabler-for-nibp'], False) }}
                                 role="switch"
-                                data-sim-parameter="enabler-for-nibp"
-                                sim-sync
+                                data-sim-input="enabler-for-nibp:checked"
                                 class="purple"
+                                sim-sync
                             />
                         </label>
                         <label class="tile">
                             <span>Art Line</span>
                             <input
                                 type="checkbox"
-                                {{ checked(updates['enabler-for-art'], False) }}
                                 role="switch"
-                                data-sim-parameter="enabler-for-art"
-                                sim-sync
+                                data-sim-input="enabler-for-art:checked"
                                 class="red"
-                            />
-                        </label>
-                        <label class="tile">
-                            <span>Capno</span>
-                            <input
-                                type="checkbox"
-                                {{ checked(updates['enabler-for-capno'], False) }}
-                                role="switch"
-                                data-sim-parameter="enabler-for-capno"
                                 sim-sync
-                                class="yellow"
                             />
                         </label>
                     </div>
                 </section>
                 <section
                     class="sim-input-group"
-                    id="mode-picker"
                     {% if data.demo==true %}style="display: none;"{% endif %}
                 >
                     <header>
                         <p>Transition Time ⏳</p>
                     </header>
 
-                    <sim-radiogroup
-                        data-sim-parameter="transition-time"
-                        sim-value="{{ updates['transition-time'] }}"
-                    >
+                    <sim-radiogroup data-sim-input="transition-time">
                         <div class="sim-button-group">
                             <label>
                                 Instant
