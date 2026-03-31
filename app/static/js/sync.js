@@ -180,20 +180,20 @@ export function registerMonitorSyncReceiver(socket) {
         window.default_data["updates"],
     );
 
-    function handleMonitorStateUpdate(state) {
+    function handleMonitorStateUpdate(states) {
         // validate state
-        if (!_validateStateObject(state)) {
-            console.error("Sync: received invalid state object", state);
+        if (!_validateStateObject(states)) {
+            console.error("Sync: received invalid state object", states);
             return;
         }
 
         // special case for cardiac arrest
-        let mode = state["sim-mode"];
+        let mode = states["sim-mode"];
         let spo2Readout = document.querySelector("#readout-spo2");
 
         if (mode == "arrested") {
             // imperatively mutate state to reflect arrest conditions
-            state = _mutateStateForCardiacArrest(state);
+            states = _mutateStateForCardiacArrest(states);
             // make spo2 wobbly (needs to be actively un-done when alive)
             spo2Readout.setAttribute("data-sim-wobble", 15);
         } else {
@@ -201,14 +201,12 @@ export function registerMonitorSyncReceiver(socket) {
             spo2Readout.setAttribute("data-sim-wobble", 2);
         }
 
-        // todo: special cases (imperatively, sigh)
-        // - spo2 y-scale defined by map from nibp/art line
-        // - art y-scale dervied from map
-        // - HR derived from spo2 (should turn blue)
+        // special cases and side effects
+        _monitorStateUpdateSideEffects(states);
 
-        // _applyStateToDom(state);
-        let transitionTime = state["transition-time"] || 0;
-        transitionManager.set_target_state(state, transitionTime);
+        // apply state via transition manager
+        let transitionTime = states["transition-time"] || 0;
+        transitionManager.set_target_state(states, transitionTime);
     }
 
     socket.on("sim-update", (msg) => {
@@ -505,4 +503,21 @@ function _validateStateObject(state) {
     }
 
     return true;
+}
+
+function _monitorStateUpdateSideEffects(states) {
+    // - HR coloured by derivation
+    let heartRateReadout = document.querySelector("#heart-rate");
+    let heartRateColour = undefined;
+    let heartRateEnabled = true;
+    if (states["enabler-for-art"] == true) heartRateColour = "red";
+    if (states["enabler-for-spo2"] == true) heartRateColour = "blue";
+    if (states["enabler-for-ecg"] == true) heartRateColour = "green";
+    if (heartRateColour == undefined) {
+        heartRateEnabled = false;
+        heartRateColour = "green";
+    } else {
+    }
+    heartRateReadout.dataset.simEnabled = heartRateEnabled;
+    heartRateReadout.classList = heartRateColour;
 }
