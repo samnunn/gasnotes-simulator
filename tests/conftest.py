@@ -5,7 +5,8 @@ import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 from playwright.sync_api import BrowserContext, Page
-from sim import make_app
+
+from app.sim import make_app
 
 BASE_URL: str = os.environ.get("SIM_TEST_SERVER_ADDR", "http://127.0.0.1:8609")
 

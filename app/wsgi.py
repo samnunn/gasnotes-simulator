@@ -1,3 +1,3 @@
-from sim import make_app
+from app.sim import make_app
 
 app = make_app()

@@ -21,13 +21,12 @@ if ! curl -fsS http://127.0.0.1:8069/ >/dev/null 2>&1; then
 fi
 
 (
-    cd ./app || exit 1
 
     export RATELIMIT_ENABLED=0
-    export SIM_ROOM_STORE=../sim_rooms
+    export SIM_ROOM_STORE=sim_rooms
     export SECRET_KEY=dummy_secret_key
     export SIM_TEST_SERVER_ADDR=http://127.0.0.1:8069
 
-    uv tool run playwright install chromium webkit
+    uv tool run playwright install chromium
     PWDEBUG=1 uv run python -m pytest --verbose --headed -k "$1"
 )

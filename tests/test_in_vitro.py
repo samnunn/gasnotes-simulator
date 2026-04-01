@@ -2,7 +2,8 @@ import re
 
 from flask import Flask
 from flask.testing import FlaskClient
-from lib import room_helpers
+
+from app.lib import room_helpers
 
 
 def test_fixtures_working(test_client: FlaskClient, test_app: Flask):

@@ -1,8 +1,6 @@
 services:
     test-server:
         build:
-            context: app
-            dockerfile: Dockerfile
             target: dev_server
         restart: unless-stopped
         volumes:
@@ -20,8 +18,6 @@ services:
             start_interval: 2s
     test-runner:
         build:
-            context: app
-            dockerfile: Dockerfile
             target: test_runner
         volumes:
             - ./sim_rooms:/sim_rooms
@@ -35,8 +31,6 @@ services:
                 condition: service_healthy
     test-runner-headed:
         build:
-            context: app
-            dockerfile: Dockerfile
             target: test_runner_headed
         ports:
             - "5901:5900"

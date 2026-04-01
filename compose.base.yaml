@@ -1,8 +1,6 @@
 services:
     simulator:
         build:
-            context: app
-            dockerfile: Dockerfile
             target: base_server
         restart: unless-stopped
         ports:

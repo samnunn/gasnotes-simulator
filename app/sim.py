@@ -11,10 +11,11 @@ def make_app(config_overrides={}):
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
     from flask_socketio import SocketIO, emit, join_room
-    from lib import custom_jinja_tools, radiology_tools, room_helpers
-    from lib.custom_webassets_filters import ESBuildFilter
-    from lib.state import DEFAULT_DATA, DEMO_DATA
     from werkzeug.exceptions import HTTPException
+
+    from app.lib import custom_jinja_tools, radiology_tools, room_helpers
+    from app.lib.custom_webassets_filters import ESBuildFilter
+    from app.lib.state import DEFAULT_DATA, DEMO_DATA
 
     #    _____      __
     #   / ___/___  / /___  ______
