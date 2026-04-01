@@ -320,6 +320,7 @@ def make_app(config_overrides={}):
             value_autoselect=custom_jinja_tools.value_autoselect,
             enabled=custom_jinja_tools.enabled,
             checked=custom_jinja_tools.checked,
+            static_include=custom_jinja_tools.static_include,
         )
 
     return app

@@ -1,3 +1,6 @@
+import os
+
+from flask import current_app
 from markupsafe import Markup
 
 
@@ -28,3 +31,8 @@ def enabled(all_enablers: dict, this_enabler: str, default: bool):
     output = f'data-sim-enabled-by="{this_enabler}" data-sim-enabled="{is_enabled}"'
 
     return Markup(output)
+
+
+def static_include(str_in):
+    with open(os.path.join(current_app.static_folder, str_in), "r") as f:
+        return Markup(f.read())
