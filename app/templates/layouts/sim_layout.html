@@ -65,8 +65,11 @@
         }
     </style>
     <script>
-        window.default_data = JSON.parse(
-            `{{ data.initial_state | default({}) | tojson }}`,
+        window.initial_states = JSON.parse(
+            `{{ data.initial_states | default({}) | tojson }}`,
+        );
+        window.default_states = JSON.parse(
+            `{{ data.default_states | default({}) | tojson }}`,
         );
     </script>
     <header id="sim-toolbar-top" class="sim-toolbar">

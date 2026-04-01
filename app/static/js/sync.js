@@ -176,9 +176,7 @@ class SimTransitionSupervisor {
 }
 
 export function registerMonitorSyncReceiver(socket) {
-    let transitionManager = new SimTransitionSupervisor(
-        window.default_data["updates"],
-    );
+    let transitionManager = new SimTransitionSupervisor(window.initial_states);
 
     function handleMonitorStateUpdate(states) {
         // validate state
@@ -211,14 +209,14 @@ export function registerMonitorSyncReceiver(socket) {
 
     socket.on("sim-update", (msg) => {
         let message = JSON.parse(msg);
-        let state = message["updates"];
+        let states = message["updates"];
 
         console.debug(
             "Sync: got updated state from server, updates were: ",
-            state,
+            states,
         );
 
-        handleMonitorStateUpdate(state);
+        handleMonitorStateUpdate(states);
         document.querySelector("dialog[open]")?.close();
     });
 
@@ -235,8 +233,7 @@ export function registerControllerSyncEmitter(socket) {
     if (document.body.dataset.simDemoMode == "true") return;
 
     let sendButton = document.querySelector("#send");
-    let form = document.querySelector("form#sim-input");
-    form.addEventListener("submit", (e) => {
+    sendButton.addEventListener("click", (e) => {
         e.preventDefault();
         let message = {
             sim_room_id: document.body.dataset.simRoomId,
@@ -253,7 +250,7 @@ export function registerControllerSyncEmitter(socket) {
             sendButton.value = "Sent";
         }
     });
-    form.addEventListener("input", (e) => {
+    document.addEventListener("input", (e) => {
         sendButton.classList.add("red");
         sendButton.value = "Send";
     });
@@ -309,15 +306,15 @@ function _applySavedStateOnPageload(initFunction) {
     window.addEventListener("load", (e) => {
         console.debug(
             `Sync: applying initial state on page load: `,
-            window.default_data["updates"],
+            window.initial_states,
         );
 
         try {
-            let state = window.default_data["updates"];
+            let state = window.initial_states;
             initFunction(state);
         } catch (e) {
             console.error(
-                "Sync: couldn't parse/apply state from window.default_data (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
+                "Sync: couldn't parse/apply state from window.initial_states (doing this to catch any arrest special-case logic missed by server-side hydration, sigh)",
                 e,
             );
         }
@@ -367,7 +364,7 @@ function _mutateStateForCardiacArrest(state) {
     return state;
 }
 
-function _serialiseStateFromDomFragment(selector, mapAttribute) {
+export function _serialiseStateFromDomFragment(selector, mapAttribute) {
     let containerElement = document.querySelector(selector);
     if (!containerElement) {
         throw new Error(
@@ -418,7 +415,7 @@ function _serialiseStateFromDomFragment(selector, mapAttribute) {
     return states;
 }
 
-function _applyStateToDomFragment(selector, mapAttribute, states) {
+export function _applyStateToDomFragment(selector, mapAttribute, states) {
     let containerElement = document.querySelector(selector);
     if (!containerElement) {
         throw new Error(
@@ -472,7 +469,7 @@ function _applyStateToDomFragment(selector, mapAttribute, states) {
 }
 
 function _validateStateObject(state) {
-    let requiredKeys = Object.keys(window.default_data["updates"]);
+    let requiredKeys = Object.keys(window.initial_states);
     let observedKeys = Object.keys(state);
 
     if (requiredKeys.length != observedKeys.length) {

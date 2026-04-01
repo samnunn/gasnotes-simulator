@@ -205,3 +205,38 @@ registerNibpAutoCycleStateReceiver(socket);
 import "./custom_elements/sim-picker-radiology";
 // import "./custom_elements/sim-picker-abg";
 import "./custom_elements/sim-ix-bsl";
+
+// RESET
+import {
+    _applyStateToDomFragment,
+    _serialiseStateFromDomFragment,
+} from "./sync";
+function attachResetButton() {
+    let selector = "#reset-button";
+    let resetButton = document.querySelector(selector);
+
+    if (!resetButton) {
+        console.error(
+            `Controller: unable to locate reset button with selector "${selector}"`,
+        );
+        return;
+    }
+
+    resetButton.addEventListener("click", (e) => {
+        let newStates = {};
+        let staleStates = _serialiseStateFromDomFragment(
+            "#controller",
+            "data-sim-input",
+        );
+        for (let key in window.default_states) {
+            if (key.startsWith("enabler-for")) {
+                newStates[key] = staleStates[key];
+            } else {
+                newStates[key] = window.default_states[key];
+            }
+        }
+
+        _applyStateToDomFragment("#controller", "data-sim-input", newStates);
+    });
+}
+window.addEventListener("load", attachResetButton);

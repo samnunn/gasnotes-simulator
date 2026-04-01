@@ -148,6 +148,18 @@ def test_controller_slider_sync(
     expect(primary).to_have_value("100")
 
 
+def test_controller_reset(
+    browser_controller: Page,
+):
+    reset_button = browser_controller.get_by_test_id("controller-reset-button")
+    hr_slider = browser_controller.get_by_test_id("controller-heart-rate")
+
+    hr_slider.fill("200")
+    expect(hr_slider).to_have_value("200")
+
+    reset_button.click()
+    expect(hr_slider).not_to_have_value("200")
+
 # investigation sending
 # investigation drawer
 # abg machine renders

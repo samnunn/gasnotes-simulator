@@ -47,20 +47,19 @@ def make_app(config_overrides={}):
         assets.manifest = False
 
     # flask-limiter
-    limiter = Limiter(
+    app.limiter = Limiter(
         get_remote_address,
         app=app,
         default_limits=["1000 per day"],
         storage_uri="memory://",
     )
-    app.limiter = limiter
     default_error_message = "Rate limit exceeded. Please try again later."
-    limit_fast = limiter.shared_limit(
+    limit_fast = app.limiter.shared_limit(
         "5/second;50/minute;1000/day",
         scope="simrooms",
         error_message=default_error_message,
     )
-    limit_slow = limiter.shared_limit(
+    limit_slow = app.limiter.shared_limit(
         "1/second;5/minute;100/day",
         scope="simrooms",
         error_message=default_error_message,
@@ -85,7 +84,7 @@ def make_app(config_overrides={}):
         data = {}
         data["demo"] = True
         data["title"] = "Simulation Monitor"
-        data["initial_state"] = {"updates": DEMO_DATA}
+        data["initial_states"] = {"updates": DEMO_DATA}
         data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
         data["controller_html"] = render_template(
             "sim_views/sim_controller.html", data=data
@@ -158,15 +157,15 @@ def make_app(config_overrides={}):
         data["title"] = f"Monitor ({sim_room_id.upper()})"
 
         # get existing data (if available)
-        data["initial_state"] = {}
+        data["initial_states"] = {}
         try:
             existing_data = room_helpers.get_sim_room_data(sim_room_id)
-            data["initial_state"] = existing_data
+            data["initial_states"] = existing_data["updates"]
         except Exception:
             app.logger.error(
                 f"Unable to pull last-known state for sim room {sim_room_id}"
             )
-            data["initial_state"] = {"updates": DEFAULT_DATA}
+            data["initial_states"] = DEFAULT_DATA
 
         return render_template("sim_views/sim_monitor.html", data=data)
 
@@ -188,17 +187,18 @@ def make_app(config_overrides={}):
         data = {}
         data["sim_room_id"] = sim_room_id
         data["title"] = f"Controller ({sim_room_id.upper()})"
+        data["default_states"] = DEFAULT_DATA
 
         # get existing data (if available)
-        data["initial_state"] = {}
+        data["initial_states"] = {}
         try:
             existing_data = room_helpers.get_sim_room_data(sim_room_id)
-            data["initial_state"] = existing_data
+            data["initial_states"] = existing_data["updates"]
         except Exception:
             app.logger.error(
                 f"Unable to pull last-known state for sim room {sim_room_id}"
             )
-            data["initial_state"] = {"updates": DEFAULT_DATA}
+            data["initial_states"] = DEFAULT_DATA
 
         return render_template(
             "sim_views/sim_controller.html",

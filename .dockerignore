@@ -4,3 +4,5 @@ sim_rooms
 .venv
 __pycache__
 .pytest_cache
+.webassets-cache
+app/static/gen
