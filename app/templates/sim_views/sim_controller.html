@@ -174,765 +174,622 @@ page]) #}
         }
     </style>
 
-    {# {% with updates = data.initial_state.updates %} #}
-    {% with updates = {} %}
-        <div id="controller" class="wrapped">
-            <form action="#" id="sim-input">
-                <section
-                    class="sim-input-group"
-                    id="mode-picker"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
-                >
-                    <header>
-                        <p>Mode 🎮</p>
-                    </header>
-                    <sim-radiogroup data-sim-input="sim-mode">
-                        <div class="sim-button-group">
-                            <label>
-                                Alive
-                                <input
-                                    type="radio"
-                                    name="sim-mode"
-                                    value="alive"
-                                    checked
-                                />
-                            </label>
-                            <label>
-                                Arrested
-                                <input
-                                    type="radio"
-                                    name="sim-mode"
-                                    value="arrested"
-                                    id="arrest-button"
-                                />
-                            </label>
-                        </div>
-                    </sim-radiogroup>
-                </section>
-                <section
-                    class="sim-input-group"
-                    sim-hide-if="arrested"
-                    id="cardiac"
-                >
-                    <header>
-                        <p>ECG 💛</p>
+    <div id="controller" class="wrapped">
+        <form action="#" id="sim-input">
+            <section
+                class="sim-input-group"
+                id="mode-picker"
+                {% if data.demo==true %}style="display: none;"{% endif %}
+            >
+                <header>
+                    <p>Mode 🎮</p>
+                </header>
+                <sim-radiogroup data-sim-input="sim-mode">
+                    <div class="sim-button-group">
+                        <label>
+                            Alive
+                            <input
+                                type="radio"
+                                name="sim-mode"
+                                value="alive"
+                                checked
+                            />
+                        </label>
+                        <label>
+                            Arrested
+                            <input
+                                type="radio"
+                                name="sim-mode"
+                                value="arrested"
+                                id="arrest-button"
+                            />
+                        </label>
+                    </div>
+                </sim-radiogroup>
+            </section>
+            <section
+                class="sim-input-group"
+                sim-hide-if="arrested"
+                id="cardiac"
+            >
+                <header>
+                    <p>ECG 💛</p>
+                    <input
+                        type="checkbox"
+                        data-sim-input="enabler-for-ecg:checked"
+                        role="switch"
+                        sim-sync
+                        class="sim-input-group-switch green"
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <sim-slider data-display-name="HR" class="green">
                         <input
-                            type="checkbox"
-                            data-sim-input="enabler-for-ecg:checked"
-                            role="switch"
+                            type="range"
+                            data-testid="controller-heart-rate"
+                            data-sim-input="heart-rate:value"
                             sim-sync
-                            class="sim-input-group-switch green"
+                            min="30"
+                            max="220"
                         />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <sim-slider data-display-name="HR" class="green">
+                    </sim-slider>
+                    <div class="sim-select green">
+                        <div class="input-label">ECG</div>
+                        <select data-sim-input="ecg-rhythm:value">
+                            <option value="sinus">Normal Sinus Rhythm</option>
+                            <option value="afib">Atrial Fibrillation</option>
+                            <option value="avnrt">AVNRT</option>
+                            <option value="hb2m1">
+                                2° Heart Block (Mobitz I)
+                            </option>
+                            <option value="hb2m2">
+                                2° Heart Block (Mobitz II)
+                            </option>
+                            <option value="stemi">STEMI</option>
+                            <hr />
+                            <option value="vfib" sim-arrest>
+                                Ventricular Fibrillation
+                            </option>
+                            <option value="vtach-monomorphic" sim-arrest>
+                                Ventricular Tachycardia
+                            </option>
+                            <option value="vtach-torsades" sim-arrest>
+                                Torsades de Pointes
+                            </option>
+                            <option value="flatline" sim-arrest>
+                                Asystole
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                sim-hide-if="arrested"
+                id="respiration"
+            >
+                <header>
+                    <p>Pulse Oximeter 😮‍💨</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-testid="controller-enabler-spo2-primary"
+                        data-sim-input="enabler-for-spo2:checked"
+                        class="sim-input-group-switch blue"
+                        sim-sync
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <sim-slider
+                        data-display-name="SpO<sub>2</sub>"
+                        class="blue"
+                    >
+                        <input
+                            type="range"
+                            data-testid="controller-spo2"
+                            data-sim-input="spo2:value"
+                            type="range"
+                            min="35"
+                            max="100"
+                        />
+                    </sim-slider>
+                    <sim-slider data-display-name=" HR" class="blue">
+                        <input
+                            type="range"
+                            data-testid="controller-heart-rate-mirror"
+                            data-sim-input="heart-rate:value"
+                            min="30"
+                            max="220"
+                            sim-sync
+                        />
+                    </sim-slider>
+                    <div class="sim-select blue" id="spo2-picker">
+                        <div class="input-label">PLETH</div>
+                        <select data-sim-input="spo2-trace:value">
+                            <option value="spo2">Well Perfused</option>
+                            <option value="spo2-badtrace">
+                                Poorly Perfused
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <section class="sim-input-group" sim-hide-if="arrested" id="">
+                <header>
+                    <p>Non-Invasive BP 💨</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-sim-input="enabler-for-nibp:checked"
+                        class="sim-input-group-switch purple"
+                        sim-sync
+                    />
+                </header>
+
+                <div class="sim-input-group-main">
+                    <sim-mapgroup>
+                        <sim-slider data-display-name="SBP" class="purple">
                             <input
                                 type="range"
-                                data-testid="controller-heart-rate"
-                                data-sim-input="heart-rate:value"
+                                data-sim-sbp
+                                data-sim-input="systolic-blood-pressure-noninvasive:value"
+                                min="20"
+                                max="200"
                                 sim-sync
-                                min="30"
-                                max="220"
                             />
                         </sim-slider>
-                        <div class="sim-select green">
-                            <div class="input-label">ECG</div>
-                            <select data-sim-input="ecg-rhythm:value">
-                                <option value="sinus">
-                                    Normal Sinus Rhythm
-                                </option>
-                                <option value="afib">
-                                    Atrial Fibrillation
-                                </option>
-                                <option value="avnrt">AVNRT</option>
-                                <option value="hb2m1">
-                                    2° Heart Block (Mobitz I)
-                                </option>
-                                <option value="hb2m2">
-                                    2° Heart Block (Mobitz II)
-                                </option>
-                                <option value="stemi">STEMI</option>
-                                <hr />
-                                <option value="vfib" sim-arrest>
-                                    Ventricular Fibrillation
-                                </option>
-                                <option value="vtach-monomorphic" sim-arrest>
-                                    Ventricular Tachycardia
-                                </option>
-                                <option value="vtach-torsades" sim-arrest>
-                                    Torsades de Pointes
-                                </option>
-                                <option value="flatline" sim-arrest>
-                                    Asystole
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    sim-hide-if="arrested"
-                    id="respiration"
-                >
-                    <header>
-                        <p>Pulse Oximeter 😮‍💨</p>
-                        <input
-                            type="checkbox"
-                            role="switch"
-                            data-testid="controller-enabler-spo2-primary"
-                            data-sim-input="enabler-for-spo2:checked"
-                            class="sim-input-group-switch blue"
-                            sim-sync
-                        />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <sim-slider
-                            data-display-name="SpO<sub>2</sub>"
-                            class="blue"
+                        <sim-slider data-display-name="DBP" class="purple">
+                            <input
+                                type="range"
+                                data-sim-dbp
+                                data-sim-input="diastolic-blood-pressure-noninvasive:value"
+                                min="20"
+                                max="200"
+                                sim-sync
+                            />
+                        </sim-slider>
+                        <sim-slider data-display-name="MAP" class="purple">
+                            <input
+                                type="range"
+                                data-sim-map
+                                data-sim-input="mean-arterial-pressure-noninvasive:value"
+                                min="20"
+                                max="200"
+                                sim-sync
+                            />
+                        </sim-slider>
+                    </sim-mapgroup>
+
+                    <div class="flex gap-1 wt-100">
+                        <sim-radiogroup class="grow-1" sim-nibp-cycle-switch>
+                            <div class="sim-button-group">
+                                <label>
+                                    Manual
+                                    <input
+                                        type="radio"
+                                        name="nibp-cycle-time"
+                                        value="false"
+                                        checked
+                                    />
+                                </label>
+                                <label data-testid="controller-nibp-auto">
+                                    Auto
+                                    <input
+                                        type="radio"
+                                        name="nibp-cycle-time"
+                                        value="true"
+                                    />
+                                </label>
+                            </div>
+                        </sim-radiogroup>
+                        <button
+                            class="button purple"
+                            sim-nibp-cycle-button
+                            data-testid="controller-nibp-run-now"
                         >
+                            Run Now
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                sim-hide-if="arrested"
+                id="haemodynamics"
+            >
+                <header>
+                    <p>Arterial Line 🩸</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-sim-input="enabler-for-art:checked"
+                        class="sim-input-group-switch red"
+                        sim-sync
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <sim-mapgroup>
+                        <sim-slider data-display-name="SBP" class="red">
                             <input
                                 type="range"
-                                data-testid="controller-spo2"
-                                data-sim-input="spo2:value"
-                                type="range"
-                                min="35"
-                                max="100"
-                            />
-                        </sim-slider>
-                        <sim-slider data-display-name=" HR" class="blue">
-                            <input
-                                type="range"
-                                data-testid="controller-heart-rate-mirror"
-                                data-sim-input="heart-rate:value"
-                                min="30"
-                                max="220"
+                                data-sim-sbp
+                                data-sim-input="systolic-blood-pressure:value"
+                                min="20"
+                                max="200"
                                 sim-sync
                             />
                         </sim-slider>
-                        <div class="sim-select blue" id="spo2-picker">
-                            <div class="input-label">PLETH</div>
-                            <select data-sim-input="spo2-trace:value">
-                                <option value="spo2">Well Perfused</option>
-                                <option value="spo2-badtrace">
-                                    Poorly Perfused
-                                </option>
-                            </select>
-                        </div>
+                        <sim-slider data-display-name="DBP" class="red">
+                            <input
+                                type="range"
+                                data-sim-dbp
+                                data-sim-input="diastolic-blood-pressure:value"
+                                min="20"
+                                max="200"
+                                sim-sync
+                            />
+                        </sim-slider>
+                        <sim-slider data-display-name="MAP" class="red">
+                            <input
+                                type="range"
+                                data-sim-map
+                                data-sim-input="mean-arterial-pressure:value"
+                                min="20"
+                                max="200"
+                                sim-sync
+                            />
+                        </sim-slider>
+                    </sim-mapgroup>
+                    <div class="sim-select red">
+                        <div class="input-label">ART</div>
+                        <select data-sim-input="artline-trace:value">
+                            <option value="artline">Normal Trace</option>
+                            <option value="artline-overdamped">
+                                Over-Damped
+                            </option>
+                            <option value="artline-underdamped">
+                                Under-Damped
+                            </option>
+                            <option value="spo2-badtrace">
+                                Poorly Perfused
+                            </option>
+                        </select>
                     </div>
-                </section>
-                <section class="sim-input-group" sim-hide-if="arrested" id="">
-                    <header>
-                        <p>Non-Invasive BP 💨</p>
+                    <sim-slider data-display-name="HR" class="red">
+                        <input
+                            type="range"
+                            data-sim-input="heart-rate:value"
+                            sim-sync
+                            min="30"
+                            max="220"
+                        />
+                    </sim-slider>
+                </div>
+            </section>
+            <section class="sim-input-group" sim-hide-if="arrested">
+                <header>
+                    <p>Capnography 🫁</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-sim-input="enabler-for-capno:checked"
+                        class="sim-input-group-switch yellow"
+                        sim-sync
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <sim-slider data-display-name="RR" class="yellow">
+                        <input
+                            type="range"
+                            data-sim-input="respiratory-rate:value"
+                            type="range"
+                            min="0"
+                            max="60"
+                        />
+                    </sim-slider>
+                    <sim-slider
+                        data-display-name="etCO<sub>2</sub>"
+                        class="yellow"
+                    >
+                        <input
+                            type="range"
+                            data-sim-input="etco2:value"
+                            type="range"
+                            min="0"
+                            max="90"
+                        />
+                    </sim-slider>
+                    <div class="sim-select yellow" id="capno-picker">
+                        <div class="input-label">CAP</div>
+                        <select
+                            name=""
+                            id=""
+                            data-sim-input="capno-trace:value"
+                        >
+                            <option value="capno-normal">Normal</option>
+                            <option value="capno-obstructed-moderate">
+                                Moderate Obstruction
+                            </option>
+                            <option value="capno-obstructed-severe">
+                                Severe Obstruction
+                            </option>
+                            <option value="flatline">Apnoea</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                id="arrest-controls"
+                sim-hide-if="alive"
+            >
+                <header>
+                    <p>ECG 💛</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-sim-input="enabler-for-ecg:checked"
+                        class="sim-input-group-switch green"
+                        sim-sync
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <div class="sim-select green">
+                        <div class="input-label">ECG</div>
+                        <select data-sim-input="arrest-rhythm:value">
+                            <option value="sinus">PEA</option>
+                            <option value="flatline">Asystole</option>
+                            <hr />
+                            <option value="vfib">
+                                Ventricular Fibrillation
+                            </option>
+                            <option value="vtach-monomorphic">
+                                Ventricular Tachycardia
+                            </option>
+                            <option value="vtach-torsades">
+                                Torsades de Pointes
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex align-center justify-center">
+                        <button
+                            id="cpr-button"
+                            class="button dark red"
+                        ></button>
+                    </div>
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                id="arrest-controls"
+                sim-hide-if="alive"
+            >
+                <header>
+                    <p>Capnography 🫁</p>
+                    <input
+                        type="checkbox"
+                        role="switch"
+                        data-sim-input="enabler-for-capno:checked"
+                        class="sim-input-group-switch yellow"
+                        sim-sync
+                    />
+                </header>
+                <div class="sim-input-group-main">
+                    <div class="sim-select yellow">
+                        <div class="input-label">CAP</div>
+                        }
+                        <select data-sim-input="arrest-capno:value">
+                            <option value="flatline">Flatline</option>
+                            <hr />
+                            <option value="capno-normal">Normal</option>
+                            <option value="capno-obstructed-moderate">
+                                Moderate Obstruction
+                            </option>
+                            <option value="capno-obstructed-severe">
+                                Severe Obstruction
+                            </option>
+                        </select>
+                    </div>
+                    <sim-slider
+                        data-display-name="etCO<sub>2</sub>"
+                        class="yellow"
+                    >
+                        <input
+                            type="range"
+                            data-sim-input="arrest-etco2:value"
+                            type="range"
+                            min="0"
+                            max="60"
+                            value="0"
+                        />
+                    </sim-slider>
+                    <input
+                        type="text"
+                        style="display: none;"
+                        data-sim-input="sim-cpr:value"
+                        value="off"
+                    />
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                sim-hide-if="alive"
+                id="arrest-monitor-picker"
+            >
+                <header>
+                    <p>Other Monitors 📺</p>
+                </header>
+                <div class="tile-grid">
+                    <label class="tile">
+                        <span>Pleth</span>
+                        <input
+                            type="checkbox"
+                            role="switch"
+                            data-testid="controller-enabler-spo2-mirror"
+                            data-sim-input="enabler-for-spo2:checked"
+                            class="blue"
+                            sim-sync
+                        />
+                    </label>
+                    <label class="tile">
+                        <span>NIBP</span>
                         <input
                             type="checkbox"
                             role="switch"
                             data-sim-input="enabler-for-nibp:checked"
-                            class="sim-input-group-switch purple"
+                            class="purple"
                             sim-sync
                         />
-                    </header>
-
-                    <div class="sim-input-group-main">
-                        <sim-mapgroup>
-                            <sim-slider data-display-name="SBP" class="purple">
-                                <input
-                                    type="range"
-                                    data-sim-sbp
-                                    data-sim-input="systolic-blood-pressure-noninvasive:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                            <sim-slider data-display-name="DBP" class="purple">
-                                <input
-                                    type="range"
-                                    data-sim-dbp
-                                    data-sim-input="diastolic-blood-pressure-noninvasive:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                            <sim-slider data-display-name="MAP" class="purple">
-                                <input
-                                    type="range"
-                                    data-sim-map
-                                    data-sim-input="mean-arterial-pressure-noninvasive:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                        </sim-mapgroup>
-
-                        <div class="flex gap-1 wt-100">
-                            <sim-radiogroup
-                                class="grow-1"
-                                sim-nibp-cycle-switch
-                            >
-                                <div class="sim-button-group">
-                                    <label>
-                                        Manual
-                                        <input
-                                            type="radio"
-                                            name="nibp-cycle-time"
-                                            value="false"
-                                            checked
-                                        />
-                                    </label>
-                                    <label data-testid="controller-nibp-auto">
-                                        Auto
-                                        <input
-                                            type="radio"
-                                            name="nibp-cycle-time"
-                                            value="true"
-                                        />
-                                    </label>
-                                </div>
-                            </sim-radiogroup>
-                            <button
-                                class="button purple"
-                                sim-nibp-cycle-button
-                                data-testid="controller-nibp-run-now"
-                            >
-                                Run Now
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    sim-hide-if="arrested"
-                    id="haemodynamics"
-                >
-                    <header>
-                        <p>Arterial Line 🩸</p>
+                    </label>
+                    <label class="tile">
+                        <span>Art Line</span>
                         <input
                             type="checkbox"
                             role="switch"
                             data-sim-input="enabler-for-art:checked"
-                            class="sim-input-group-switch red"
+                            class="red"
                             sim-sync
-                        />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <sim-mapgroup>
-                            <sim-slider data-display-name="SBP" class="red">
-                                <input
-                                    type="range"
-                                    data-sim-sbp
-                                    data-sim-input="systolic-blood-pressure:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                            <sim-slider data-display-name="DBP" class="red">
-                                <input
-                                    type="range"
-                                    data-sim-dbp
-                                    data-sim-input="diastolic-blood-pressure:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                            <sim-slider data-display-name="MAP" class="red">
-                                <input
-                                    type="range"
-                                    data-sim-map
-                                    data-sim-input="mean-arterial-pressure:value"
-                                    min="20"
-                                    max="200"
-                                    sim-sync
-                                />
-                            </sim-slider>
-                        </sim-mapgroup>
-                        <div class="sim-select red">
-                            <div class="input-label">ART</div>
-                            <select data-sim-input="artline-trace:value">
-                                <option value="artline">Normal Trace</option>
-                                <option value="artline-overdamped">
-                                    Over-Damped
-                                </option>
-                                <option value="artline-underdamped">
-                                    Under-Damped
-                                </option>
-                                <option value="spo2-badtrace">
-                                    Poorly Perfused
-                                </option>
-                            </select>
-                        </div>
-                        <sim-slider data-display-name="HR" class="red">
-                            <input
-                                type="range"
-                                data-sim-input="heart-rate:value"
-                                sim-sync
-                                min="30"
-                                max="220"
-                            />
-                        </sim-slider>
-                    </div>
-                </section>
-                <section class="sim-input-group" sim-hide-if="arrested">
-                    <header>
-                        <p>Capnography 🫁</p>
-                        <input
-                            type="checkbox"
-                            role="switch"
-                            data-sim-input="enabler-for-capno:checked"
-                            class="sim-input-group-switch yellow"
-                            sim-sync
-                        />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <sim-slider data-display-name="RR" class="yellow">
-                            <input
-                                type="range"
-                                data-sim-input="respiratory-rate:value"
-                                type="range"
-                                min="0"
-                                max="60"
-                            />
-                        </sim-slider>
-                        <sim-slider
-                            data-display-name="etCO<sub>2</sub>"
-                            class="yellow"
-                        >
-                            <input
-                                type="range"
-                                data-sim-input="etco2:value"
-                                type="range"
-                                min="0"
-                                max="90"
-                            />
-                        </sim-slider>
-                        <div class="sim-select yellow" id="capno-picker">
-                            <div class="input-label">CAP</div>
-                            <select
-                                name=""
-                                id=""
-                                data-sim-input="capno-trace:value"
-                            >
-                                <option value="capno-normal">Normal</option>
-                                <option value="capno-obstructed-moderate">
-                                    Moderate Obstruction
-                                </option>
-                                <option value="capno-obstructed-severe">
-                                    Severe Obstruction
-                                </option>
-                                <option value="flatline">Apnoea</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    id="arrest-controls"
-                    sim-hide-if="alive"
-                >
-                    <header>
-                        <p>ECG 💛</p>
-                        <input
-                            type="checkbox"
-                            role="switch"
-                            data-sim-input="enabler-for-ecg:checked"
-                            class="sim-input-group-switch green"
-                            sim-sync
-                        />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <div class="sim-select green">
-                            <div class="input-label">ECG</div>
-                            <select data-sim-input="arrest-rhythm:value">
-                                <option value="sinus">PEA</option>
-                                <option value="flatline">Asystole</option>
-                                <hr />
-                                <option value="vfib">
-                                    Ventricular Fibrillation
-                                </option>
-                                <option value="vtach-monomorphic">
-                                    Ventricular Tachycardia
-                                </option>
-                                <option value="vtach-torsades">
-                                    Torsades de Pointes
-                                </option>
-                            </select>
-                        </div>
-                        <div class="flex align-center justify-center">
-                            <button
-                                id="cpr-button"
-                                class="button dark red"
-                            ></button>
-                        </div>
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    id="arrest-controls"
-                    sim-hide-if="alive"
-                >
-                    <header>
-                        <p>Capnography 🫁</p>
-                        <input
-                            type="checkbox"
-                            role="switch"
-                            data-sim-input="enabler-for-capno:checked"
-                            class="sim-input-group-switch yellow"
-                            sim-sync
-                        />
-                    </header>
-                    <div class="sim-input-group-main">
-                        <div class="sim-select yellow">
-                            <div class="input-label">CAP</div>
-                            }
-                            <select data-sim-input="arrest-capno:value">
-                                <option value="flatline">Flatline</option>
-                                <hr />
-                                <option value="capno-normal">Normal</option>
-                                <option value="capno-obstructed-moderate">
-                                    Moderate Obstruction
-                                </option>
-                                <option value="capno-obstructed-severe">
-                                    Severe Obstruction
-                                </option>
-                            </select>
-                        </div>
-                        <sim-slider
-                            data-display-name="etCO<sub>2</sub>"
-                            class="yellow"
-                        >
-                            <input
-                                type="range"
-                                data-sim-input="arrest-etco2:value"
-                                type="range"
-                                min="0"
-                                max="60"
-                                value="0"
-                            />
-                        </sim-slider>
-                        <input
-                            type="text"
-                            style="display: none;"
-                            data-sim-input="sim-cpr:value"
-                            value="off"
-                        />
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    sim-hide-if="alive"
-                    id="arrest-monitor-picker"
-                >
-                    <header>
-                        <p>Other Monitors 📺</p>
-                    </header>
-                    <div class="tile-grid">
-                        <label class="tile">
-                            <span>Pleth</span>
-                            <input
-                                type="checkbox"
-                                role="switch"
-                                data-testid="controller-enabler-spo2-mirror"
-                                data-sim-input="enabler-for-spo2:checked"
-                                class="blue"
-                                sim-sync
-                            />
-                        </label>
-                        <label class="tile">
-                            <span>NIBP</span>
-                            <input
-                                type="checkbox"
-                                role="switch"
-                                data-sim-input="enabler-for-nibp:checked"
-                                class="purple"
-                                sim-sync
-                            />
-                        </label>
-                        <label class="tile">
-                            <span>Art Line</span>
-                            <input
-                                type="checkbox"
-                                role="switch"
-                                data-sim-input="enabler-for-art:checked"
-                                class="red"
-                                sim-sync
-                            />
-                        </label>
-                    </div>
-                </section>
-                <section
-                    class="sim-input-group"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
-                >
-                    <header>
-                        <p>Transition Time ⏳</p>
-                    </header>
-
-                    <sim-radiogroup data-sim-input="transition-time">
-                        <div class="sim-button-group">
-                            <label>
-                                Instant
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="0"
-                                    checked
-                                />
-                            </label>
-                            <label>
-                                30s
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="30000"
-                                />
-                            </label>
-                            <label>
-                                1m
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="60000"
-                                />
-                            </label>
-                            <label>
-                                3m
-                                <input
-                                    type="radio"
-                                    name="sim-transition-time"
-                                    value="180000"
-                                />
-                            </label>
-                        </div>
-                    </sim-radiogroup>
-                </section>
-                <section
-                    class="sim-input-group"
-                    {% if data.demo==true %}style="display: none;"{% endif %}
-                >
-                    <header>
-                        <p>Investigations 🔍</p>
-                    </header>
-                    <div class="tile-grid">
-                        <button
-                            {# type="button" suppresses form submission #}
-                            type="button"
-                            onclick="document.querySelector('#radiology-cxr').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🩻</span>
-                            <span class="label">CXR</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#radiology-echo').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">📺</span>
-                            <span class="label">Echo</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#abg-picker').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🩸</span>
-                            <span class="label">ABG</span>
-                        </button>
-                        <button
-                            type="button"
-                            onclick="document.querySelector('#bsl-picker').showModal()"
-                            class="tile"
-                        >
-                            <span class="thumbnail">🍭</span>
-                            <span class="label">BSL</span>
-                        </button>
-                    </div>
-                </section>
-            </form>
-        </div>
-
-        {% if data.demo != true %}
-
-            {# INVESTIGATIONS #}
-            {% macro rad(name, r) -%}
-                <li>
-                    <label class="tile">
-                        <img
-                            src="{{ r.url }}"
-                            alt="{{ r.name_pretty }}"
-                            title="{{ r.credit }}"
-                            loading="eager"
-                        />
-                        <span class="label">{{ r.name_pretty }}</span>
-                        <input
-                            type="radio"
-                            name="{{ name }}"
-                            value="{{ r.name_ugly }}"
-                            style="display: none;"
-                            data-name-pretty="{{ r.name_pretty }}"
-                            data-name-ugly="{{ r.name_ugly }}"
-                            data-url="{{ r.url }}"
-                            data-credit="{{ r.credit }}"
                         />
                     </label>
-                </li>
-            {%- endmacro %}
-
-            {# CXR #}
-            <sim-ix-sender
-                data-type="sim-ix-radiograph"
-                data-name="CXR"
-                data-icon="🩻"
-                class="investigation-picker"
+                </div>
+            </section>
+            <section
+                class="sim-input-group"
+                {% if data.demo==true %}style="display: none;"{% endif %}
             >
-                <dialog class="tray" id="radiology-cxr" closedby="any">
-                    <sim-picker-radiology
-                        sim-sendable
-                        class="investigation-picker"
-                    >
-                        <header>
-                            <h2 class="mt-0">CXR Picker 🩻</h2>
-                        </header>
-                        <div class="picker-scroll">
-                            <menu>
-                                {% for r in radiology("cxr") %}
-                                    {{ rad("cxr", r) }}
-                                {% endfor %}
-                            </menu>
-                        </div>
-                        <footer>
-                            <form method="dialog">
-                                <button type="submit" class="button dark small">
-                                    Cancel
-                                </button>
-                            </form>
-                            <button class="button red small" sim-send>
-                                Send to Sim
-                            </button>
-                        </footer>
-                    </sim-picker-radiology>
-                </dialog>
-            </sim-ix-sender>
+                <header>
+                    <p>Transition Time ⏳</p>
+                </header>
 
-            {# ECHO #}
-            <sim-ix-sender
-                data-type="sim-ix-radiograph"
-                data-name="Echo"
-                data-icon="📺"
-                class="investigation-picker"
-            >
-                <dialog class="tray" id="radiology-echo" closedby="any">
-                    <sim-picker-radiology
-                        sim-sendable
-                        class="investigation-picker"
-                    >
-                        <header>
-                            <h2 class="mt-0">Echo Picker 📺</h2>
-                        </header>
-                        <div class="picker-scroll">
-                            <h3 class="mt-0">Normal</h3>
-                            <menu>
-                                {% for r in radiology("echo/normal") %}
-                                    {{ rad("echo", r) }}
-                                {% endfor %}
-                            </menu>
-                            <h3 class="">LV Failure</h3>
-                            <menu>
-                                {% for r in radiology("echo/lv-failure") %}
-                                    {{ rad("echo", r) }}
-                                {% endfor %}
-                            </menu>
-                            <h3 class="">RV Failure</h3>
-                            <menu>
-                                {% for r in radiology("echo/rv-failure") %}
-                                    {{ rad("echo", r) }}
-                                {% endfor %}
-                            </menu>
-                            <h3 class="">Tamponade</h3>
-                            <menu>
-                                {% for r in radiology("echo/tamponade") %}
-                                    {{ rad("echo", r) }}
-                                {% endfor %}
-                            </menu>
-                            <h3 class="">IVC</h3>
-                            <menu>
-                                {% for r in radiology("echo/ivc") %}
-                                    {{ rad("echo", r) }}
-                                {% endfor %}
-                            </menu>
-                        </div>
-                        <footer>
-                            <form method="dialog">
-                                <button type="submit" class="button dark small">
-                                    Cancel
-                                </button>
-                            </form>
-                            <button class="button red small" sim-send>
-                                Send to Sim
-                            </button>
-                        </footer>
-                    </sim-picker-radiology>
-                </dialog>
-            </sim-ix-sender>
-
-            {# ABG #}
-            <sim-ix-sender
-                data-type="sim-abg"
-                data-name="ABG"
-                data-icon="🩸"
-                class="investigation-picker"
-            >
-                <dialog id="abg-picker" class="tray" closedby="any">
-                    <header>
-                        <h2 class="mt-0">ABG Picker 🩸</h2>
-                    </header>
-                    <div class="picker-scroll">
-                        <div class="sim-select light" style="z-index: 999;">
-                            <!-- this is needed to get rid of a putrid mobileSafari bug where a <select> element in a <dialog> doesn't work unless there's another <select> element around -->
-                            <div
-                                style="opacity: 0; height: 0px; width: 0; position: absolute; pointer-events: none; margin: 0; padding: 0;"
-                            >
-                                <select></select>
-                            </div>
-                            <!-- would love to see it gone someday -->
-                            <select id="abg-presets" class="mb-1">
-                                <option selected disabled value="default">
-                                    Presets…
-                                </option>
-                                <hr />
-                            </select>
-                        </div>
-                        <sim-abg sim-sendable id="sendable-abg"></sim-abg>
+                <sim-radiogroup data-sim-input="transition-time">
+                    <div class="sim-button-group">
+                        <label>
+                            Instant
+                            <input
+                                type="radio"
+                                name="sim-transition-time"
+                                value="0"
+                                checked
+                            />
+                        </label>
+                        <label>
+                            30s
+                            <input
+                                type="radio"
+                                name="sim-transition-time"
+                                value="30000"
+                            />
+                        </label>
+                        <label>
+                            1m
+                            <input
+                                type="radio"
+                                name="sim-transition-time"
+                                value="60000"
+                            />
+                        </label>
+                        <label>
+                            3m
+                            <input
+                                type="radio"
+                                name="sim-transition-time"
+                                value="180000"
+                            />
+                        </label>
                     </div>
-                    <footer>
-                        <form method="dialog">
-                            <button type="submit" class="button dark small">
-                                Cancel
-                            </button>
-                        </form>
-                        <button class="button red small" sim-send autofocus>
-                            Send to Sim
-                        </button>
-                    </footer>
-                </dialog>
-            </sim-ix-sender>
-
-            {# BSL/ketones #}
-            <sim-ix-sender
-                data-type="sim-ix-bsl"
-                data-name="BSL"
-                data-icon="🍭"
-                class="investigation-picker"
+                </sim-radiogroup>
+            </section>
+            <section
+                class="sim-input-group"
+                {% if data.demo==true %}style="display: none;"{% endif %}
             >
-                <dialog id="bsl-picker" class="tray" closedby="any">
+                <header>
+                    <p>Investigations 🔍</p>
+                </header>
+                <div class="tile-grid">
+                    <button
+                        {# type="button" suppresses form submission #}
+                        type="button"
+                        onclick="document.querySelector('#radiology-cxr').showModal()"
+                        class="tile"
+                    >
+                        <span class="thumbnail">🩻</span>
+                        <span class="label">CXR</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="document.querySelector('#radiology-echo').showModal()"
+                        class="tile"
+                    >
+                        <span class="thumbnail">📺</span>
+                        <span class="label">Echo</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="document.querySelector('#abg-picker').showModal()"
+                        class="tile"
+                    >
+                        <span class="thumbnail">🩸</span>
+                        <span class="label">ABG</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="document.querySelector('#bsl-picker').showModal()"
+                        class="tile"
+                    >
+                        <span class="thumbnail">🍭</span>
+                        <span class="label">BSL</span>
+                    </button>
+                </div>
+            </section>
+        </form>
+    </div>
+
+    {% if data.demo != true %}
+
+        {# INVESTIGATIONS #}
+        {% macro rad(name, r) -%}
+            <li>
+                <label class="tile">
+                    <img
+                        src="{{ r.url }}"
+                        alt="{{ r.name_pretty }}"
+                        title="{{ r.credit }}"
+                        loading="eager"
+                    />
+                    <span class="label">{{ r.name_pretty }}</span>
+                    <input
+                        type="radio"
+                        name="{{ name }}"
+                        value="{{ r.name_ugly }}"
+                        style="display: none;"
+                        data-name-pretty="{{ r.name_pretty }}"
+                        data-name-ugly="{{ r.name_ugly }}"
+                        data-url="{{ r.url }}"
+                        data-credit="{{ r.credit }}"
+                    />
+                </label>
+            </li>
+        {%- endmacro %}
+
+        {# CXR #}
+        <sim-ix-sender
+            data-type="sim-ix-radiograph"
+            data-name="CXR"
+            data-icon="🩻"
+            class="investigation-picker"
+        >
+            <dialog class="tray" id="radiology-cxr" closedby="any">
+                <sim-picker-radiology sim-sendable class="investigation-picker">
                     <header>
-                        <h2 class="mt-0">BSL Machine 🍭</h2>
+                        <h2 class="mt-0">CXR Picker 🩻</h2>
                     </header>
                     <div class="picker-scroll">
-                        <sim-ix-bsl sim-sendable></sim-ix-bsl>
+                        <menu>
+                            {% for r in radiology("cxr") %}
+                                {{ rad("cxr", r) }}
+                            {% endfor %}
+                        </menu>
                     </div>
                     <footer>
                         <form method="dialog">
@@ -944,11 +801,138 @@ page]) #}
                             Send to Sim
                         </button>
                     </footer>
-                </dialog>
-            </sim-ix-sender>
-            {% include 'components/abg_machine.html' %}
-        {% endif %}
-    {% endwith %}
+                </sim-picker-radiology>
+            </dialog>
+        </sim-ix-sender>
+
+        {# ECHO #}
+        <sim-ix-sender
+            data-type="sim-ix-radiograph"
+            data-name="Echo"
+            data-icon="📺"
+            class="investigation-picker"
+        >
+            <dialog class="tray" id="radiology-echo" closedby="any">
+                <sim-picker-radiology sim-sendable class="investigation-picker">
+                    <header>
+                        <h2 class="mt-0">Echo Picker 📺</h2>
+                    </header>
+                    <div class="picker-scroll">
+                        <h3 class="mt-0">Normal</h3>
+                        <menu>
+                            {% for r in radiology("echo/normal") %}
+                                {{ rad("echo", r) }}
+                            {% endfor %}
+                        </menu>
+                        <h3 class="">LV Failure</h3>
+                        <menu>
+                            {% for r in radiology("echo/lv-failure") %}
+                                {{ rad("echo", r) }}
+                            {% endfor %}
+                        </menu>
+                        <h3 class="">RV Failure</h3>
+                        <menu>
+                            {% for r in radiology("echo/rv-failure") %}
+                                {{ rad("echo", r) }}
+                            {% endfor %}
+                        </menu>
+                        <h3 class="">Tamponade</h3>
+                        <menu>
+                            {% for r in radiology("echo/tamponade") %}
+                                {{ rad("echo", r) }}
+                            {% endfor %}
+                        </menu>
+                        <h3 class="">IVC</h3>
+                        <menu>
+                            {% for r in radiology("echo/ivc") %}
+                                {{ rad("echo", r) }}
+                            {% endfor %}
+                        </menu>
+                    </div>
+                    <footer>
+                        <form method="dialog">
+                            <button type="submit" class="button dark small">
+                                Cancel
+                            </button>
+                        </form>
+                        <button class="button red small" sim-send>
+                            Send to Sim
+                        </button>
+                    </footer>
+                </sim-picker-radiology>
+            </dialog>
+        </sim-ix-sender>
+
+        {# ABG #}
+        <sim-ix-sender
+            data-type="sim-abg"
+            data-name="ABG"
+            data-icon="🩸"
+            class="investigation-picker"
+        >
+            <dialog id="abg-picker" class="tray" closedby="any">
+                <header>
+                    <h2 class="mt-0">ABG Picker 🩸</h2>
+                </header>
+                <div class="picker-scroll">
+                    <div class="sim-select light" style="z-index: 999;">
+                        <!-- this is needed to get rid of a putrid mobileSafari bug where a <select> element in a <dialog> doesn't work unless there's another <select> element around -->
+                        <div
+                            style="opacity: 0; height: 0px; width: 0; position: absolute; pointer-events: none; margin: 0; padding: 0;"
+                        >
+                            <select></select>
+                        </div>
+                        <!-- would love to see it gone someday -->
+                        <select id="abg-presets" class="mb-1">
+                            <option selected disabled value="default">
+                                Presets…
+                            </option>
+                            <hr />
+                        </select>
+                    </div>
+                    <sim-abg sim-sendable id="sendable-abg"></sim-abg>
+                </div>
+                <footer>
+                    <form method="dialog">
+                        <button type="submit" class="button dark small">
+                            Cancel
+                        </button>
+                    </form>
+                    <button class="button red small" sim-send autofocus>
+                        Send to Sim
+                    </button>
+                </footer>
+            </dialog>
+        </sim-ix-sender>
+
+        {# BSL/ketones #}
+        <sim-ix-sender
+            data-type="sim-ix-bsl"
+            data-name="BSL"
+            data-icon="🍭"
+            class="investigation-picker"
+        >
+            <dialog id="bsl-picker" class="tray" closedby="any">
+                <header>
+                    <h2 class="mt-0">BSL Machine 🍭</h2>
+                </header>
+                <div class="picker-scroll">
+                    <sim-ix-bsl sim-sendable></sim-ix-bsl>
+                </div>
+                <footer>
+                    <form method="dialog">
+                        <button type="submit" class="button dark small">
+                            Cancel
+                        </button>
+                    </form>
+                    <button class="button red small" sim-send>
+                        Send to Sim
+                    </button>
+                </footer>
+            </dialog>
+        </sim-ix-sender>
+        {% include 'components/abg_machine.html' %}
+    {% endif %}
 
     {% assets filters="esbuild", output="gen/controller.js", depends="**/**/*.js", "js/controller.js" %}
         <script type="module" src="{{ ASSET_URL }}"></script>
