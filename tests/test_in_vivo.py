@@ -160,6 +160,32 @@ def test_controller_reset(
     reset_button.click()
     expect(hr_slider).not_to_have_value("200")
 
+
+def test_state_persists_between_refreshes(
+    browser_monitor_controller_pair: tuple[Page, Page],
+):
+    monitor, controller = browser_monitor_controller_pair
+
+    hr_controller = controller.get_by_test_id("controller-heart-rate")
+    hr_controller.fill("140")
+
+    # sends to monitor
+    controller.get_by_role("button", name="Send").click()
+    expect(monitor.get_by_test_id("monitor-readout-heart-rate")).to_contain_text(
+        "1"
+    )  # wobbles, so it won't always be exactly 140
+
+    # monitor persists after reload
+    monitor.reload()
+    expect(monitor.get_by_test_id("monitor-readout-heart-rate")).to_contain_text(
+        "1"
+    )  # wobbles, so it won't always be exactly 140
+
+    # controller persists after reload
+    controller.reload()
+    expect(hr_controller).to_have_value("140")
+
+
 # investigation sending
 # investigation drawer
 # abg machine renders
