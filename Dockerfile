@@ -27,6 +27,7 @@ RUN uv tool run playwright install-deps
 RUN uv tool run playwright install chromium
 
 COPY app /simulator/app
+COPY tests /simulator/tests
 CMD uv run --no-sync python -m pytest --verbose --numprocesses 4 --browser chromium
 
 # test runner (headed)
