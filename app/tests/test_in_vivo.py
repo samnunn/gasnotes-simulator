@@ -17,8 +17,8 @@ def test_browser_renders_controller(browser_controller: Page):
     expect(browser_controller.get_by_text("Pulse Oximeter 😮‍💨")).to_be_visible()
 
 
-def test_browser_rendders_sliders(browser_controller: Page):
-    browser_controller.locator("#cardiac").get_by_role("slider").fill("160")
+def test_browser_renders_sliders(browser_controller: Page):
+    browser_controller.get_by_test_id("controller-heart-rate").fill("160")
     expect(browser_controller.locator("#cardiac")).to_contain_text("HR 160")
 
 
@@ -151,3 +151,7 @@ def test_controller_slider_sync(
 # investigation sending
 # investigation drawer
 # abg machine renders
+# testing js is removed
+# sim-value targeting
+# nibp animation
+# nibp update on controller -> not before cycle -> appears after cycle
