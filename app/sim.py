@@ -84,7 +84,7 @@ def make_app(config_overrides={}):
         data = {}
         data["demo"] = True
         data["title"] = "Simulation Monitor"
-        data["initial_states"] = {"updates": DEMO_DATA}
+        data["initial_states"] = DEMO_DATA
         data["monitor_html"] = render_template("sim_views/sim_monitor.html", data=data)
         data["controller_html"] = render_template(
             "sim_views/sim_controller.html", data=data
