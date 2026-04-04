@@ -1,9 +1,11 @@
 import re
 
-from flask import Flask
+import bs4
+from flask import Flask, url_for
 from flask.testing import FlaskClient
 
 from app.lib import room_helpers
+from app.lib.state import DEFAULT_DATA
 
 
 def test_fixtures_working(test_client: FlaskClient, test_app: Flask):
@@ -83,3 +85,67 @@ def test_controller_page_404s_without_existing_room(test_client: FlaskClient):
     response = test_client.get("/sim/ABC123/controller")
 
     assert response.status_code == 404
+
+
+def test_all_input_parameters_are_present_in_default_data(
+    test_client: FlaskClient, test_app: Flask
+):
+    with test_app.app_context():
+        room_id = room_helpers.open_sim_room()
+
+    with test_app.test_request_context("/"):
+        url = url_for("sim_controller", sim_room_id=room_id)
+
+    response = test_client.get(url)
+    soup = bs4.BeautifulSoup(response.text, "html.parser")
+
+    found_keys: set[str] = set()
+    known_keys: set[str] = set(DEFAULT_DATA.keys())
+
+    tags_with_inputs = soup.find_all(lambda tag: tag.has_attr("data-sim-input"))
+
+    for tag in tags_with_inputs:
+        inputs_string: str = str(tag["data-sim-input"])
+        inputs_list: list[str] = inputs_string.split(" ")
+
+        for i in inputs_list:
+            parameter, *methods = i.split(":")
+            found_keys.add(parameter)
+            if len(methods) > 0:
+                assert methods[0] in ["checked", "value"], (
+                    f"Controller input for parameter '{parameter}' referenced method '{methods[0]}', which does not exist"
+                )
+
+    assert found_keys.issubset(known_keys), (
+        f"Controller has referenced the following parameters that do not exist in the default data: {found_keys.difference(known_keys)}"
+    )
+
+
+def test_all_output_parameters_are_present_in_default_data(
+    test_client: FlaskClient, test_app: Flask
+):
+    with test_app.app_context():
+        room_id = room_helpers.open_sim_room()
+
+    with test_app.test_request_context("/"):
+        url = url_for("sim_monitor", sim_room_id=room_id)
+
+    response = test_client.get(url)
+    soup = bs4.BeautifulSoup(response.text, "html.parser")
+
+    found_keys: set[str] = set()
+    known_keys: set[str] = set(DEFAULT_DATA.keys())
+
+    tags_with_outputs = soup.find_all(lambda tag: tag.has_attr("data-sim-parameters"))
+
+    for tag in tags_with_outputs:
+        outputs_string: str = str(tag["data-sim-parameters"])
+        outputs_list: list[str] = outputs_string.split(" ")
+
+        for o in outputs_list:
+            parameter: str = o.split(":")[0]
+            found_keys.add(parameter)
+
+    assert found_keys.issubset(known_keys), (
+        f"Monitor has referenced the following parameters that do not exist in the default data: {found_keys.difference(known_keys)}"
+    )

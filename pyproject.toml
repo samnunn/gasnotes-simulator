@@ -5,6 +5,7 @@ description = "A remote-controlled bedside monitor to help you run medical simul
 readme = "README.md"
 requires-python = ">=3.14.0"
 dependencies = [
+    "bs4>=0.0.2",
     "flask>=3.1.3",
     "flask-assets>=2.1.0",
     "flask-caching>=2.3.1",
@@ -13,6 +14,7 @@ dependencies = [
     "flask-socketio>=5.5.1",
     "gevent>=25.9.1",
     "gunicorn>=23.0.0",
+    "lxml>=6.0.2",
     "playwright>=1.58.0",
     "pytest>=9.0.2",
     "pytest-playwright>=0.7.2",
