@@ -16,13 +16,13 @@ DEFAULT_DATA = {
     "systolic-blood-pressure-noninvasive": "104",
     "diastolic-blood-pressure-noninvasive": "66",
     "mean-arterial-pressure-noninvasive": "78",
-    "enabler-for-ecg": "true",
-    "enabler-for-spo2": "true",
-    "enabler-for-nibp": "true",
-    "enabler-for-art": "false",
-    "enabler-for-capno": "false",
+    "enabler-for-ecg": True,
+    "enabler-for-spo2": True,
+    "enabler-for-nibp": True,
+    "enabler-for-art": False,
+    "enabler-for-capno": False,
     "arrest-rhythm": "vfib",
     "arrest-capno": "flatline",
     "arrest-etco2": "0",
 }
-DEMO_DATA = {**DEFAULT_DATA, "enabler-for-capno": "true"}
+DEMO_DATA = {**DEFAULT_DATA, "enabler-for-capno": True, "enabler-for-art": True}
