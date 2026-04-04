@@ -20,6 +20,21 @@
         <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
         <script src="{{ url_for('static', filename='js/socketio.min.js') }}"></script>
         <meta name="color-scheme" content="light only" />
+        {% if data.fouc_suppressed %}
+            <style>
+                body.sim-fouc-suppressed,
+                body.sim-fouc-suppressed *,
+                body.sim-fouc-suppressed *::before,
+                body.sim-fouc-suppressed *::after {
+                    transition: none !important;
+                    animation: none !important;
+                }
+
+                body.sim-fouc-suppressed {
+                    opacity: 0;
+                }
+            </style>
+        {% endif %}
     </head>
 
     <body

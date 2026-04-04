@@ -153,6 +153,7 @@ def make_app(config_overrides={}):
             abort(404, "This sim room does not exist.")
 
         data = {}
+        data["fouc_suppressed"] = True
         data["sim_room_id"] = sim_room_id
         data["title"] = f"Monitor ({sim_room_id.upper()})"
 
@@ -185,6 +186,7 @@ def make_app(config_overrides={}):
             abort(404, "This sim room does not exist.")
 
         data = {}
+        data["fouc_suppressed"] = True
         data["sim_room_id"] = sim_room_id
         data["title"] = f"Controller ({sim_room_id.upper()})"
         data["default_states"] = DEFAULT_DATA
