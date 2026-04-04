@@ -228,12 +228,8 @@ export function registerMonitorSyncReceiver(socket) {
 }
 
 export function registerControllerSyncEmitter(socket) {
-    window.dumpstate = _serialiseStateFromDomFragment;
-
-    if (document.body.dataset.simDemoMode == "true") return;
-
     let sendButton = document.querySelector("#send");
-    sendButton.addEventListener("click", (e) => {
+    sendButton?.addEventListener("click", (e) => {
         e.preventDefault();
         let message = {
             sim_room_id: document.body.dataset.simRoomId,
@@ -256,6 +252,7 @@ export function registerControllerSyncEmitter(socket) {
     });
 
     // re-apply existing state on pageload
+
     _applySavedStateOnPageload((state) => {
         _applyStateToDomFragment("#controller", "data-sim-input", state);
     });
