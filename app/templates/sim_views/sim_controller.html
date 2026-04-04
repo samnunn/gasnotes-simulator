@@ -252,6 +252,16 @@ page]) #}
                         <option value="flatline" sim-arrest>Asystole</option>
                     </select>
                 </div>
+                <sim-slider data-display-name="RR" class="white">
+                    <input
+                        type="range"
+                        data-sim-input="respiratory-rate:value"
+                        sim-sync
+                        type="range"
+                        min="0"
+                        max="60"
+                    />
+                </sim-slider>
             </div>
         </section>
         <section
@@ -464,6 +474,7 @@ page]) #}
                     <input
                         type="range"
                         data-sim-input="respiratory-rate:value"
+                        sim-sync
                         type="range"
                         min="0"
                         max="60"

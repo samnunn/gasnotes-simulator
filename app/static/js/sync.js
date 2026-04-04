@@ -503,7 +503,7 @@ function _validateStateObject(state) {
 }
 
 function _monitorStateUpdateSideEffects(states) {
-    // - HR coloured by derivation
+    // HR coloured according to source (ECG > pleth > art)
     let heartRateReadout = document.querySelector("#heart-rate");
     let heartRateColour = undefined;
     let heartRateEnabled = true;
@@ -517,4 +517,18 @@ function _monitorStateUpdateSideEffects(states) {
     }
     heartRateReadout.dataset.simEnabled = heartRateEnabled;
     heartRateReadout.classList = heartRateColour;
+
+    // RR enabled by ECG or etCO2
+    let rrSource = "/min";
+    let rrEnabled = false;
+    if (states["enabler-for-ecg"] == true) {
+        rrSource = "imp.";
+        rrEnabled = true;
+    }
+    if (states["enabler-for-capno"] == true) {
+        rrSource = "capno.";
+        rrEnabled = true;
+    }
+    document.querySelector("#rr-readout").dataset.simEnabled = rrEnabled;
+    document.querySelector("#rr-source").innerText = rrSource;
 }

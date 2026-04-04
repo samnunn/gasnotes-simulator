@@ -724,12 +724,12 @@
                 hidden
             ></sim-readout>
         </div>
-        <div id="rr">
-            <p class="readout-label">RR (/min)</p>
+        <div>
+            <p class="readout-label">RR (<span id="rr-source"></span>)</p>
             <sim-readout
+                id="rr-readout"
                 class="white"
-                display-name="Respiratory Rate"
-                data-sim-parameters="respiratory-rate enabler-for-capno:data-sim-enabled"
+                data-sim-parameters="respiratory-rate"
                 sim-transitionable="true"
                 data-sim-wobble="1"
                 data-sim-wobble-min="0"
