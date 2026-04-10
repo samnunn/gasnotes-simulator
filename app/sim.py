@@ -13,10 +13,10 @@ def make_app(config_overrides={}):
     from flask_socketio import SocketIO, emit, join_room
     from werkzeug.exceptions import HTTPException
 
+    import app.lib.model as model
     from app.lib import custom_jinja_tools, radiology_tools, room_helpers
     from app.lib.custom_webassets_filters import ESBuildFilter
-    from app.lib.state import DEFAULT_DATA, DEMO_DATA
-
+    from app.lib.model import DEFAULT_DATA, DEMO_DATA, SimStateMessage
     #    _____      __
     #   / ___/___  / /___  ______
     #   \__ \/ _ \/ __/ / / / __ \
@@ -161,7 +161,7 @@ def make_app(config_overrides={}):
         data["initial_states"] = {}
         try:
             existing_data = room_helpers.get_sim_room_data(sim_room_id)
-            data["initial_states"] = existing_data["updates"]
+            data["initial_states"] = existing_data.model_dump(mode="json")
         except Exception:
             app.logger.error(
                 f"Unable to pull last-known state for sim room {sim_room_id}"
@@ -195,7 +195,7 @@ def make_app(config_overrides={}):
         data["initial_states"] = {}
         try:
             existing_data = room_helpers.get_sim_room_data(sim_room_id)
-            data["initial_states"] = existing_data["updates"]
+            data["initial_states"] = existing_data.model_dump(mode="json")
         except Exception:
             app.logger.error(
                 f"Unable to pull last-known state for sim room {sim_room_id}"
@@ -246,17 +246,17 @@ def make_app(config_overrides={}):
     # routine parameter updates
     @socketio.on("sim-update")
     def handle_sim_update(data):
-        json_data = json.loads(data)
-        sim_room_id = json_data["sim_room_id"]
-        sim_room_id = room_helpers.normalise_room_id(sim_room_id)
+        # json_data = json.loads(data)
+        # sim_room_id = json_data["sim_room_id"]
+        # sim_room_id = room_helpers.normalise_room_id(sim_room_id)
+        msg = SimStateMessage.model_validate_json(data)
+        sim_room_id = msg.sim_room_id
 
         # Only send an update if the sim room exists
         if room_helpers.sim_room_exists(sim_room_id):
-            room_helpers.update_sim_room_data_by_id(sim_room_id, json_data)
+            room_helpers.update_sim_room_data_by_id(sim_room_id, msg.updates)
             emit("sim-update", data, to=sim_room_id)
-            app.logger.info(
-                f"Relayed sim-update to room {sim_room_id}: {repr(json_data)}"
-            )
+            app.logger.info(f"Relayed sim-update to room {sim_room_id}: {repr(msg)}")
         else:
             app.logger.info(
                 "🚨 SocketIO received a `sim-update` for a non-exitent sim room. Passing."
@@ -324,6 +324,7 @@ def make_app(config_overrides={}):
             enabled=custom_jinja_tools.enabled,
             checked=custom_jinja_tools.checked,
             static_include=custom_jinja_tools.static_include,
+            model=model,
         )
 
     return app

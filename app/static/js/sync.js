@@ -8,16 +8,16 @@ class SimTransitionSupervisor {
     constructor(initial_state) {
         this.INCREMENT_DURATION = 3_000;
         this.TRANSITIONABLE_ELEMENTS = [
-            "heart-rate",
+            "heart_rate",
             "spo2",
             "etco2",
-            "respiratory-rate",
-            "systolic-blood-pressure-noninvasive",
-            "diastolic-blood-pressure-noninvasive",
-            "mean-arterial-pressure-noninvasive",
-            "systolic-blood-pressure",
-            "diastolic-blood-pressure",
-            "mean-arterial-pressure",
+            "respiratory_rate",
+            "sbp_noninvasive",
+            "dbp_noninvasive",
+            "map_noninvasive",
+            "sbp_invasive",
+            "dbp_invasive",
+            "map_invasive",
         ];
 
         this.timeout = null;
@@ -153,12 +153,12 @@ class SimTransitionSupervisor {
             let target_unchanged =
                 new_target_state[key] == stale_target_state[key];
             let duration_unchanged =
-                stale_target_state["transition-time"] ==
-                new_target_state["transition-time"];
+                stale_target_state["transition_time"] ==
+                new_target_state["transition_time"];
             if (target_unchanged && duration_unchanged) continue;
 
             // skip when planned change is NaN (e.g. when new target is "??")
-            // - e.g. diastolic-blood-pressure-noninvasive gets changed to "??" in cardiac arrest
+            // - e.g. dbp_noninvasive gets changed to "??" in cardiac arrest
             // - consider removing and ditching "??" in cardiac arrest altogether #todo
             let planned_change =
                 parseFloat(new_target_state[key]) -
@@ -186,7 +186,7 @@ export function registerMonitorSyncReceiver(socket) {
         }
 
         // special case for cardiac arrest
-        let mode = states["sim-mode"];
+        let mode = states["sim_mode"];
         let spo2Readout = document.querySelector("#readout-spo2");
 
         if (mode == "arrested") {
@@ -203,7 +203,7 @@ export function registerMonitorSyncReceiver(socket) {
         _monitorStateUpdateSideEffects(states);
 
         // apply state via transition manager
-        let transitionTime = states["transition-time"] || 0;
+        let transitionTime = states["transition_time"] || 0;
         transitionManager.set_target_state(states, transitionTime);
     }
 
@@ -323,25 +323,25 @@ function _applySavedStateOnPageload(initFunction) {
 }
 
 function _mutateStateForCardiacArrest(state) {
-    // assign ecg-rhythm to cpr OR arrest-rhythm
-    if (state["sim-cpr"] == "on") {
-        state["ecg-rhythm"] = "cpr";
+    // assign ecg_morphology to cpr OR arrest_ecg_morphology
+    if (state["cpr_active"] == true) {
+        state["ecg_morphology"] = "cpr";
     } else {
-        state["ecg-rhythm"] = state["arrest-rhythm"];
+        state["ecg_morphology"] = state["arrest_ecg_morphology"];
     }
 
     // set heart rate according to morphology
-    if (["sinus", "flatline"].includes(state["ecg-rhythm"])) {
-        state["heart-rate"] = 104;
-    } else if (state["ecg-rhythm"] == "cpr") {
-        state["heart-rate"] = 100;
+    if (["sinus", "flatline"].includes(state["ecg_morphology"])) {
+        state["heart_rate"] = 104;
+    } else if (state["ecg_morphology"] == "cpr") {
+        state["heart_rate"] = 100;
     } else {
-        state["heart-rate"] = 250;
+        state["heart_rate"] = 250;
     }
 
     // transfer arrest capno/etco2 to main
-    state["etco2"] = state["arrest-etco2"];
-    state["capno-trace"] = state["arrest-capno"];
+    state["etco2"] = state["arrest_etco2"];
+    state["capno_morphology"] = state["arrest_capno_morphology"];
 
     // set spo2 to sod-all
     state["spo2"] = 64;
@@ -350,13 +350,13 @@ function _mutateStateForCardiacArrest(state) {
     let imaginarySbp = (10 + Math.random() * 20).toFixed(0);
     let imaginaryDbp = (5 + Math.random() * 10).toFixed(0);
     let imaginaryMap = (imaginarySbp * 0.6).toFixed(0);
-    state["systolic-blood-pressure-noninvasive"] = imaginarySbp;
-    state["diastolic-blood-pressure-noninvasive"] = "??";
-    state["mean-arterial-pressure-noninvasive"] = imaginaryMap;
+    state["sbp_noninvasive"] = imaginarySbp;
+    state["dbp_noninvasive"] = "??";
+    state["map_noninvasive"] = imaginaryMap;
 
     // set arrest-style morphologies for remaining traces
-    state["spo2-trace"] = "spo2-badtrace";
-    state["artline-trace"] = "spo2-badtrace";
+    state["spo2_morphology"] = "spo2_badtrace";
+    state["artline_morphology"] = "spo2_badtrace";
 
     return state;
 }
@@ -504,9 +504,9 @@ function _monitorStateUpdateSideEffects(states) {
     let heartRateReadout = document.querySelector("#heart-rate");
     let heartRateColour = undefined;
     let heartRateEnabled = true;
-    if (states["enabler-for-art"] == true) heartRateColour = "red";
-    if (states["enabler-for-spo2"] == true) heartRateColour = "blue";
-    if (states["enabler-for-ecg"] == true) heartRateColour = "green";
+    if (states["enabler_for_art"] == true) heartRateColour = "red";
+    if (states["enabler_for_spo2"] == true) heartRateColour = "blue";
+    if (states["enabler_for_ecg"] == true) heartRateColour = "green";
     if (heartRateColour == undefined) {
         heartRateEnabled = false;
         heartRateColour = "green";
@@ -518,11 +518,11 @@ function _monitorStateUpdateSideEffects(states) {
     // RR enabled by ECG or etCO2
     let rrSource = "/min";
     let rrEnabled = false;
-    if (states["enabler-for-ecg"] == true) {
+    if (states["enabler_for_ecg"] == true) {
         rrSource = "imp.";
         rrEnabled = true;
     }
-    if (states["enabler-for-capno"] == true) {
+    if (states["enabler_for_capno"] == true) {
         rrSource = "capno.";
         rrEnabled = true;
     }

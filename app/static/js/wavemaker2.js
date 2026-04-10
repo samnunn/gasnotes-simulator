@@ -660,7 +660,7 @@ path {
 
                 return keyframes;
             },
-            "artline-underdamped": (targetDuration) => {
+            artline_underdamped: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -691,7 +691,7 @@ path {
 
                 return keyframes;
             },
-            "artline-overdamped": (targetDuration) => {
+            artline_overdamped: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -798,7 +798,7 @@ path {
                 // alias of sim-disconnect
                 return this.waveGenerators["flatline"](targetDuration);
             },
-            "capno-normal": (targetDuration) => {
+            capno_normal: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -822,7 +822,7 @@ path {
 
                 return keyframes;
             },
-            "capno-obstructed-moderate": (targetDuration) => {
+            capno_obstructed_moderate: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -846,7 +846,7 @@ path {
 
                 return keyframes;
             },
-            "capno-obstructed-severe": (targetDuration) => {
+            capno_obstructed_severe: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -913,7 +913,7 @@ path {
 
                 return keyframes;
             },
-            "spo2-badtrace": (targetDuration) => {
+            spo2_badtrace: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     targetDuration = 60000 / this.rate;
@@ -1021,7 +1021,7 @@ path {
                 ];
                 return keyframes;
             },
-            "vtach-monomorphic": (targetDuration) => {
+            vtach_monomorphic: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     let idealDuration = 60000 / this.rate;
@@ -1057,7 +1057,7 @@ path {
                 ];
                 return keyframes;
             },
-            "vtach-torsades": (targetDuration) => {
+            vtach_torsades: (targetDuration) => {
                 // DURATION WRNAGLING
                 if (targetDuration == 0) {
                     let idealDuration = 60000 / this.rate;

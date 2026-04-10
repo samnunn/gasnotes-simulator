@@ -36,6 +36,7 @@ def test_client_ratelimited(test_app_ratelimited: Flask) -> FlaskClient:
 def browser_controller(page: Page):
     page.goto(urljoin(BASE_URL, "new"))
     page.get_by_role("link", name="Switch to Controller").click()
+    page.wait_for_timeout(200)
     return page
 
 
@@ -43,6 +44,7 @@ def browser_controller(page: Page):
 def browser_monitor(page: Page):
     page.goto(urljoin(BASE_URL, "new"))
     page.get_by_role("button", name="Open Simulation").click()
+    page.wait_for_timeout(200)
     return page
 
 
@@ -51,7 +53,10 @@ def browser_monitor_controller_pair(context: BrowserContext) -> tuple[Page, Page
     monitor_page = context.new_page()
     monitor_page.goto(urljoin(BASE_URL, "new"))
     monitor_page.get_by_role("button", name="Open Simulation").click()
+    monitor_page.wait_for_timeout(200)
+
     controller_page = context.new_page()
     controller_page.goto(monitor_page.url.replace("/monitor", "/controller"))
+    controller_page.wait_for_timeout(200)
 
     return monitor_page, controller_page

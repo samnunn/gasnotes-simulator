@@ -14,6 +14,7 @@ page]) #}
             >
             <input
                 id="send"
+                data-testid="send-button"
                 type="submit"
                 value="Send"
                 form="sim-input"
@@ -87,25 +88,29 @@ page]) #}
             }
         }
 
-        body[sim-mode="arrested"] [sim-hide-if~="arrested"] {
+        body:has(#mode-arrested:checked) [sim-hide-if~="arrested"] {
             display: none;
         }
-        body:not([sim-mode="arrested"]) [sim-hide-if~="alive"] {
+        body:has(#mode-alive:checked) [sim-hide-if~="alive"] {
             display: none;
         }
 
         #cpr-button {
-            align-self: center;
             transform: scale(1.2);
             transform-origin: top center;
 
             &::before {
-                content: "Stop CPR";
-            }
-
-            &.red::before {
                 content: "Start CPR";
             }
+
+            color: var(--color-red);
+            --button-color: var(--color-red);
+        }
+        #cpr-button:checked {
+            &::before {
+                content: "Stop CPR";
+            }
+            --button-color: var(--color-navy);
         }
 
         dialog:has(.investigation-picker) {
@@ -172,6 +177,39 @@ page]) #}
         dialog:has(sim-ix-bsl) {
             width: calc(min(400px, 95vw));
         }
+
+        /* LIMITS */
+        div.limit-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fill,
+                minmax(min(3rem, 100%), 1fr)
+            );
+            gap: 1rem;
+            align-items: start;
+        }
+        div.limit-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--dark-grey);
+            border: 2px solid #222;
+            border-radius: 0.5rem;
+        }
+        span.limit-label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: block;
+            width: 100%;
+        }
+        input.limit {
+            font-size: 1.2rem;
+            appearance: none;
+            background-color: none;
+            outline: none;
+            border: none;
+            border-radius: 0;
+        }
     </style>
 
     <div id="controller" class="wrapped">
@@ -183,26 +221,19 @@ page]) #}
             <header>
                 <p>Mode 🎮</p>
             </header>
-            <sim-radiogroup data-sim-input="sim-mode">
+            <sim-radiogroup data-sim-input="sim_mode">
                 <div class="sim-button-group">
-                    <label>
-                        Alive
-                        <input
-                            type="radio"
-                            name="sim-mode"
-                            value="alive"
-                            checked
-                        />
-                    </label>
-                    <label>
-                        Arrested
-                        <input
-                            type="radio"
-                            name="sim-mode"
-                            value="arrested"
-                            id="arrest-button"
-                        />
-                    </label>
+                    {% for opt in model.SimModes %}
+                        <label data-testid="button-{{ opt.name }}">
+                            {{ opt.value }}
+                            <input
+                                type="radio"
+                                name="sim_mode"
+                                id="mode-{{ opt.name }}"
+                                value="{{ opt.name }}"
+                            />
+                        </label>
+                    {% endfor %}
                 </div>
             </sim-radiogroup>
         </section>
@@ -211,7 +242,7 @@ page]) #}
                 <p>ECG 💛</p>
                 <input
                     type="checkbox"
-                    data-sim-input="enabler-for-ecg:checked"
+                    data-sim-input="enabler_for_ecg:checked"
                     role="switch"
                     sim-sync
                     class="sim-input-group-switch green"
@@ -222,7 +253,7 @@ page]) #}
                     <input
                         type="range"
                         data-testid="controller-heart-rate"
-                        data-sim-input="heart-rate:value"
+                        data-sim-input="heart_rate:value"
                         sim-sync
                         min="30"
                         max="220"
@@ -230,32 +261,24 @@ page]) #}
                 </sim-slider>
                 <div class="sim-select green">
                     <div class="input-label">ECG</div>
-                    <select data-sim-input="ecg-rhythm:value">
-                        <option value="sinus">Normal Sinus Rhythm</option>
-                        <option value="afib">Atrial Fibrillation</option>
-                        <option value="avnrt">AVNRT</option>
-                        <option value="hb2m1">2° Heart Block (Mobitz I)</option>
-                        <option value="hb2m2">
-                            2° Heart Block (Mobitz II)
-                        </option>
-                        <option value="stemi">STEMI</option>
+                    <select data-sim-input="ecg_morphology:value">
+                        {% for opt in model.SimEcgMorhology if not opt in model.arrest_morphologies %}
+                            <option value="{{ opt.name }}">
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                         <hr />
-                        <option value="vfib" sim-arrest>
-                            Ventricular Fibrillation
-                        </option>
-                        <option value="vtach-monomorphic" sim-arrest>
-                            Ventricular Tachycardia
-                        </option>
-                        <option value="vtach-torsades" sim-arrest>
-                            Torsades de Pointes
-                        </option>
-                        <option value="flatline" sim-arrest>Asystole</option>
+                        {% for opt in model.SimArrestMorphology %}
+                            <option value="{{ opt.name }}" sim-arrest>
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <sim-slider data-display-name="RR" class="white">
                     <input
                         type="range"
-                        data-sim-input="respiratory-rate:value"
+                        data-sim-input="respiratory_rate:value"
                         sim-sync
                         type="range"
                         min="0"
@@ -275,7 +298,7 @@ page]) #}
                     type="checkbox"
                     role="switch"
                     data-testid="controller-enabler-spo2-primary"
-                    data-sim-input="enabler-for-spo2:checked"
+                    data-sim-input="enabler_for_spo2:checked"
                     class="sim-input-group-switch blue"
                     sim-sync
                 />
@@ -295,7 +318,7 @@ page]) #}
                     <input
                         type="range"
                         data-testid="controller-heart-rate-mirror"
-                        data-sim-input="heart-rate:value"
+                        data-sim-input="heart_rate:value"
                         min="30"
                         max="220"
                         sim-sync
@@ -303,9 +326,12 @@ page]) #}
                 </sim-slider>
                 <div class="sim-select blue" id="spo2-picker">
                     <div class="input-label">PLETH</div>
-                    <select data-sim-input="spo2-trace:value">
-                        <option value="spo2">Well Perfused</option>
-                        <option value="spo2-badtrace">Poorly Perfused</option>
+                    <select data-sim-input="spo2_morphology:value">
+                        {% for opt in model.SimPlethMorphology %}
+                            <option value="{{ opt.name }}">
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -316,7 +342,7 @@ page]) #}
                 <input
                     type="checkbox"
                     role="switch"
-                    data-sim-input="enabler-for-nibp:checked"
+                    data-sim-input="enabler_for_nibp:checked"
                     class="sim-input-group-switch purple"
                     sim-sync
                 />
@@ -328,7 +354,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-sbp
-                            data-sim-input="systolic-blood-pressure-noninvasive:value"
+                            data-sim-input="sbp_noninvasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -338,7 +364,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-dbp
-                            data-sim-input="diastolic-blood-pressure-noninvasive:value"
+                            data-sim-input="dbp_noninvasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -348,7 +374,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-map
-                            data-sim-input="mean-arterial-pressure-noninvasive:value"
+                            data-sim-input="map_noninvasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -398,7 +424,7 @@ page]) #}
                 <input
                     type="checkbox"
                     role="switch"
-                    data-sim-input="enabler-for-art:checked"
+                    data-sim-input="enabler_for_art:checked"
                     class="sim-input-group-switch red"
                     sim-sync
                 />
@@ -409,7 +435,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-sbp
-                            data-sim-input="systolic-blood-pressure:value"
+                            data-sim-input="sbp_invasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -419,7 +445,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-dbp
-                            data-sim-input="diastolic-blood-pressure:value"
+                            data-sim-input="dbp_invasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -429,7 +455,7 @@ page]) #}
                         <input
                             type="range"
                             data-sim-map
-                            data-sim-input="mean-arterial-pressure:value"
+                            data-sim-input="map_invasive:value"
                             min="20"
                             max="200"
                             sim-sync
@@ -438,19 +464,18 @@ page]) #}
                 </sim-mapgroup>
                 <div class="sim-select red">
                     <div class="input-label">ART</div>
-                    <select data-sim-input="artline-trace:value">
-                        <option value="artline">Normal Trace</option>
-                        <option value="artline-overdamped">Over-Damped</option>
-                        <option value="artline-underdamped">
-                            Under-Damped
-                        </option>
-                        <option value="spo2-badtrace">Poorly Perfused</option>
+                    <select data-sim-input="artline_morphology:value">
+                        {% for opt in model.SimArtMorphology %}
+                            <option value="{{ opt.name }}">
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <sim-slider data-display-name="HR" class="red">
                     <input
                         type="range"
-                        data-sim-input="heart-rate:value"
+                        data-sim-input="heart_rate:value"
                         sim-sync
                         min="30"
                         max="220"
@@ -464,7 +489,7 @@ page]) #}
                 <input
                     type="checkbox"
                     role="switch"
-                    data-sim-input="enabler-for-capno:checked"
+                    data-sim-input="enabler_for_capno:checked"
                     class="sim-input-group-switch yellow"
                     sim-sync
                 />
@@ -473,7 +498,7 @@ page]) #}
                 <sim-slider data-display-name="RR" class="yellow">
                     <input
                         type="range"
-                        data-sim-input="respiratory-rate:value"
+                        data-sim-input="respiratory_rate:value"
                         sim-sync
                         type="range"
                         min="0"
@@ -491,15 +516,16 @@ page]) #}
                 </sim-slider>
                 <div class="sim-select yellow" id="capno-picker">
                     <div class="input-label">CAP</div>
-                    <select name="" id="" data-sim-input="capno-trace:value">
-                        <option value="capno-normal">Normal</option>
-                        <option value="capno-obstructed-moderate">
-                            Moderate Obstruction
-                        </option>
-                        <option value="capno-obstructed-severe">
-                            Severe Obstruction
-                        </option>
-                        <option value="flatline">Apnoea</option>
+                    <select
+                        name=""
+                        id=""
+                        data-sim-input="capno_morphology:value"
+                    >
+                        {% for opt in model.SimCapnoMorpology %}
+                            <option value="{{ opt.name }}">
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -514,7 +540,7 @@ page]) #}
                 <input
                     type="checkbox"
                     role="switch"
-                    data-sim-input="enabler-for-ecg:checked"
+                    data-sim-input="enabler_for_ecg:checked"
                     class="sim-input-group-switch green"
                     sim-sync
                 />
@@ -522,21 +548,23 @@ page]) #}
             <div class="sim-input-group-main">
                 <div class="sim-select green">
                     <div class="input-label">ECG</div>
-                    <select data-sim-input="arrest-rhythm:value">
-                        <option value="sinus">PEA</option>
-                        <option value="flatline">Asystole</option>
-                        <hr />
-                        <option value="vfib">Ventricular Fibrillation</option>
-                        <option value="vtach-monomorphic">
-                            Ventricular Tachycardia
-                        </option>
-                        <option value="vtach-torsades">
-                            Torsades de Pointes
-                        </option>
+                    <select data-sim-input="arrest_ecg_morphology:value">
+                        {% for opt in model.SimArrestMorphology %}
+                            <option value="{{ opt.name }}" sim-arrest>
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="flex align-center justify-center">
-                    <button id="cpr-button" class="button dark red"></button>
+                    <input
+                        id="cpr-button"
+                        data-testid="cpr-button"
+                        class="button"
+                        type="checkbox"
+                        data-sim-input="cpr_active:checked"
+                        value="off"
+                    />
                 </div>
             </div>
         </section>
@@ -550,7 +578,7 @@ page]) #}
                 <input
                     type="checkbox"
                     role="switch"
-                    data-sim-input="enabler-for-capno:checked"
+                    data-sim-input="enabler_for_capno:checked"
                     class="sim-input-group-switch yellow"
                     sim-sync
                 />
@@ -559,34 +587,24 @@ page]) #}
                 <div class="sim-select yellow">
                     <div class="input-label">CAP</div>
                     }
-                    <select data-sim-input="arrest-capno:value">
-                        <option value="flatline">Flatline</option>
-                        <hr />
-                        <option value="capno-normal">Normal</option>
-                        <option value="capno-obstructed-moderate">
-                            Moderate Obstruction
-                        </option>
-                        <option value="capno-obstructed-severe">
-                            Severe Obstruction
-                        </option>
+                    <select data-sim-input="arrest_capno_morphology:value">
+                        {% for opt in model.SimCapnoMorpology %}
+                            <option value="{{ opt.name }}">
+                                {{ opt.value }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <sim-slider data-display-name="etCO<sub>2</sub>" class="yellow">
                     <input
                         type="range"
-                        data-sim-input="arrest-etco2:value"
+                        data-sim-input="arrest_etco2:value"
                         type="range"
                         min="0"
                         max="60"
                         value="0"
                     />
                 </sim-slider>
-                <input
-                    type="text"
-                    style="display: none;"
-                    data-sim-input="sim-cpr:value"
-                    value="off"
-                />
             </div>
         </section>
         <section
@@ -604,7 +622,7 @@ page]) #}
                         type="checkbox"
                         role="switch"
                         data-testid="controller-enabler-spo2-mirror"
-                        data-sim-input="enabler-for-spo2:checked"
+                        data-sim-input="enabler_for_spo2:checked"
                         class="blue"
                         sim-sync
                     />
@@ -614,7 +632,7 @@ page]) #}
                     <input
                         type="checkbox"
                         role="switch"
-                        data-sim-input="enabler-for-nibp:checked"
+                        data-sim-input="enabler_for_nibp:checked"
                         class="purple"
                         sim-sync
                     />
@@ -624,7 +642,7 @@ page]) #}
                     <input
                         type="checkbox"
                         role="switch"
-                        data-sim-input="enabler-for-art:checked"
+                        data-sim-input="enabler_for_art:checked"
                         class="red"
                         sim-sync
                     />
@@ -639,7 +657,7 @@ page]) #}
                 <p>Transition Time ⏳</p>
             </header>
 
-            <sim-radiogroup data-sim-input="transition-time">
+            <sim-radiogroup data-sim-input="transition_time">
                 <div class="sim-button-group">
                     <label>
                         Instant

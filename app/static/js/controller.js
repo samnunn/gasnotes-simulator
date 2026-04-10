@@ -42,9 +42,11 @@ document.addEventListener("input", (e) => {
 });
 
 // NON-PERFUSING RHYTHM CHECKER
-let normalEcg = document.querySelector('[data-sim-input^="ecg-rhythm"]');
-let arrestEcg = document.querySelector('[data-sim-input^="arrest-rhythm"]');
-let arrestButton = document.querySelector("#arrest-button");
+let normalEcg = document.querySelector('[data-sim-input^="ecg_morphology"]');
+let arrestEcg = document.querySelector(
+    '[data-sim-input^="arrest_ecg_morphology"]',
+);
+let arrestButton = document.querySelector(`input[value="arrested"]`);
 
 let lastEcgValue = normalEcg.value; // keep track of last non-arrested rhythm choice
 
@@ -54,7 +56,7 @@ normalEcg.addEventListener("change", (e) => {
         let a = confirm(`Initiate cardiac arrest?`);
         if (!a) {
             document
-                .querySelector('[data-sim-input^="heart-rate"]')
+                .querySelector('[data-sim-input^="heart_rate"]')
                 .setAttribute("sim-value", 220);
             return true;
         }
@@ -75,32 +77,22 @@ normalEcg.addEventListener("change", (e) => {
 
 // CPR
 let cprButton = document.querySelector("#cpr-button");
-let cprInput = document.querySelector('[data-sim-input^="sim-cpr"]');
-
-cprButton.addEventListener("click", (e) => {
-    cprButton.classList.toggle("red");
-
-    if (cprButton.classList.contains("red")) {
-        // non-arrested
-        cprInput.value = "off";
-    } else {
-        // arrested
-        cprInput.value = "on";
-    }
+let sendButton = document.querySelector("#send");
+cprButton?.addEventListener("click", (e) => {
+    sendButton.click();
 });
 
 // ARREST SPECIAL CASE
-let normalCapno = document.querySelector('[data-sim-input^="capno-trace"]');
-let arrestCapno = document.querySelector('[data-sim-input^="arrest-capno"]');
-let simModeSwitch = document.querySelector('[data-sim-input^="sim-mode"]');
+let normalCapno = document.querySelector(
+    '[data-sim-input^="capno_morphology"]',
+);
+let arrestCapno = document.querySelector(
+    '[data-sim-input^="arrest_capno_morphology"]',
+);
+let simModeSwitch = document.querySelector('[data-sim-input^="sim_mode"]');
 simModeSwitch.addEventListener("input", (e) => {
     // set mode parameter on body
     // will be picked up by CSS to hide physiologically irrelevant parameters
-    document.body.setAttribute(
-        "sim-mode",
-        simModeSwitch.getAttribute("sim-value"),
-    );
-
     if (e.target.value == "arrested") {
         // carry over non-arrested capno morphology (IF it exists)
         // arrest capno doesn't have all the modes of non-arrest capno
@@ -109,13 +101,8 @@ simModeSwitch.addEventListener("input", (e) => {
         // trigger input event on arrest capno
         // this allows it to disable the etco2 slider according to its own sim-disconnect rules
         arrestCapno.dispatchEvent(new CustomEvent("input", { bubbles: true }));
-    } else {
-        cprInput.value = "off";
-        cprButton.classList.add("red");
     }
 });
-// TODO: render this server-side to avoid FOUC-like appearance of "alive" mode
-document.body.setAttribute("sim-mode", simModeSwitch.getAttribute("sim-value"));
 
 // ABG
 let sendableAbg = document.querySelector("#sendable-abg");

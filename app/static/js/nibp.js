@@ -20,9 +20,7 @@ function updateNibpReadoutWithAnimation(max) {
 
     // get peak value
     let targetSbp = document
-        .querySelector(
-            `[data-sim-parameters="systolic-blood-pressure-noninvasive"]`,
-        )
+        .querySelector(`[data-sim-parameters="sbp_noninvasive"]`)
         .getAttribute("sim-value");
     let peakPressure = (targetSbp * 1.25).toFixed(0);
 

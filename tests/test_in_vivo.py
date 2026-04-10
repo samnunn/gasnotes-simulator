@@ -41,7 +41,7 @@ def test_sending_heart_rate(browser_monitor_controller_pair: tuple[Page, Page]):
 
 def test_gradual_transition(browser_monitor_controller_pair: tuple[Page, Page]):
     monitor, controller = browser_monitor_controller_pair
-    controller.locator("#cardiac").get_by_role("slider").fill("200")
+    controller.get_by_test_id("controller-heart-rate").fill("200")
     controller.get_by_text("30s").click()
     controller.get_by_role("button", name="Send").click()
 
@@ -184,6 +184,35 @@ def test_state_persists_between_refreshes(
     # controller persists after reload
     controller.reload()
     expect(hr_controller).to_have_value("140")
+
+
+def test_controller_cardiac_arrest_modal_works_and_persists_between_refreshes(
+    browser_controller: Page,
+):
+    modebutton_alive = browser_controller.get_by_test_id("button-alive")
+    modebutton_arrested = browser_controller.get_by_test_id("button-arrested")
+    cpr_button = browser_controller.get_by_test_id("cpr-button")
+    send_button = browser_controller.get_by_test_id("send-button")
+
+    expect(modebutton_alive).to_be_checked()
+
+    modebutton_arrested.click()
+    expect(modebutton_arrested).to_be_checked()
+    expect(cpr_button).to_be_visible()
+    send_button.click()
+
+    browser_controller.reload()
+    browser_controller.wait_for_timeout(200)
+    expect(cpr_button).to_be_visible()
+
+    modebutton_alive.click()
+    expect(modebutton_alive).to_be_checked()
+    expect(cpr_button).not_to_be_visible()
+    send_button.click()
+
+    browser_controller.reload()
+    browser_controller.wait_for_timeout(200)
+    expect(cpr_button).not_to_be_visible()
 
 
 # investigation sending

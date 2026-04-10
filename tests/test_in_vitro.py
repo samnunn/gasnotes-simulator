@@ -5,7 +5,7 @@ from flask import Flask, url_for
 from flask.testing import FlaskClient
 
 from app.lib import room_helpers
-from app.lib.state import DEFAULT_DATA
+from app.lib.model import DEFAULT_DATA
 
 
 def test_fixtures_working(test_client: FlaskClient, test_app: Flask):

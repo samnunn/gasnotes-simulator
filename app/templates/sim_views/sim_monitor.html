@@ -562,7 +562,7 @@
             <sim-trace
                 height="200"
                 id="ecg"
-                data-sim-parameters="ecg-rhythm:morphology heart-rate:rate enabler-for-ecg:data-sim-enabled"
+                data-sim-parameters="ecg_morphology:morphology heart_rate:rate enabler_for_ecg:data-sim-enabled"
                 stroke-colour="rgb(76, 209, 55)"
             ></sim-trace>
         </div>
@@ -573,7 +573,7 @@
                 class="green"
                 data-testid="monitor-readout-heart-rate"
                 {# enabling/disabling handled in a special case elsewhere, needs complex logic #}
-                data-sim-parameters="heart-rate"
+                data-sim-parameters="heart_rate"
                 data-sim-wobble-min="0"
                 data-sim-wobble="3"
                 sim-limit-low="50"
@@ -584,7 +584,7 @@
             <sim-trace
                 height="200"
                 id="spo2"
-                data-sim-parameters="spo2-trace:morphology enabler-for-spo2:data-sim-enabled"
+                data-sim-parameters="spo2_morphology:morphology enabler_for_spo2:data-sim-enabled"
                 mode="copycat"
                 pacemaker="ecg"
                 stroke-colour="rgb(0, 168, 255)"
@@ -596,7 +596,7 @@
                 id="readout-spo2"
                 class="blue"
                 data-testid="monitor-readout-spo2"
-                data-sim-parameters="spo2 enabler-for-spo2:data-sim-enabled"
+                data-sim-parameters="spo2 enabler_for_spo2:data-sim-enabled"
                 data-sim-wobble="2"
                 data-sim-wobble-max="100"
                 data-sim-wobble-min="0"
@@ -610,7 +610,7 @@
                 mode="copycat"
                 pacemaker="ecg"
                 stroke-colour="rgb(232, 65, 24)"
-                data-sim-parameters="artline-trace:morphology enabler-for-art:data-sim-enabled"
+                data-sim-parameters="artline_morphology:morphology enabler_for_art:data-sim-enabled"
             ></sim-trace>
         </div>
         <div id="bp-readout">
@@ -619,18 +619,18 @@
                 <sim-readout
                     class="red"
                     data-sim-suffix=" / "
-                    data-sim-parameters="systolic-blood-pressure enabler-for-art:data-sim-enabled"
+                    data-sim-parameters="sbp_invasive enabler_for_art:data-sim-enabled"
                 ></sim-readout>
                 <sim-readout
                     class="red"
-                    data-sim-parameters="diastolic-blood-pressure enabler-for-art:data-sim-enabled"
+                    data-sim-parameters="dbp_invasive enabler_for_art:data-sim-enabled"
                 ></sim-readout>
             </div>
             <sim-readout
                 data-sim-prefix="("
                 data-sim-suffix=")"
                 class="red"
-                data-sim-parameters="mean-arterial-pressure enabler-for-art:data-sim-enabled"
+                data-sim-parameters="map_invasive enabler_for_art:data-sim-enabled"
                 sim-limit-low="60"
                 sim-limit-high="120"
             ></sim-readout>
@@ -642,8 +642,7 @@
                 fill-opacity="0.15"
                 fill-colour="rgb(251, 197, 49)"
                 stroke-colour="rgb(251, 197, 49)"
-                data-sim-parameter="capno-trace respiratory-rate etco2 enabler-for-capno"
-                data-sim-parameters="capno-trace:morphology respiratory-rate:rate etco2:data-scalar enabler-for-capno:data-sim-enabled"
+                data-sim-parameters="capno_morphology:morphology respiratory_rate:rate etco2:data-scalar enabler_for_capno:data-sim-enabled"
                 x-rate="60"
                 y-scale="1"
                 data-scale-min="0.05"
@@ -656,7 +655,7 @@
             <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
             <sim-readout
                 class="yellow"
-                data-sim-parameters="etco2 enabler-for-capno:data-sim-enabled"
+                data-sim-parameters="etco2 enabler_for_capno:data-sim-enabled"
                 sim-transitionable="true"
                 data-sim-wobble="2"
                 data-sim-wobble-min="0"
@@ -684,22 +683,22 @@
                 <sim-readout
                     class="purple"
                     data-testid="readout-nibp-sbp-delayed"
-                    data-sim-delayed-datasource="systolic-blood-pressure-noninvasive"
-                    data-sim-parameters="enabler-for-nibp:data-sim-enabled"
+                    data-sim-delayed-datasource="sbp_noninvasive"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled"
                 ></sim-readout>
                 <sim-readout
                     class="purple"
                     data-sim-prefix=" / "
                     data-testid="readout-nibp-dbp-delayed"
-                    data-sim-delayed-datasource="diastolic-blood-pressure-noninvasive"
-                    data-sim-parameters="enabler-for-nibp:data-sim-enabled"
+                    data-sim-delayed-datasource="dbp_noninvasive"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled"
                 ></sim-readout>
                 <sim-readout
                     class="purple"
                     data-sim-prefix="("
                     data-sim-suffix=")"
-                    data-sim-delayed-datasource="mean-arterial-pressure-noninvasive"
-                    data-sim-parameters="enabler-for-nibp:data-sim-enabled"
+                    data-sim-delayed-datasource="map_noninvasive"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled"
                     sim-limit-low="60"
                     sim-limit-high="120"
                 ></sim-readout>
@@ -707,19 +706,19 @@
             <!-- live-updating -->
             <sim-readout
                 class="purple"
-                data-sim-parameters="systolic-blood-pressure-noninvasive"
+                data-sim-parameters="sbp_noninvasive"
                 hidden
             ></sim-readout>
             <sim-readout
                 data-sim-prefix=" / "
-                data-sim-parameters="diastolic-blood-pressure-noninvasive"
+                data-sim-parameters="dbp_noninvasive"
                 class="purple"
                 hidden
             ></sim-readout>
             <sim-readout
                 data-sim-prefix="("
                 data-sim-suffix=")"
-                data-sim-parameters="mean-arterial-pressure-noninvasive"
+                data-sim-parameters="map_noninvasive"
                 class="purple"
                 hidden
             ></sim-readout>
@@ -729,7 +728,7 @@
             <sim-readout
                 id="rr-readout"
                 class="white"
-                data-sim-parameters="respiratory-rate"
+                data-sim-parameters="respiratory_rate"
                 sim-transitionable="true"
                 data-sim-wobble="1"
                 data-sim-wobble-min="0"

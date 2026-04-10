@@ -136,6 +136,9 @@ code {
 img {
     max-width: 100%;
 }
+img.icon {
+    height: 1.5em;
+}
 
 sub {
     line-height: 0.8;
