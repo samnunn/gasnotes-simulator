@@ -45,6 +45,7 @@ def make_app(config_overrides={}):
     if app.debug:
         assets.cache = False
         assets.manifest = False
+        app.config.update(TEMPLATES_AUTO_RELOAD=True)
 
     # flask-limiter
     app.limiter = Limiter(
