@@ -7,7 +7,7 @@ class SimTransitionSupervisor {
 
     constructor(initial_state) {
         this.INCREMENT_DURATION = 3_000;
-        this.TRANSITIONABLE_ELEMENTS = [
+        this.TRANSITIONABLE_PARAMETERS = [
             "heart_rate",
             "spo2",
             "etco2",
@@ -145,7 +145,7 @@ class SimTransitionSupervisor {
             }
 
             // skip if non-transitionable
-            if (!this.TRANSITIONABLE_ELEMENTS.includes(key)) continue;
+            if (!this.TRANSITIONABLE_PARAMETERS.includes(key)) continue;
 
             // skip when target is unchanged (string comparison is fine here), which will either:
             // - not make a delta (causing an immediate jump to the new target), or
