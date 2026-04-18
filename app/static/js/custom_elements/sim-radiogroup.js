@@ -30,7 +30,9 @@ customElements.define(
             let selectedElement = this.querySelector(
                 'input[type="radio"]:checked',
             );
-            this.setAttribute("sim-value", selectedElement.value);
+            if (selectedElement) {
+                this.setAttribute("sim-value", selectedElement.value);
+            }
         }
 
         attributeChangedCallback(name, oldValue, newValue) {
