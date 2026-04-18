@@ -38,10 +38,14 @@ page]) #}
 
         .sim-input-group,
         sim-mapgroup {
+            margin: 2rem 0;
+
+            /* hacky way to transition to/from auto height */
+            /* replace with calc-size() when browser support is decent */
+            /* part 2 below */
             display: grid;
             grid-template-rows: auto;
             row-gap: 1rem;
-            margin: 2rem 0;
             transition: all 200ms ease;
 
             & header {
@@ -80,6 +84,9 @@ page]) #}
     } */
 
         .sim-input-group:has(input.sim-input-group-switch:not(:checked)) {
+            /* hacky way to transition to/from auto height */
+            /* replace with calc-size() when browser support is decent */
+            /* part 1 above */
             grid-template-rows: 1fr 0 0 0 0 0 0 0;
             gap: 0;
 
@@ -179,11 +186,23 @@ page]) #}
         }
 
         /* LIMITS */
+        div#limits {
+            #limit-hint {
+                display: none;
+                text-align: center;
+                text-wrap: balance;
+            }
+        }
+        div#limits:has(input:invalid) {
+            #limit-hint {
+                display: inline;
+            }
+        }
         div.limit-grid {
             display: grid;
             grid-template-columns: repeat(
                 auto-fill,
-                minmax(min(3rem, 100%), 1fr)
+                minmax(min(4rem, 100%), 1fr)
             );
             gap: 1rem;
             align-items: start;
@@ -196,19 +215,41 @@ page]) #}
             border: 2px solid #222;
             border-radius: 0.5rem;
         }
+        .limit-adjuster {
+            width: 100%;
+            text-align: center;
+        }
+        div.limit-group:has(input:invalid) {
+            border-color: color-mix(in srgb, var(--color-red) 70%, black);
+            input:invalid {
+                color: var(--color-red);
+            }
+        }
         span.limit-label {
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
             display: block;
+            text-align: center;
             width: 100%;
         }
         input.limit {
             font-size: 1.2rem;
+            text-align: center;
             appearance: none;
             background-color: none;
             outline: none;
             border: none;
             border-radius: 0;
+            margin: 0;
+            padding: 0.5rem 0;
+
+            -moz-appearance: textfield;
+        }
+        input.limit::-webkit-outer-spin-button,
+        input.limit::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
         }
     </style>
 
@@ -696,6 +737,61 @@ page]) #}
             </sim-radiogroup>
         </section>
         <section
+            id="limits"
+            class="sim-input-group"
+            {% if data.demo==true %}style="display: none;"{% endif %}
+        >
+            <header>
+                <p>Alarm Limits 🚨</p>
+                {# <input
+                    type="checkbox"
+                    role="switch"
+                    data-sim-input="enabler_for_custom_limits:checked"
+                    class="sim-input-group-switch yellow"
+                /> #}
+            </header>
+            <div class="sim-input-group-main" id="limits">
+                <div class="limit-grid">
+                    {% for data in model.LIMIT_DATA %}
+                        <div class="limit-group">
+                            <div class="limit-adjuster">
+                                <input
+                                    class="limit"
+                                    type="number"
+                                    inputmode="numeric"
+                                    pattern="\d+"
+                                    min="0"
+                                    max="999"
+                                    step="1"
+                                    maxlength="3"
+                                    data-sim-input="{{ data[2] }}:value"
+                                />
+                            </div>
+                            <span class="limit-label {{ data[1] }}"
+                                >{{ data[0] | safe }}</span
+                            >
+                            <div class="limit-adjuster">
+                                <input
+                                    class="limit"
+                                    type="number"
+                                    inputmode="numeric"
+                                    pattern="\d+"
+                                    min="0"
+                                    max="999"
+                                    step="1"
+                                    maxlength="3"
+                                    data-sim-input="{{ data[3] }}:value"
+                                />
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <p id="limit-hint">
+                    Limits must be a number greater than 0 and less than 999.
+                </p>
+            </div>
+        </section>
+        <section
             class="sim-input-group"
             {% if data.demo==true %}style="display: none;"{% endif %}
         >
@@ -745,7 +841,7 @@ page]) #}
                     id="reset-button"
                     class="button dark red"
                 >
-                    Reset
+                    Reset All
                 </button>
             </div>
         </section>

@@ -4,6 +4,7 @@ from typing import Annotated
 from pydantic import (
     BaseModel,
     ConfigDict,
+    Field,
     PlainSerializer,
     StringConstraints,
 )
@@ -77,6 +78,8 @@ EnumNameSerialiser = PlainSerializer(
     lambda e: e.name,
 )
 
+limit_int = Annotated[int, Field(ge=0, le=999)]
+
 
 class SimStateModel(BaseModel):
     sim_mode: Annotated[SimModes, EnumNameSerialiser]
@@ -108,31 +111,44 @@ class SimStateModel(BaseModel):
     enabler_for_art: bool
     enabler_for_capno: bool
 
-    limit_upper_hr: int
-    limit_lower_hr: int
-    limit_upper_spo2: int
-    limit_lower_spo2: int
-    limit_upper_rr: int
-    limit_lower_rr: int
-    limit_upper_etco2: int
-    limit_lower_etco2: int
+    limit_upper_hr: limit_int
+    limit_lower_hr: limit_int
+    limit_upper_spo2: limit_int
+    limit_lower_spo2: limit_int
+    limit_upper_rr: limit_int
+    limit_lower_rr: limit_int
+    limit_upper_etco2: limit_int
+    limit_lower_etco2: limit_int
 
-    limit_upper_sbp_invasive: int
-    limit_lower_sbp_invasive: int
-    limit_upper_dbp_invasive: int
-    limit_lower_dbp_invasive: int
-    limit_upper_map_invasive: int
-    limit_lower_map_invasive: int
+    limit_upper_sbp_invasive: limit_int
+    limit_lower_sbp_invasive: limit_int
+    limit_upper_dbp_invasive: limit_int
+    limit_lower_dbp_invasive: limit_int
+    limit_upper_map_invasive: limit_int
+    limit_lower_map_invasive: limit_int
 
-    limit_upper_sbp_noninvasive: int
-    limit_lower_sbp_noninvasive: int
-    limit_upper_dbp_noninvasive: int
-    limit_lower_dbp_noninvasive: int
-    limit_upper_map_noninvasive: int
-    limit_lower_map_noninvasive: int
+    limit_upper_sbp_noninvasive: limit_int
+    limit_lower_sbp_noninvasive: limit_int
+    limit_upper_dbp_noninvasive: limit_int
+    limit_lower_dbp_noninvasive: limit_int
+    limit_upper_map_noninvasive: limit_int
+    limit_lower_map_noninvasive: limit_int
 
     model_config = ConfigDict(extra="forbid")
 
+
+LIMIT_DATA = [
+    ("HR", "green", "limit_upper_hr", "limit_lower_hr"),
+    ("SpO<sub>2</sub>", "blue", "limit_upper_spo2", "limit_lower_spo2"),
+    ("RR", "white", "limit_upper_rr", "limit_lower_rr"),
+    ("CO<sub>2</sub>", "yellow", "limit_upper_etco2", "limit_lower_etco2"),
+    ("SBP", "red", "limit_upper_sbp_invasive", "limit_lower_sbp_invasive"),
+    ("DBP", "red", "limit_upper_dbp_invasive", "limit_lower_dbp_invasive"),
+    ("MAP", "red", "limit_upper_map_invasive", "limit_lower_map_invasive"),
+    ("SBP", "purple", "limit_upper_sbp_noninvasive", "limit_lower_sbp_noninvasive"),
+    ("DBP", "purple", "limit_upper_dbp_noninvasive", "limit_lower_dbp_noninvasive"),
+    ("MAP", "purple", "limit_upper_map_noninvasive", "limit_lower_map_noninvasive"),
+]
 
 _default_data = {
     "sim_mode": "alive",
@@ -164,18 +180,18 @@ _default_data = {
     "limit_lower_hr": 50,
     "limit_upper_spo2": 100,
     "limit_lower_spo2": 94,
-    "limit_upper_rr": 8,
-    "limit_lower_rr": 20,
-    "limit_upper_etco2": 35,
-    "limit_lower_etco2": 45,
+    "limit_upper_rr": 20,
+    "limit_lower_rr": 8,
+    "limit_upper_etco2": 45,
+    "limit_lower_etco2": 35,
     "limit_upper_sbp_invasive": 160,
-    "limit_lower_sbp_invasive": 100,
+    "limit_lower_sbp_invasive": 90,
     "limit_upper_dbp_invasive": 90,
     "limit_lower_dbp_invasive": 40,
     "limit_upper_map_invasive": 120,
     "limit_lower_map_invasive": 60,
     "limit_upper_sbp_noninvasive": 160,
-    "limit_lower_sbp_noninvasive": 100,
+    "limit_lower_sbp_noninvasive": 90,
     "limit_upper_dbp_noninvasive": 90,
     "limit_lower_dbp_noninvasive": 40,
     "limit_upper_map_noninvasive": 120,

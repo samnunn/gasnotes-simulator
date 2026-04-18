@@ -230,6 +230,13 @@ export function registerMonitorSyncReceiver(socket) {
 export function registerControllerSyncEmitter(socket) {
     let sendButton = document.querySelector("#send");
     sendButton?.addEventListener("click", (e) => {
+        if (_limitStatesAreInvalid()) {
+            alert(
+                "Unable to send because one of the alarm limits was an invalid number.",
+            );
+            return;
+        }
+
         e.preventDefault();
         let message = {
             sim_room_id: document.body.dataset.simRoomId,
@@ -256,6 +263,15 @@ export function registerControllerSyncEmitter(socket) {
     _applySavedStateOnPageload((state) => {
         _applyStateToDomFragment("#controller", "data-sim-input", state);
     });
+}
+
+function _limitStatesAreInvalid() {
+    let invalidLimit = document.querySelector("input.limit:invalid");
+    if (invalidLimit) {
+        invalidLimit.select();
+        return true;
+    }
+    return false;
 }
 
 export function setSimValue(el, attributeName, attributeValue) {
@@ -391,8 +407,8 @@ export function _serialiseStateFromDomFragment(selector, mapAttribute) {
         let [parameterName, attributeName] = parametersString.split(":");
 
         if (states[parameterName] != undefined) {
-            console.error(
-                `Sync: _serialiseStateFromDomFragment found multiple inputs with [${mapAttribute}]*="${parameterName}", skipping (all but the first one)`,
+            console.debug(
+                `Sync: _serialiseStateFromDomFragment found multiple inputs with [${mapAttribute}]*="${parameterName}", skipping (implicitly keeping the first one, though)`,
             );
             continue;
         }

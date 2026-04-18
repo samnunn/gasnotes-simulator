@@ -11,6 +11,7 @@ def make_app(config_overrides={}):
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
     from flask_socketio import SocketIO, emit, join_room
+    from pydantic import ValidationError
     from werkzeug.exceptions import HTTPException
 
     import app.lib.model as model
@@ -250,7 +251,13 @@ def make_app(config_overrides={}):
         # json_data = json.loads(data)
         # sim_room_id = json_data["sim_room_id"]
         # sim_room_id = room_helpers.normalise_room_id(sim_room_id)
-        msg = SimStateMessage.model_validate_json(data)
+        try:
+            msg = SimStateMessage.model_validate_json(data)
+        except ValidationError as e:
+            app.logger.warning(
+                f"🚨 SocketIO got invalid sim data. Passing. Details: {e}"
+            )
+            return
         sim_room_id = msg.sim_room_id
 
         # Only send an update if the sim room exists

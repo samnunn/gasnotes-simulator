@@ -210,6 +210,7 @@ function attachResetButton() {
     }
 
     resetButton.addEventListener("click", (e) => {
+        if (!confirm("Are you sure you want to reset?")) return;
         let newStates = {};
         let staleStates = _serialiseStateFromDomFragment(
             "#controller",
@@ -227,3 +228,18 @@ function attachResetButton() {
     });
 }
 window.addEventListener("load", attachResetButton);
+
+// LIMITS
+function attachAlarmLimitInputListeners() {
+    let inputLimitSection = document.querySelector("section#limits");
+    if (!inputLimitSection) {
+        console.error("Limits: unable to find 'section#limits', aborting");
+        return;
+    }
+
+    inputLimitSection.addEventListener("focusin", (e) => {
+        if (!e.target.matches("input.limit")) return;
+        e.target.select();
+    });
+}
+window.addEventListener("load", attachAlarmLimitInputListeners);
