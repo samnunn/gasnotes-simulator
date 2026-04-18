@@ -1,3 +1,57 @@
+// sim-clicker {
+//     display: flex;
+//     background-color: var(--dark-grey);
+//     border: 2px solid #222;
+//     border-radius: 0.5rem;
+//     overflow: hidden;
+
+//     input[type="number"] {
+//         flex-grow: 1;
+//         font-size: 1.2rem;
+//         appearance: none;
+//         border-radius: 0;
+//         background: none;
+//         border: none;
+//         outline: none;
+//         padding: 0.2rem;
+//         text-align: center;
+//         margin: 0;
+//         -moz-appearance: textfield;
+//     }
+//     input::-webkit-outer-spin-button,
+//     input::-webkit-inner-spin-button {
+//         -webkit-appearance: none;
+//     }
+
+//     button {
+//         appearance: none;
+//         aspect-ratio: 1;
+//         border-radius: 0;
+//         background: #222;
+//         border: none;
+//         outline: none;
+//         padding: 0;
+//         margin: 0;
+//         color: white;
+//         font-size: 1rem;
+//         font-weight: bold;
+//     }
+//     button:hover {
+//         background-color: oklch(from var(--dark-grey) 0.3 c h);
+//     }
+
+//     button:active {
+//         background-color: oklch(from var(--dark-grey) 0.4 c h);
+//     }
+
+//     &:has(input:invalid) {
+//         border-color: color-mix(in srgb, var(--color-red) 70%, black);
+//         input:invalid {
+//             color: var(--color-red);
+//         }
+//     }
+// }
+
 customElements.define(
     "sim-clicker",
     class extends HTMLElement {
