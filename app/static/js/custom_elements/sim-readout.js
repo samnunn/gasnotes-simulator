@@ -14,12 +14,6 @@ customElements.define(
             this.wobble_factor = parseInt(this.dataset.simWobble) || 0;
             this.wobble_min = parseInt(this.dataset.simWobbleMin);
             this.wobble_max = parseInt(this.dataset.simWobbleMax);
-
-            this.limitHigh =
-                parseInt(this.getAttribute("sim-limit-high")) || null;
-            this.limitLow =
-                parseInt(this.getAttribute("sim-limit-low")) || null;
-            this.limitExceded = false;
             this.innerHTML = `
         <span class="readout-value">${this.prefix}--${this.suffix}</span>
         `;
@@ -44,15 +38,20 @@ customElements.define(
         }
 
         checkSafety(proposedValue) {
-            if (!this.limitHigh || !this.limitLow) return;
             let proposedInt = parseInt(proposedValue);
-            if (proposedInt > this.limitHigh || proposedInt < this.limitLow) {
-                this.setAttribute("sim-alarm", "on");
-                this.limitExceded = true;
-            } else {
-                this.setAttribute("sim-alarm", "off");
-                this.limitExceded = false;
+            let limitHigh = parseInt(this.dataset.simLimitHigh);
+            let limitLow = parseInt(this.dataset.simLimitLow);
+            let alarm = false;
+
+            if (!isNaN(limitHigh) && proposedInt > limitHigh) {
+                alarm = true;
             }
+
+            if (!isNaN(limitLow) && proposedInt < limitLow) {
+                alarm = true;
+            }
+
+            this.setAttribute("sim-alarm", alarm ? "on" : "off");
         }
 
         wobble() {
@@ -95,16 +94,27 @@ customElements.define(
         attributeChangedCallback(name, oldValue, newValue) {
             if (name == "data-sim-wobble") {
                 this.wobble_factor = parseInt(newValue) || 0;
+            } else if (
+                name == "data-sim-limit-low" ||
+                name == "data-sim-limit-high"
+            ) {
+                this.updateReadout();
             } else {
                 if (newValue != oldValue) {
-                    // prevent transitions from over-writing wobble
-                    this.updateReadout();
+                    // prevents transitions from over-writing wobble when they (not-quite-idempotently) set the same value a few times in a row
+                    this.updateReadout(newValue);
                 }
             }
         }
 
         static get observedAttributes() {
-            return ["sim-value", "data-sim-enabled", "data-simwobble"];
+            return [
+                "sim-value",
+                "data-sim-enabled",
+                "data-simwobble",
+                "data-sim-limit-low",
+                "data-sim-limit-high",
+            ];
         }
     },
 );
