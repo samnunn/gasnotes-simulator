@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 from flask import current_app
 from webassets.filter import Filter
@@ -9,9 +10,13 @@ class ESBuildFilter(Filter):
     name = "esbuild"
 
     def input(self, _in, out, **kwargs):
+        esbuild_path = (
+            Path(current_app.root_path).parent / "node_modules" / ".bin" / "esbuild"
+        )
+
         working_dir = os.path.dirname(kwargs["source_path"])
 
-        cmd = ["esbuild", kwargs["source_path"], "--bundle"]
+        cmd = [esbuild_path, kwargs["source_path"], "--bundle"]
 
         if current_app.debug:
             cmd += ["--define:DEBUG=true"]

@@ -2,10 +2,13 @@
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS base
 WORKDIR /simulator
 EXPOSE 8069
+
 RUN apt-get update \
-&& apt-get install -y --no-install-recommends nodejs npm curl \
-&& npm install -g esbuild \
+&& apt-get install -y --no-install-recommends nodejs npm \
 && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY uv.lock pyproject.toml .python-version .
 RUN uv sync --frozen
 
