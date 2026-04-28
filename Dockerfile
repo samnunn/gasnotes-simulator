@@ -4,7 +4,7 @@ WORKDIR /simulator
 EXPOSE 8069
 
 RUN apt-get update \
-&& apt-get install -y --no-install-recommends nodejs npm \
+&& apt-get install -y --no-install-recommends nodejs npm curl \
 && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
