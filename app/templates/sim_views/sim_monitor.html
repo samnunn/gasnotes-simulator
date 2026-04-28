@@ -573,7 +573,7 @@
                 class="green"
                 data-testid="monitor-readout-heart-rate"
                 {# enabling/disabling handled in a special case elsewhere, needs complex logic #}
-                data-sim-parameters="heart_rate limit_lower_hr:sim-limit-low limit_upper_hr:sim-limit-high"
+                data-sim-parameters="heart_rate limit_lower_hr:data-sim-limit-low limit_upper_hr:data-sim-limit-high"
                 data-sim-wobble-min="0"
                 data-sim-wobble="3"
             ></sim-readout>
@@ -594,7 +594,7 @@
                 id="readout-spo2"
                 class="blue"
                 data-testid="monitor-readout-spo2"
-                data-sim-parameters="spo2 enabler_for_spo2:data-sim-enabled limit_lower_spo2:sim-limit-low limit_upper_spo2:sim-limit-high"
+                data-sim-parameters="spo2 enabler_for_spo2:data-sim-enabled limit_lower_spo2:data-sim-limit-low limit_upper_spo2:data-sim-limit-high"
                 data-sim-wobble="2"
                 data-sim-wobble-max="100"
                 data-sim-wobble-min="0"
@@ -615,18 +615,18 @@
                 <sim-readout
                     class="red"
                     data-sim-suffix=" / "
-                    data-sim-parameters="sbp_invasive enabler_for_art:data-sim-enabled limit_lower_sbp_invasive:sim-limit-low limit_upper_sbp_invasive:sim-limit-high"
+                    data-sim-parameters="sbp_invasive enabler_for_art:data-sim-enabled limit_lower_sbp_invasive:data-sim-limit-low limit_upper_sbp_invasive:data-sim-limit-high"
                 ></sim-readout>
                 <sim-readout
                     class="red"
-                    data-sim-parameters="dbp_invasive enabler_for_art:data-sim-enabled limit_lower_dbp_invasive:sim-limit-low limit_upper_dbp_invasive:sim-limit-high"
+                    data-sim-parameters="dbp_invasive enabler_for_art:data-sim-enabled limit_lower_dbp_invasive:data-sim-limit-low limit_upper_dbp_invasive:data-sim-limit-high"
                 ></sim-readout>
             </div>
             <sim-readout
                 data-sim-prefix="("
                 data-sim-suffix=")"
                 class="red"
-                data-sim-parameters="map_invasive enabler_for_art:data-sim-enabled limit_lower_map_invasive:sim-limit-low limit_upper_map_invasive:sim-limit-high"
+                data-sim-parameters="map_invasive enabler_for_art:data-sim-enabled limit_lower_map_invasive:data-sim-limit-low limit_upper_map_invasive:data-sim-limit-high"
             ></sim-readout>
         </div>
         <div>
@@ -649,7 +649,7 @@
             <p class="readout-label">etCO<sub>2</sub> (mmHg)</p>
             <sim-readout
                 class="yellow"
-                data-sim-parameters="etco2 enabler_for_capno:data-sim-enabled limit_lower_etco2:sim-limit-low limit_upper_etco2:sim-limit-high"
+                data-sim-parameters="etco2 enabler_for_capno:data-sim-enabled limit_lower_etco2:data-sim-limit-low limit_upper_etco2:data-sim-limit-high"
                 sim-transitionable="true"
                 data-sim-wobble="2"
                 data-sim-wobble-min="0"
@@ -676,21 +676,21 @@
                     class="purple"
                     data-testid="readout-nibp-sbp-delayed"
                     data-sim-delayed-datasource="sbp_noninvasive"
-                    data-sim-parameters="enabler_for_nibp:data-sim-enabled  limit_lower_sbp_noninvasive:sim-limit-low limit_upper_sbp_noninvasive:sim-limit-high"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled limit_lower_sbp_noninvasive:data-sim-limit-low limit_upper_sbp_noninvasive:data-sim-limit-high"
                 ></sim-readout>
                 <sim-readout
                     class="purple"
                     data-sim-prefix=" / "
                     data-testid="readout-nibp-dbp-delayed"
                     data-sim-delayed-datasource="dbp_noninvasive"
-                    data-sim-parameters="enabler_for_nibp:data-sim-enabled limit_lower_dbp_noninvasive:sim-limit-low limit_upper_dbp_noninvasive:sim-limit-high"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled limit_lower_dbp_noninvasive:data-sim-limit-low limit_upper_dbp_noninvasive:data-sim-limit-high"
                 ></sim-readout>
                 <sim-readout
                     class="purple"
                     data-sim-prefix="("
                     data-sim-suffix=")"
                     data-sim-delayed-datasource="map_noninvasive"
-                    data-sim-parameters="enabler_for_nibp:data-sim-enabled limit_lower_map_noninvasive:sim-limit-low limit_upper_map_noninvasive:sim-limit-high"
+                    data-sim-parameters="enabler_for_nibp:data-sim-enabled limit_lower_map_noninvasive:data-sim-limit-low limit_upper_map_noninvasive:data-sim-limit-high"
                 ></sim-readout>
             </div>
             <!-- live-updating -->
@@ -718,7 +718,7 @@
             <sim-readout
                 id="rr-readout"
                 class="white"
-                data-sim-parameters="respiratory_rate limit_lower_rr:sim-limit-low limit_upper_rr:sim-limit-high"
+                data-sim-parameters="respiratory_rate limit_lower_rr:data-sim-limit-low limit_upper_rr:data-sim-limit-high"
                 sim-transitionable="true"
                 data-sim-wobble="1"
                 data-sim-wobble-min="0"
