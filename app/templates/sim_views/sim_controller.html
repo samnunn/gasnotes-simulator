@@ -691,54 +691,9 @@ page]) #}
             </div>
         </section>
         <section
-            class="sim-input-group"
-            {% if data.demo==true %}style="display: none;"{% endif %}
-        >
-            <header>
-                <p>Transition Time ⏳</p>
-            </header>
-
-            <sim-radiogroup data-sim-input="transition_time">
-                <div class="sim-button-group">
-                    <label>
-                        Instant
-                        <input
-                            type="radio"
-                            name="sim-transition-time"
-                            value="0"
-                            checked
-                        />
-                    </label>
-                    <label>
-                        30s
-                        <input
-                            type="radio"
-                            name="sim-transition-time"
-                            value="30000"
-                        />
-                    </label>
-                    <label>
-                        1m
-                        <input
-                            type="radio"
-                            name="sim-transition-time"
-                            value="60000"
-                        />
-                    </label>
-                    <label>
-                        3m
-                        <input
-                            type="radio"
-                            name="sim-transition-time"
-                            value="180000"
-                        />
-                    </label>
-                </div>
-            </sim-radiogroup>
-        </section>
-        <section
             id="limits"
             class="sim-input-group"
+            sim-hide-if="arrested"
             {% if data.demo==true %}style="display: none;"{% endif %}
         >
             <header>
@@ -790,6 +745,52 @@ page]) #}
                     Limits must be a number greater than 0 and less than 999.
                 </p>
             </div>
+        </section>
+        <section
+            class="sim-input-group"
+            {% if data.demo==true %}style="display: none;"{% endif %}
+        >
+            <header>
+                <p>Transition Time ⏳</p>
+            </header>
+
+            <sim-radiogroup data-sim-input="transition_time">
+                <div class="sim-button-group">
+                    <label>
+                        Instant
+                        <input
+                            type="radio"
+                            name="sim-transition-time"
+                            value="0"
+                            checked
+                        />
+                    </label>
+                    <label>
+                        30s
+                        <input
+                            type="radio"
+                            name="sim-transition-time"
+                            value="30000"
+                        />
+                    </label>
+                    <label>
+                        1m
+                        <input
+                            type="radio"
+                            name="sim-transition-time"
+                            value="60000"
+                        />
+                    </label>
+                    <label>
+                        3m
+                        <input
+                            type="radio"
+                            name="sim-transition-time"
+                            value="180000"
+                        />
+                    </label>
+                </div>
+            </sim-radiogroup>
         </section>
         <section
             class="sim-input-group"
