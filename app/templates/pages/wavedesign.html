@@ -18,8 +18,25 @@
         <h1>Wave Tester</h1>
         <form id="wavegen-form" action="">
             <select name="wave" id="">
-                <option value="sinus">Sinus</option>
-                <option value="spo2">Spo2</option>
+                {% for opt in model.SimEcgMorhology %}
+                    <option value="{{ opt.name }}">{{ opt.value }}</option>
+                {% endfor %}
+                <hr />
+                {% for opt in model.SimArrestMorphology %}
+                    <option value="{{ opt.name }}">{{ opt.value }}</option>
+                {% endfor %}
+                <hr />
+                {% for opt in model.SimPlethMorphology %}
+                    <option value="{{ opt.name }}">{{ opt.value }}</option>
+                {% endfor %}
+                <hr />
+                {% for opt in model.SimArtMorphology %}
+                    <option value="{{ opt.name }}">{{ opt.value }}</option>
+                {% endfor %}
+                <hr />
+                {% for opt in model.SimCapnoMorpology %}
+                    <option value="{{ opt.name }}">{{ opt.value }}</option>
+                {% endfor %}
             </select>
             <select name="colour" id="">
                 <option value="green">Green</option>
